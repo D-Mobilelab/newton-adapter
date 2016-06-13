@@ -1,5 +1,11 @@
-var greetingOne = Animals.dog.hello('bobby');
-document.getElementById('blackboard').innerHTML = '<p>' + greetingOne + '</p>';
+NewtonAdapter.init({
+	secretId: '123456789',
+	enable: true,
+	waitLogin: true
+});
 
-var greetingTwo = Animals.cat.hello('fuffi');
-document.getElementById('blackboard').innerHTML += '<p>' + greetingTwo + '</p>';
+NewtonAdapter.trackEvent();
+
+NewtonAdapter.customLogin({
+	logged: true
+});
