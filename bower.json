@@ -1,0 +1,31 @@
+{
+  "name": "newton-adapter",
+  "version": "0.0.0",
+  "authors": [
+    "aurelio.merenda@buongiorno.com",
+    "fabio.fognani@buongiorno.com",
+    "lorenzo.mussi@buongiorno.com",
+    "flavia.calzecchi@buongiorno.com"
+  ],
+  "description": "newton-adapter description",
+  "main": [],
+  "moduleType": [
+    "globals"
+  ],
+  "keywords": [
+    "js",
+    "buongiorno",
+    "d-mobile lab"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/*",
+    "!dist/**/*",
+    "!src/**/*",
+    "!CHANGELOG",
+    "!README.md",
+    "!bower.json"
+  ],
+  "dependencies": {},
+  "devDependencies": {}
+}
