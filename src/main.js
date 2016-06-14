@@ -9,22 +9,7 @@ var PromiseLite = require('../node_modules/promiselite/src/promiselite.js');
 */
 var NewtonAdapter = new function(){
 
-    var newtonInstance, logger;
-    var enablePromise = new PromiseLite(); 
-    var initPromise = new PromiseLite(); 
-    var loginPromise = new PromiseLite(); 
-    
-    enablePromise.fail(function(){
-        logger.warn('Newton not enabled');
-    });
-
-    initPromise.fail(function(){
-        logger.warn('Newton not initialized');
-    });
-
-    loginPromise.fail(function(){
-        logger.warn('Newton login not called');
-    });
+    var newtonInstance, logger, enablePromise, initPromise, loginPromise;
 
     /**
     * @ngdoc function
@@ -49,6 +34,20 @@ var NewtonAdapter = new function(){
     * </pre>
     */
     this.init = function(options){
+        // init promises
+        enablePromise = new PromiseLite(); 
+        initPromise = new PromiseLite(); 
+        loginPromise = new PromiseLite(); 
+        enablePromise.fail(function(){
+            logger.warn('Newton not enabled');
+        });
+        initPromise.fail(function(){
+            logger.warn('Newton not initialized');
+        });
+        loginPromise.fail(function(){
+            logger.warn('Newton login not called');
+        });
+
         // get logger
         if (options.logger){
             logger = options.logger;
