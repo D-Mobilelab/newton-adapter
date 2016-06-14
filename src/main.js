@@ -141,13 +141,16 @@ var NewtonAdapter = new function(){
 		});
 	*/
 	this.trackPageview = function(options){
-		options.name = "pageview";
+		if(!options){
+			options = {};
+		}
 		if(!options.properties){
 			options.properties = {};
 		}
 		if(!options.properties.url){
 			options.properties.url = window.location.href;
 		}
+		options.name = "pageview";
 		this.trackEvent(options);
 	};
 
@@ -163,7 +166,7 @@ var NewtonAdapter = new function(){
 	this.startHeartbeat = function(options){
 		loginPromise.then(function(){
 			logger.log('NewtonAdapter', 'startHeartbeat', options);
-			Newton.getSharedInstance().timedEventStart(options.name, createSimpleObject(options.properties));
+			newtonInstance.timedEventStart(options.name, createSimpleObject(options.properties));
 		});
 	};
 
@@ -178,7 +181,7 @@ var NewtonAdapter = new function(){
 	*/
 	this.stopHeartbeat = function(options){
 		loginPromise.then(function(){
-			Newton.getSharedInstance().timedEventStop(options.name, createSimpleObject(options.properties));
+			newtonInstance.timedEventStop(options.name, createSimpleObject(options.properties));
 			logger.log('NewtonAdapter', 'stopHeartbeat', options);
 		});
 	};
