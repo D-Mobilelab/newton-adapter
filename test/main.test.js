@@ -99,6 +99,57 @@ describe('init -', function(){
             expect(NewtonMock.timedEventStop).toHaveBeenCalled();
         });
     });
+
+    describe('enable: false - ', function(){
+        beforeEach(function(){
+            NewtonAdapter.init({
+                secretId: '<local_host>',
+                enable: false,
+                waitLogin: false
+            });
+        });
+
+        it('trackEvent doesn\'t run anything', function(){
+            NewtonAdapter.trackEvent('Play');
+            expect(NewtonMock.sendEvent).not.toHaveBeenCalled();
+        });
+
+        it('startHeartbeat doesn\'t run anything', function(){
+            NewtonAdapter.startHeartbeat('Play');
+            expect(NewtonMock.timedEventStart).not.toHaveBeenCalled();
+        });
+
+        it('stopHeartbeat doesn\'t run anything', function(){
+            NewtonAdapter.stopHeartbeat('Play');
+            expect(NewtonMock.timedEventStop).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('custom logger -', function(){
+        var customLogger;
+
+        beforeEach(function(){
+            customLogger = { 
+                debug: function(){},
+                log: function(){},
+                info: function(){},
+                warn: function(){},
+                error: function(){}
+            };
+            spyOn(customLogger, 'log');
+
+            NewtonAdapter.init({
+                secretId: '<local_host>',
+                enable: true,
+                waitLogin: false,
+                logger: customLogger
+            });
+        });
+
+        it('log have been called from init', function(){
+            expect(customLogger.log).toHaveBeenCalled();
+        });
+    });
 });
 
 
