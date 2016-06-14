@@ -49,7 +49,7 @@
     "karma-phantomjs-launcher": "^0.2.1",
     "load-grunt-tasks": "^3.2.0",
     "phantomjs": "^1.9.18",
-    "promiselite": "^1.1.0",
+    "promiselite": "^1.1.2",
     "watchify": "^3.7.0"
   },
   "engines": {

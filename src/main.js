@@ -65,7 +65,9 @@ var NewtonAdapter = new function(){
 			if(options.logged){
 				Newton.getSharedInstance().getLoginBuilder()
 	            .setCustomData()
-	            .setOnFlowCompleteCallback(loginPromise.resolve)
+	            .setOnFlowCompleteCallback(function(){
+	            	loginPromise.resolve
+	            })
 	            .setCustomID()
 	            .getCustomLoginFlow()
 	            .startLoginFlow();
