@@ -48,7 +48,12 @@ var PrivatePromise = function(executor, nextProm, resolveMaxTimes){
         return PROMISE_STATUS[promiseStatusIndex];
     }
 
-    var immediatelyFulfill = function(success, error, deferred){
+    var immediatelyFulfill = function(success, error){        
+        var deferred = next.slice(1, next.length);
+
+        if (error == undefined){
+            error = PASS;
+        }
 
         return new PrivatePromise(function(res, rej){
             try {
@@ -57,7 +62,7 @@ var PrivatePromise = function(executor, nextProm, resolveMaxTimes){
                 // if we're trying to pass the error to the next node of the chain
                 // but the next node of the chain is undefined
                 // throw error, otherwise pass it forward through the chain
-                if (error == PASS && (!deferred || deferred.length == 0)){
+                if (error == PASS && deferred.length == 0){
                     throw err;
                 } else {
                     rej(error(err));   
@@ -67,13 +72,18 @@ var PrivatePromise = function(executor, nextProm, resolveMaxTimes){
 
     }
 
-    var immediatelyReject = function(error, deferred){
+    var immediatelyReject = function(error){
+        if (error == undefined){
+            error = PASS;
+        }
+        
+        var deferred = next.slice(1, next.length);
 
         return new PrivatePromise(function(res, rej){
             try {
                 rej(error(getReason()));
             } catch (err){
-                if (!deferred || deferred.length == 0){
+                if (deferred.length == 0){
                     throw err;
                 } else {
                     rej(PASS(err));   
@@ -98,11 +108,10 @@ var PrivatePromise = function(executor, nextProm, resolveMaxTimes){
 
         if (next.length > 0){
             var toDo = next[0];
-            var deferred = next.slice(1, next.length);
             if (toDo.onSuccess === toDo.onError){
                 toDo.onError = PASS;
             }
-            return immediatelyFulfill(toDo.onSuccess, toDo.onError, deferred);   
+            return immediatelyFulfill(toDo.onSuccess, toDo.onError);   
         }
     }
     this.reject = function(reason){
@@ -114,8 +123,7 @@ var PrivatePromise = function(executor, nextProm, resolveMaxTimes){
 
         if (next.length > 0){
             var toDo = next[0];
-            var deferred = next.slice(1, next.length);
-            return immediatelyReject(toDo.onError, deferred);
+            return immediatelyReject(toDo.onError);
         }
     }
 
@@ -297,7 +305,13 @@ var NewtonAdapter = new function(){
 		if (options.logger){
 			logger = options.logger;
 		} else {
-			logger = console;
+			logger = { 
+				debug: function(){},
+				log: function(){},
+				info: function(){},
+				warn: function(){},
+				error: function(){}
+			};
 		}
 
 		// check if enabled
@@ -316,57 +330,84 @@ var NewtonAdapter = new function(){
 		enablePromise.then(function(){
 			newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId);
 			initPromise.resolve();
+			logger.log('NewtonAdapter', 'Init', options);
 		});
 	};
-	this.customLogin = function(options){
+
+
+	var createSimpleObject = function(object){
+		object = object || {};
+		return Newton.SimpleObject.fromJSONObject(object);
+	}
+	this.login = function(options){
+		var loginCallback = function(){
+			try {
+				if(options.callback){ options.callback.call(); }
+	            logger.log('NewtonAdapter', 'Login', options);
+	            loginPromise.resolve();
+			} catch(err) {
+				logger.error('NewtonAdapter', 'Login', err);
+				loginPromise.reject();
+			}
+		}
+
 		initPromise.then(function(){
-			console.log('login');
-			if(options.logged){
-				Newton.getSharedInstance().getLoginBuilder()
-	            .setCustomData()
-	            .setOnFlowCompleteCallback(loginPromise.resolve)
-	            .setCustomID()
-	            .getCustomLoginFlow()
-	            .startLoginFlow();
+			if(options.logged && !newtonInstance.isUserLogged()){
+				if(options.type == 'external'){
+					newtonInstance.getLoginBuilder()
+					.setCustomData( createSimpleObject(options.userProperties) )
+					.setOnFlowCompleteCallback(loginCallback)
+					.setExternalID(options.userId)
+					.getExternalLoginFlow()
+					.startLoginFlow();
+				} else {
+					newtonInstance.getLoginBuilder()
+		            .setCustomData(userProperties)
+		            .setOnFlowCompleteCallback(loginCallback)
+		            .setCustomID(options.userId)
+		            .getCustomLoginFlow()
+		            .startLoginFlow();
+		        }
 			} else {
-				loginPromise.resolve();
+	            loginCallback();
 			}
 		});
-	};
 
-	this.externalLogin = function(options){
-
-	};
-
-	this.trackEvent = function(){
+		return loginPromise;
+	}
+	this.trackEvent = function(options){
 		loginPromise.then(function(){
-			// ...
-			console.log('trackEvent');
+			newtonInstance.sendEvent(options.name, createSimpleObject(options.properties));
+			logger.log('NewtonAdapter', 'trackEvent', options.name, options.properties);
 		});
 	};
-
-	this.trackPageView = function(){
+	this.trackPageview = function(options){
+		options.name = "pageview";
+		if(!options.properties){
+			options.properties = {};
+		}
+		if(!options.properties.url){
+			options.properties.url = window.location.href;
+		}
+		this.trackEvent(options);
+	};
+	this.startHeartbeat = function(options){
 		loginPromise.then(function(){
-			// ...
+			logger.log('NewtonAdapter', 'startHeartbeat', options);
+			Newton.getSharedInstance().timedEventStart(options.name, createSimpleObject(options.properties));
 		});
 	};
-
-	this.startHeartbeat = function(){
+	this.stopHeartbeat = function(options){
 		loginPromise.then(function(){
-			// ...
+			Newton.getSharedInstance().timedEventStop(options.name, createSimpleObject(options.properties));
+			logger.log('NewtonAdapter', 'stopHeartbeat', options);
 		});
 	};
-
-	this.stopHeartbeat = function(){
-		loginPromise.then(function(){
-			// ...
-		});
-	};
-
 	this.isLogged = function(){
-		loginPromise.then(function(){
-			// ...
-		});
+		if (!loginPromise.isSettled()){
+			return false;
+		}
+		return Newton.getSharedInstance().isUserLogged();
 	};
 };
 

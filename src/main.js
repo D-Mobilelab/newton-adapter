@@ -32,7 +32,13 @@ var NewtonAdapter = new function(){
 		if (options.logger){
 			logger = options.logger;
 		} else {
-			logger = console;
+			logger = { 
+				debug: function(){},
+				log: function(){},
+				info: function(){},
+				warn: function(){},
+				error: function(){}
+			};
 		}
 
 		// check if enabled
@@ -51,65 +57,140 @@ var NewtonAdapter = new function(){
 		enablePromise.then(function(){
 			newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId);
 			initPromise.resolve();
+			logger.log('NewtonAdapter', 'Init', options);
+		});
+	};
+
+
+	var createSimpleObject = function(object){
+		object = object || {};
+		return Newton.SimpleObject.fromJSONObject(object);
+	}
+
+	/*
+		NewtonAdapter.login({
+			logged: true,				// is user logged?
+			type: 'external'			// 'external' or 'custom'
+			userId: '123456789',		// obbligatorio per utente loggato
+										// (chiedere ai newtoniani)
+			userProperties: {
+				msisdn: '+39123456789',
+				type: 'freemium'
+			}
+		}).then(function(){
+			console.log('login ok');
+		});
+	*/
+	this.login = function(options){
+		var loginCallback = function(){
+			try {
+				if(options.callback){ options.callback.call(); }
+	            logger.log('NewtonAdapter', 'Login', options);
+	            loginPromise.resolve();
+			} catch(err) {
+				logger.error('NewtonAdapter', 'Login', err);
+				loginPromise.reject();
+			}
+		}
+
+		initPromise.then(function(){
+			if(options.logged && !newtonInstance.isUserLogged()){
+				if(options.type == 'external'){
+					newtonInstance.getLoginBuilder()
+					.setCustomData( createSimpleObject(options.userProperties) )
+					.setOnFlowCompleteCallback(loginCallback)
+					.setExternalID(options.userId)
+					.getExternalLoginFlow()
+					.startLoginFlow();
+				} else {
+					newtonInstance.getLoginBuilder()
+		            .setCustomData(userProperties)
+		            .setOnFlowCompleteCallback(loginCallback)
+		            .setCustomID(options.userId)
+		            .getCustomLoginFlow()
+		            .startLoginFlow();
+		        }
+			} else {
+	            loginCallback();
+			}
+		});
+
+		return loginPromise;
+	}
+
+	/*
+		NewtonAdapter.trackEvent({
+			name: 'Play',
+			properties: {
+				category: 'Game',
+				content: 'Fruit Slicer'
+			}
+		});
+	*/
+	this.trackEvent = function(options){
+		loginPromise.then(function(){
+			newtonInstance.sendEvent(options.name, createSimpleObject(options.properties));
+			logger.log('NewtonAdapter', 'trackEvent', options.name, options.properties);
 		});
 	};
 
 	/*
-		NewtonAdapter.customLogin({
-			logged: true				// is user logged?
+		NewtonAdapter.trackPageview({
+			title: 'Fruit Page',
+			url: 'http://www.google.it'
 		});
 	*/
-	this.customLogin = function(options){
-		initPromise.then(function(){
-			console.log('login');
-			if(options.logged){
-				Newton.getSharedInstance().getLoginBuilder()
-	            .setCustomData()
-	            .setOnFlowCompleteCallback(function(){
-	            	loginPromise.resolve
-	            })
-	            .setCustomID()
-	            .getCustomLoginFlow()
-	            .startLoginFlow();
-			} else {
-				loginPromise.resolve();
+	this.trackPageview = function(options){
+		options.name = "pageview";
+		if(!options.properties){
+			options.properties = {};
+		}
+		if(!options.properties.url){
+			options.properties.url = window.location.href;
+		}
+		this.trackEvent(options);
+	};
+
+	/*
+		NewtonAdapter.startHeartbeat({
+			name: 'Playing',
+			properties: {
+				category: 'Game',
+				content: 'Fruit Slicer'
 			}
 		});
-	};
-
-	this.externalLogin = function(options){
-
-	};
-
-	this.trackEvent = function(){
+	*/
+	this.startHeartbeat = function(options){
 		loginPromise.then(function(){
-			// ...
-			console.log('trackEvent');
+			logger.log('NewtonAdapter', 'startHeartbeat', options);
+			Newton.getSharedInstance().timedEventStart(options.name, createSimpleObject(options.properties));
 		});
 	};
 
-	this.trackPageView = function(){
+	/*
+		NewtonAdapter.stopHeartbeat({
+			name: 'Playing',
+			properties: {
+				category: 'Game',
+				content: 'Fruit Slicer'
+			}
+		});
+	*/
+	this.stopHeartbeat = function(options){
 		loginPromise.then(function(){
-			// ...
+			Newton.getSharedInstance().timedEventStop(options.name, createSimpleObject(options.properties));
+			logger.log('NewtonAdapter', 'stopHeartbeat', options);
 		});
 	};
 
-	this.startHeartbeat = function(){
-		loginPromise.then(function(){
-			// ...
-		});
-	};
-
-	this.stopHeartbeat = function(){
-		loginPromise.then(function(){
-			// ...
-		});
-	};
-
+	/*
+		NewtonAdapter.isLogged();
+	*/
 	this.isLogged = function(){
-		loginPromise.then(function(){
-			// ...
-		});
+		if (!loginPromise.isSettled()){
+			return false;
+		}
+		return Newton.getSharedInstance().isUserLogged();
 	};
 };
 
