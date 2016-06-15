@@ -1,0 +1,2 @@
+** 1.0.0 **
+- init, login, trackEvent, trackPageview, rankContent, startHeartbeat, stopHeartbeat, isUserLogged methods; waitLogin feature; compatible with Newton 2.2

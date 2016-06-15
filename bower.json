@@ -1,21 +1,11 @@
 {
   "name": "newton-adapter",
-  "version": "0.0.0",
-  "authors": [
-    "aurelio.merenda@buongiorno.com",
-    "fabio.fognani@buongiorno.com",
-    "lorenzo.mussi@buongiorno.com",
-    "flavia.calzecchi@buongiorno.com"
+  "description": "A light adapter for Newton library, for tracking and authentication",
+  "main": [
+    "dist/dist.js"
   ],
-  "description": "newton-adapter description",
-  "main": [],
   "moduleType": [
     "globals"
-  ],
-  "keywords": [
-    "js",
-    "buongiorno",
-    "d-mobile lab"
   ],
   "license": "MIT",
   "ignore": [
@@ -26,8 +16,27 @@
     "!README.md",
     "!bower.json"
   ],
+  "keywords": [
+    "newton",
+    "tracking",
+    "authentication"
+  ],
+  "authors": [
+    "Aurelio Merenda <aurelio.merenda@buongiorno.com>",
+    "Fabio Fognani <fabio.fognani@buongiorno.com>"
+  ],
+  "authors": [
+    { "name": "Aurelio Merenda", "email": "aurelio.merenda@buogiorno.com" },
+    { "name": "Fabio Fognani", "email": "fabio.fognani@buongiorno.com" }
+  ],
+  "homepage": "https://github.com/D-Mobilelab/newton-adapter",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/D-Mobilelab/newton-adapter.git"
+  },
   "dependencies": {
     "promiselite": "1.1.2"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "private": false
 }

@@ -1,21 +1,27 @@
 {
   "name": "newton-adapter",
-  "version": "0.0.0",
-  "author": [],
-  "description": "",
-  "keywords": [],
-  "license": "MIT",
-  "repository": {},
+  "version": "1.0.0",
+  "description": "A light adapter for Newton library, for tracking and authentication",
+  "keywords": [
+    "newton",
+    "tracking",
+    "authentication"
+  ],
+  "homepage": "https://github.com/D-Mobilelab/newton-adapter",
   "bugs": {
-    "url": "https://github.com/D-Mobilelab/boilerplate/issues"
+    "url": "https://github.com/D-Mobilelab/newton-adapter/issues"
   },
-  "homepage": "https://github.com/D-Mobilelab/boilerplate#readme",
+  "license": "MIT",
+  "contributors": [
+    { "name": "Aurelio Merenda", "email": "aurelio.merenda@buogiorno.com" },
+    { "name": "Fabio Fognani", "email": "fabio.fognani@buongiorno.com" }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/D-Mobilelab/newton-adapter.git"
+  },
+  "scripts": {},
   "dependencies": {},
-  "browserify": {
-    "src": "main.js",
-    "dist": "dist.js",
-    "global": "NewtonAdapter"
-  },
   "devDependencies": {
     "babel-eslint": "^4.1.4",
     "browserify": "^13.0.1",
@@ -54,5 +60,10 @@
   "engines": {
     "node": "0.10.25"
   },
-  "scripts": {}
+  "private": false,
+  "browserify": {
+    "src": "main.js",
+    "dist": "dist.js",
+    "global": "NewtonAdapter"
+  },
 }
