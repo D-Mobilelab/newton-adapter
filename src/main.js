@@ -152,12 +152,26 @@ var NewtonAdapter = new function(){
     };
 
 
-    /*
-        NewtonAdapter.rankContent({
-            contentId: '123456777',
-            scope: 'social',
-            score: 4
-        });
+    /**
+    * @ngdoc function
+    * @name rankContent
+    * @methodOf NewtonAdapter
+    *
+    * @description performs content ranking via Newton sdk
+    *
+    * @param {Object} options configuration object
+    * @param {string} contentId unique identifier of the content
+    * @param {string} scope type of action performed on the content
+    * @param {number} score the score associated to the content
+    *
+    * @example
+    * <pre>
+    * NewtonAdapter.rankContent({
+    *       contentId: '123456777',
+    *       scope: 'social',
+    *       score: 4
+    * });
+    * </pre>
     */
     this.rankContent = function(options){
         loginPromise.then(function(){
