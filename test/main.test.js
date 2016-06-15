@@ -41,7 +41,18 @@ describe('init -', function(){
             secretId: secretId,
             enable: true
         });
-        expect(Newton.getSharedInstanceWithConfig).toHaveBeenCalledWith(secretId);
+        expect(Newton.getSharedInstanceWithConfig).toHaveBeenCalledWith(secretId, {});
+    });
+
+    it('call Newton.getSharedInstanceWithConfig with secretId and properties', function(){
+        var secretId = '<local_host>';
+        var properties = { bridgeId: '123123123' };
+        NewtonAdapter.init({
+            secretId: secretId,
+            enable: true,
+            properties: properties
+        });
+        expect(Newton.getSharedInstanceWithConfig).toHaveBeenCalledWith(secretId, properties);
     });
 
     describe('waitLogin: false - ', function(){

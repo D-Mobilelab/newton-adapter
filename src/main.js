@@ -11,6 +11,11 @@ var NewtonAdapter = new function(){
 
     var newtonInstance, logger, enablePromise, initPromise, loginPromise;
 
+    var createSimpleObject = function(object){
+        object = object || {};
+        return Newton.SimpleObject.fromJSONObject(object);
+    };
+
     /**
     * @ngdoc function
     * @name init
@@ -22,6 +27,7 @@ var NewtonAdapter = new function(){
     * @param {string} options.secretId secret id of the application
     * @param {boolean} options.enabled true if and only if Newton tracking is enabled
     * @param {Logger} options.logger any object containing the following methods: debug, log, info, warn, error
+    * @param {Object} options.properties custom data for Newton getSharedInstanceWithConfig method
     * 
     * @example
     * <pre>
@@ -34,6 +40,19 @@ var NewtonAdapter = new function(){
     * </pre>
     */
     this.init = function(options){
+        // get logger
+        if (options.logger){
+            logger = options.logger;
+        } else {
+            logger = { 
+                debug: function(){},
+                log: function(){},
+                info: function(){},
+                warn: function(){},
+                error: function(){}
+            };
+        }
+
         // init promises
         enablePromise = new PromiseLite(); 
         initPromise = new PromiseLite(); 
@@ -48,18 +67,12 @@ var NewtonAdapter = new function(){
             logger.warn('Newton login not called');
         });
 
-        // get logger
-        if (options.logger){
-            logger = options.logger;
-        } else {
-            logger = { 
-                debug: function(){},
-                log: function(){},
-                info: function(){},
-                warn: function(){},
-                error: function(){}
-            };
-        }
+        // init newton and resolve initPromise
+        enablePromise.then(function(){
+            newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId, createSimpleObject(options.properties));
+            initPromise.resolve();
+            logger.log('NewtonAdapter', 'Init', options);
+        });
 
         // check if enabled
         if (options.enable){
@@ -72,20 +85,8 @@ var NewtonAdapter = new function(){
         if(!options.waitLogin){
             loginPromise.resolve();
         }
-
-        // init newton and resolve initPromise
-        enablePromise.then(function(){
-            newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId);
-            initPromise.resolve();
-            logger.log('NewtonAdapter', 'Init', options);
-        });
     };
 
-
-    var createSimpleObject = function(object){
-        object = object || {};
-        return Newton.SimpleObject.fromJSONObject(object);
-    };
 
     /**
     * @ngdoc function
@@ -150,6 +151,21 @@ var NewtonAdapter = new function(){
         return loginPromise;
     };
 
+
+    /*
+        NewtonAdapter.rankContent({
+            contentId: '123456777',
+            scope: 'social',
+            score: 4
+        });
+    */
+    this.rankContent = function(options){
+        loginPromise.then(function(){
+            newtonInstance.rankContent(options.contentId, options.scope, options.score);
+            logger.log('NewtonAdapter', 'rankContent', options);
+        });
+    };
+
     /**
     * @ngdoc function
     * @name trackEvent
@@ -166,14 +182,24 @@ var NewtonAdapter = new function(){
     *       properties: {
     *           category: 'Game',
     *           content: 'Fruit Slicer'
+    *       },
+    *       rank: {
+    *           contentId: '123456777',
+    *           scope: 'social',
+    *           score: 4
     *       }
     * });
     * </pre>
     */
     this.trackEvent = function(options){
+        var _this = this;
         loginPromise.then(function(){
             newtonInstance.sendEvent(options.name, createSimpleObject(options.properties));
             logger.log('NewtonAdapter', 'trackEvent', options.name, options.properties);
+            if(options.rank){
+                newtonInstance.rankContent(options.rank.contentId, options.rank.scope, options.rank.score);
+                logger.log('NewtonAdapter', 'rankContent', options.rank);
+            }
         });
     };
 
@@ -196,6 +222,7 @@ var NewtonAdapter = new function(){
     * </pre>
     */
     this.trackPageview = function(options){
+        var _this = this;
         if(!options){
             options = {};
         }
@@ -206,7 +233,7 @@ var NewtonAdapter = new function(){
             options.properties.url = window.location.href;
         }
         options.name = 'pageview';
-        this.trackEvent(options);
+        _this.trackEvent(options);
     };
 
     /**

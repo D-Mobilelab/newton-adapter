@@ -1,17 +1,39 @@
+// NewtonAdapter.init({
+//     secretId: '<local_host>',
+//     enable: false,
+//     waitLogin: false
+// });
+
+// NewtonAdapter.trackEvent('Play');
+
 NewtonAdapter.init({
 	secretId: '<local_host>',
 	enable: true,
 	waitLogin: true,
-	logger: console
+	logger: console,
+	properties: {
+		bridgeId: '123123123'
+	}
 });
 
 console.log( NewtonAdapter.isLogged() );
+
+NewtonAdapter.rankContent({
+	contentId: '123456777',
+    scope: 'social',
+    score: 4
+});
 
 NewtonAdapter.trackEvent({
 	name: 'Play',
 	properties: {
 		category: 'Game',
 		content: 'Fruit Slicer'
+	}, 
+	rank: {
+		contentId: '789123123',
+	    scope: 'social',
+	    score: 4
 	}
 });
 

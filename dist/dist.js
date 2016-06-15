@@ -281,134 +281,146 @@ module.exports = PublicPromise;
 
 },{}],2:[function(require,module,exports){
 var PromiseLite = require('../node_modules/promiselite/src/promiselite.js');
-
 var NewtonAdapter = new function(){
 
-	var newtonInstance, logger;
-	
-	var enablePromise = new PromiseLite(); 
-	enablePromise.fail(function(){
-		logger.warn("Newton not enabled");
-	});
+    var newtonInstance, logger, enablePromise, initPromise, loginPromise;
 
-	var initPromise = new PromiseLite(); 
-	initPromise.fail(function(){
-		logger.warn("Newton not initialized");
-	});
+    var createSimpleObject = function(object){
+        object = object || {};
+        return Newton.SimpleObject.fromJSONObject(object);
+    };
+    this.init = function(options){
+        // get logger
+        if (options.logger){
+            logger = options.logger;
+        } else {
+            logger = { 
+                debug: function(){},
+                log: function(){},
+                info: function(){},
+                warn: function(){},
+                error: function(){}
+            };
+        }
 
-	var loginPromise = new PromiseLite(); 
-	loginPromise.fail(function(){
-		logger.warn("Newton login not called");
-	});
-	this.init = function(options){
-		// get logger
-		if (options.logger){
-			logger = options.logger;
-		} else {
-			logger = { 
-				debug: function(){},
-				log: function(){},
-				info: function(){},
-				warn: function(){},
-				error: function(){}
-			};
-		}
+        // init promises
+        enablePromise = new PromiseLite(); 
+        initPromise = new PromiseLite(); 
+        loginPromise = new PromiseLite(); 
+        enablePromise.fail(function(){
+            logger.warn('Newton not enabled');
+        });
+        initPromise.fail(function(){
+            logger.warn('Newton not initialized');
+        });
+        loginPromise.fail(function(){
+            logger.warn('Newton login not called');
+        });
 
-		// check if enabled
-		if (options.enable){
-			enablePromise.resolve();
-		} else {
-			enablePromise.reject();
-		}
+        // init newton and resolve initPromise
+        enablePromise.then(function(){
+            newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId, createSimpleObject(options.properties));
+            initPromise.resolve();
+            logger.log('NewtonAdapter', 'Init', options);
+        });
 
-		// check if login is required
-		if(!options.waitLogin){
-			loginPromise.resolve();
-		}
+        // check if enabled
+        if (options.enable){
+            enablePromise.resolve();
+        } else {
+            enablePromise.reject();
+        }
 
-		// init newton and resolve initPromise
-		enablePromise.then(function(){
-			newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId);
-			initPromise.resolve();
-			logger.log('NewtonAdapter', 'Init', options);
-		});
-	};
+        // check if login is required
+        if(!options.waitLogin){
+            loginPromise.resolve();
+        }
+    };
+    this.login = function(options){
+        var loginCallback = function(){
+            try {
+                if(options.callback){ options.callback.call(); }
+                logger.log('NewtonAdapter', 'Login', options);
+                loginPromise.resolve();
+            } catch(err) {
+                logger.error('NewtonAdapter', 'Login', err);
+                loginPromise.reject();
+            }
+        };
 
+        initPromise.then(function(){
+            if(options.logged && !newtonInstance.isUserLogged()){
+                if(options.type === 'external'){
+                    newtonInstance.getLoginBuilder()
+                    .setCustomData( createSimpleObject(options.userProperties) )
+                    .setOnFlowCompleteCallback(loginCallback)
+                    .setExternalID(options.userId)
+                    .getExternalLoginFlow()
+                    .startLoginFlow();
+                } else {
+                    newtonInstance.getLoginBuilder()
+                    .setCustomData(options.userProperties)
+                    .setOnFlowCompleteCallback(loginCallback)
+                    .setCustomID(options.userId)
+                    .getCustomLoginFlow()
+                    .startLoginFlow();
+                }
+            } else {
+                loginCallback();
+            }
+        });
 
-	var createSimpleObject = function(object){
-		object = object || {};
-		return Newton.SimpleObject.fromJSONObject(object);
-	}
-	this.login = function(options){
-		var loginCallback = function(){
-			try {
-				if(options.callback){ options.callback.call(); }
-	            logger.log('NewtonAdapter', 'Login', options);
-	            loginPromise.resolve();
-			} catch(err) {
-				logger.error('NewtonAdapter', 'Login', err);
-				loginPromise.reject();
-			}
-		}
-
-		initPromise.then(function(){
-			if(options.logged && !newtonInstance.isUserLogged()){
-				if(options.type == 'external'){
-					newtonInstance.getLoginBuilder()
-					.setCustomData( createSimpleObject(options.userProperties) )
-					.setOnFlowCompleteCallback(loginCallback)
-					.setExternalID(options.userId)
-					.getExternalLoginFlow()
-					.startLoginFlow();
-				} else {
-					newtonInstance.getLoginBuilder()
-		            .setCustomData(userProperties)
-		            .setOnFlowCompleteCallback(loginCallback)
-		            .setCustomID(options.userId)
-		            .getCustomLoginFlow()
-		            .startLoginFlow();
-		        }
-			} else {
-	            loginCallback();
-			}
-		});
-
-		return loginPromise;
-	}
-	this.trackEvent = function(options){
-		loginPromise.then(function(){
-			newtonInstance.sendEvent(options.name, createSimpleObject(options.properties));
-			logger.log('NewtonAdapter', 'trackEvent', options.name, options.properties);
-		});
-	};
-	this.trackPageview = function(options){
-		options.name = "pageview";
-		if(!options.properties){
-			options.properties = {};
-		}
-		if(!options.properties.url){
-			options.properties.url = window.location.href;
-		}
-		this.trackEvent(options);
-	};
-	this.startHeartbeat = function(options){
-		loginPromise.then(function(){
-			logger.log('NewtonAdapter', 'startHeartbeat', options);
-			Newton.getSharedInstance().timedEventStart(options.name, createSimpleObject(options.properties));
-		});
-	};
-	this.stopHeartbeat = function(options){
-		loginPromise.then(function(){
-			Newton.getSharedInstance().timedEventStop(options.name, createSimpleObject(options.properties));
-			logger.log('NewtonAdapter', 'stopHeartbeat', options);
-		});
-	};
-	this.isLogged = function(){
-		if (!loginPromise.isSettled()){
-			return false;
-		}
-		return Newton.getSharedInstance().isUserLogged();
-	};
+        return loginPromise;
+    };
+    this.rankContent = function(options){
+        loginPromise.then(function(){
+            newtonInstance.rankContent(options.contentId, options.scope, options.score);
+            logger.log('NewtonAdapter', 'rankContent', options);
+        });
+    };
+    this.trackEvent = function(options){
+        var _this = this;
+        loginPromise.then(function(){
+            newtonInstance.sendEvent(options.name, createSimpleObject(options.properties));
+            logger.log('NewtonAdapter', 'trackEvent', options.name, options.properties);
+            if(options.rank){
+                newtonInstance.rankContent(options.rank.contentId, options.rank.scope, options.rank.score);
+                logger.log('NewtonAdapter', 'rankContent', options.rank);
+            }
+        });
+    };
+    this.trackPageview = function(options){
+        var _this = this;
+        if(!options){
+            options = {};
+        }
+        if(!options.properties){
+            options.properties = {};
+        }
+        if(!options.properties.url){
+            options.properties.url = window.location.href;
+        }
+        options.name = 'pageview';
+        _this.trackEvent(options);
+    };
+    this.startHeartbeat = function(options){
+        loginPromise.then(function(){
+            logger.log('NewtonAdapter', 'startHeartbeat', options);
+            newtonInstance.timedEventStart(options.name, createSimpleObject(options.properties));
+        });
+    };
+    this.stopHeartbeat = function(options){
+        loginPromise.then(function(){
+            newtonInstance.timedEventStop(options.name, createSimpleObject(options.properties));
+            logger.log('NewtonAdapter', 'stopHeartbeat', options);
+        });
+    };
+    this.isLogged = function(){
+        if (!loginPromise.isSettled()){
+            return false;
+        }
+        return Newton.getSharedInstance().isUserLogged();
+    };
 };
 
 module.exports = NewtonAdapter;
