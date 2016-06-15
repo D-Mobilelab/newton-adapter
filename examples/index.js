@@ -39,7 +39,12 @@ NewtonAdapter.trackEvent({
 
 NewtonAdapter.trackPageview({
 	title: 'Fruit Page',
-	url: 'http://www.google.it'
+	url: 'http://www.google.it', 
+	rank: {
+		contentId: '333444555',
+	    scope: 'social',
+	    score: 4
+	}
 });
 
 NewtonAdapter.startHeartbeat({
