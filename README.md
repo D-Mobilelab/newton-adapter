@@ -1,7 +1,7 @@
 # newton-adapter
 
 [![Build Status](https://travis-ci.org/D-Mobilelab/newton-adapter.svg?branch=master)](https://travis-ci.org/D-Mobilelab/newton-adapter)
-[![Coverage Status](https://coveralls.io/repos/github/D-Mobilelab/newton-adapter/badge.svg?branch=master)](https://coveralls.io/github/D-Mobilelab/newton-adapter?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/D-Mobilelab/newton-adapter/badge.svg?branch=master&v=1)](https://coveralls.io/github/D-Mobilelab/newton-adapter?branch=master)
 
 ## Documentation
 
