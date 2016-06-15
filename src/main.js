@@ -1,4 +1,4 @@
-var PromiseLite = require('../node_modules/promiselite/src/promiselite.js');
+var PromiseLite = require('../bower_components/promiselite/src/promiselite.js');
 
 /**
 * @ngdoc object
@@ -192,7 +192,6 @@ var NewtonAdapter = new function(){
     * </pre>
     */
     this.trackEvent = function(options){
-        var _this = this;
         loginPromise.then(function(){
             newtonInstance.sendEvent(options.name, createSimpleObject(options.properties));
             logger.log('NewtonAdapter', 'trackEvent', options.name, options.properties);
@@ -222,7 +221,6 @@ var NewtonAdapter = new function(){
     * </pre>
     */
     this.trackPageview = function(options){
-        var _this = this;
         if(!options){
             options = {};
         }
@@ -233,7 +231,7 @@ var NewtonAdapter = new function(){
             options.properties.url = window.location.href;
         }
         options.name = 'pageview';
-        _this.trackEvent(options);
+        NewtonAdapter.trackEvent(options);
     };
 
     /**
@@ -296,7 +294,7 @@ var NewtonAdapter = new function(){
 
     /**
     * @ngdoc function
-    * @name isLogged
+    * @name isUserLogged
     * @methodOf NewtonAdapter
     *
     * @description returns whether the user is already logged on Newton
@@ -305,13 +303,10 @@ var NewtonAdapter = new function(){
     *
     * @example
     * <pre>
-    * NewtonAdapter.isLogged();
+    * NewtonAdapter.isUserLogged();
     * </pre>
     */
-    this.isLogged = function(){
-        if (!loginPromise.isSettled()){
-            return false;
-        }
+    this.isUserLogged = function(){
         return Newton.getSharedInstance().isUserLogged();
     };
 };

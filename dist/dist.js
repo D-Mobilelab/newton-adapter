@@ -280,7 +280,7 @@ module.exports = PublicPromise;
 
 
 },{}],2:[function(require,module,exports){
-var PromiseLite = require('../node_modules/promiselite/src/promiselite.js');
+var PromiseLite = require('../bower_components/promiselite/src/promiselite.js');
 var NewtonAdapter = new function(){
 
     var newtonInstance, logger, enablePromise, initPromise, loginPromise;
@@ -379,7 +379,6 @@ var NewtonAdapter = new function(){
         });
     };
     this.trackEvent = function(options){
-        var _this = this;
         loginPromise.then(function(){
             newtonInstance.sendEvent(options.name, createSimpleObject(options.properties));
             logger.log('NewtonAdapter', 'trackEvent', options.name, options.properties);
@@ -390,7 +389,6 @@ var NewtonAdapter = new function(){
         });
     };
     this.trackPageview = function(options){
-        var _this = this;
         if(!options){
             options = {};
         }
@@ -401,7 +399,7 @@ var NewtonAdapter = new function(){
             options.properties.url = window.location.href;
         }
         options.name = 'pageview';
-        _this.trackEvent(options);
+        NewtonAdapter.trackEvent(options);
     };
     this.startHeartbeat = function(options){
         loginPromise.then(function(){
@@ -415,14 +413,11 @@ var NewtonAdapter = new function(){
             logger.log('NewtonAdapter', 'stopHeartbeat', options);
         });
     };
-    this.isLogged = function(){
-        if (!loginPromise.isSettled()){
-            return false;
-        }
+    this.isUserLogged = function(){
         return Newton.getSharedInstance().isUserLogged();
     };
 };
 
 module.exports = NewtonAdapter;
-},{"../node_modules/promiselite/src/promiselite.js":1}]},{},[2])(2)
+},{"../bower_components/promiselite/src/promiselite.js":1}]},{},[2])(2)
 });

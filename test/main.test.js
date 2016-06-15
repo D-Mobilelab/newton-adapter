@@ -10,13 +10,15 @@ beforeEach(function(){
         sendEvent: function(){},
         timedEventStart: function(){},
         timedEventStop: function(){},
-        isUserLogged: function(){ return loggedFlag; }
+        isUserLogged: function(){ return loggedFlag; },
+        rankContent: function(){}
     };
 
     spyOn(NewtonMock, "sendEvent").and.callThrough();
     spyOn(NewtonMock, "timedEventStart").and.callThrough();
     spyOn(NewtonMock, "timedEventStop").and.callThrough();
     spyOn(NewtonMock, "isUserLogged").and.callThrough();
+    spyOn(NewtonMock, "rankContent").and.callThrough();
 
     Newton = {
         getSharedInstanceWithConfig: function(){ return NewtonMock; },
@@ -164,6 +166,68 @@ describe('init -', function(){
 });
 
 
+/*** LOGIN ***/
+
+describe('login -', function(){
+    it('call callback method', function(){
+        NewtonAdapter.init({
+            secretId: '<local_host>',
+            enable: true,
+            waitLogin: false
+        });
+        var mock = {
+            callbackMethod: function(){}
+        };
+        spyOn(mock, "callbackMethod").and.callThrough();
+        NewtonAdapter.login({
+            logged: false,
+            callback: mock.callbackMethod
+        });
+        expect(mock.callbackMethod).toHaveBeenCalled();
+    });
+});
+
+
+/*** RANK CONTENT ***/
+
+describe('rankContent -', function(){
+    var properties = {
+        contentId: '123456777',
+        scope: 'social',
+        score: 4
+    };
+
+    beforeEach(function(){
+        NewtonAdapter.init({
+            secretId: '<local_host>',
+            enable: true,
+            waitLogin: false
+        });
+    });
+
+    it('rankContent() calls Newton.rankContent with correct properties', function(){
+        NewtonAdapter.rankContent(properties);
+        expect(NewtonMock.rankContent).toHaveBeenCalledWith(properties.contentId, properties.scope, properties.score);
+    });
+
+    it('trackEvent() calls Newton.rankContent with correct properties', function(){
+        NewtonAdapter.trackEvent({
+            name: 'Play',
+            rank: properties
+        });
+        expect(NewtonMock.rankContent).toHaveBeenCalledWith(properties.contentId, properties.scope, properties.score);
+    });
+
+    it('trackPageview() calls Newton.rankContent with correct properties', function(){
+        NewtonAdapter.trackPageview({
+            url: 'http://www.google.it',
+            rank: properties
+        });
+        expect(NewtonMock.rankContent).toHaveBeenCalledWith(properties.contentId, properties.scope, properties.score);
+    });
+});
+
+
 /*** TRACK EVENT ***/
 
 describe('trackEvent -', function(){
@@ -302,13 +366,13 @@ describe('stopHeartbeat -', function(){
 
 /*** IS LOGGED ***/
 
-describe('isLogged -', function(){
+describe('isUserLogged -', function(){
     it('call Newton.getSharedInstance().isUserLogged() and return right response', function(){
-        NewtonAdapter.isLogged();
+        NewtonAdapter.isUserLogged();
         expect(NewtonMock.isUserLogged).toHaveBeenCalled();
     });
 
     it('return right response', function(){
-        expect(NewtonAdapter.isLogged()).toEqual(Newton.getSharedInstance().isUserLogged());
+        expect(NewtonAdapter.isUserLogged()).toEqual(Newton.getSharedInstance().isUserLogged());
     });
 });

@@ -16,7 +16,7 @@ NewtonAdapter.init({
 	}
 });
 
-console.log( NewtonAdapter.isLogged() );
+console.log( NewtonAdapter.isUserLogged() );
 
 NewtonAdapter.rankContent({
 	contentId: '123456777',
@@ -85,4 +85,4 @@ NewtonAdapter.login({
 });
 // }).then(function(){});
 
-console.log( NewtonAdapter.isLogged() );
+console.log( NewtonAdapter.isUserLogged() );

@@ -26,6 +26,8 @@
     "!README.md",
     "!bower.json"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "promiselite": "1.1.2"
+  },
   "devDependencies": {}
 }
