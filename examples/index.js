@@ -1,88 +1,73 @@
-// NewtonAdapter.init({
-//     secretId: '<local_host>',
-//     enable: false,
-//     waitLogin: false
-// });
-
-// NewtonAdapter.trackEvent('Play');
-
 NewtonAdapter.init({
 	secretId: '<local_host>',
 	enable: true,
 	waitLogin: true,
 	logger: console,
 	properties: {
-		bridgeId: '123123123'
+		bridgeSession: '123123123'
 	}
 });
 
 console.log( NewtonAdapter.isUserLogged() );
 
+// OK
 NewtonAdapter.rankContent({
-	contentId: '123456777',
-    scope: 'social',
-    score: 4
+	contentId: '2323',
+    scope: 'social'
 });
 
+// OK
 NewtonAdapter.trackEvent({
-	name: 'Play',
+	name: 'Load',
 	properties: {
-		category: 'Game',
-		content: 'Fruit Slicer'
+		category: 'Action',
+		content: 'Fruit Ninja'
 	}, 
 	rank: {
-		contentId: '789123123',
-	    scope: 'social',
-	    score: 4
+		contentId: '3434',
+	    scope: 'social'
 	}
 });
 
+// OK
 NewtonAdapter.trackPageview({
-	title: 'Fruit Page',
-	url: 'http://www.google.it', 
+	properties: {
+		title: 'Fruit Ninja Page',
+		url: '/home/'
+	}, 
 	rank: {
-		contentId: '333444555',
+		contentId: '4545',
 	    scope: 'social',
-	    score: 4
+	    score: 1
 	}
 });
 
+// OK
 NewtonAdapter.startHeartbeat({
-	name: 'Playing',
+	name: 'Loading',
 	properties: {
-		category: 'Game',
-		content: 'Fruit Slicer'
+		content: 'Fruit Ninja'
 	}
 });
 
+// OK
 NewtonAdapter.stopHeartbeat({
-	name: 'Playing',
+	name: 'Loading',
 	properties: {
-		content: 'Fruit Slicer',
-		score: 1000
-	}
-});
-
-NewtonAdapter.stopHeartbeat({
-	name: 'heartbeatNotExisting',
-	properties: {
-		content: 'Fruit Slicer',
-		score: 1000
+		content: 'Fruit Ninja',
+		score: 1200
 	}
 });
 
 NewtonAdapter.login({
 	logged: true,
 	type: 'external',
-	userId: '123456789',
+	// CHECK
+	userId: '777888999',
 	userProperties: {
-		msisdn: '+39123456789',
-		type: 'freemium'
-	},
-	callback: function() {
-		console.log('login callback!');
+		msisdn: '+3990909090',
+		type: 'premium'
 	}
 });
-// }).then(function(){});
 
 console.log( NewtonAdapter.isUserLogged() );

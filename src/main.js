@@ -137,7 +137,7 @@ var NewtonAdapter = new function(){
                     .startLoginFlow();
                 } else {
                     newtonInstance.getLoginBuilder()
-                    .setCustomData(options.userProperties)
+                    .setCustomData( createSimpleObject(options.userProperties) )
                     .setOnFlowCompleteCallback(loginCallback)
                     .setCustomID(options.userId)
                     .getCustomLoginFlow()
@@ -175,6 +175,7 @@ var NewtonAdapter = new function(){
     */
     this.rankContent = function(options){
         loginPromise.then(function(){
+            if(!options.score) { options.score = 1; }
             newtonInstance.rankContent(options.contentId, options.scope, options.score);
             logger.log('NewtonAdapter', 'rankContent', options);
         });
@@ -210,6 +211,7 @@ var NewtonAdapter = new function(){
             newtonInstance.sendEvent(options.name, createSimpleObject(options.properties));
             logger.log('NewtonAdapter', 'trackEvent', options.name, options.properties);
             if(options.rank){
+                if(!options.score) { options.score = 1; }
                 newtonInstance.rankContent(options.rank.contentId, options.rank.scope, options.rank.score);
                 logger.log('NewtonAdapter', 'rankContent', options.rank);
             }
