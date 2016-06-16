@@ -22,10 +22,6 @@
     "authentication"
   ],
   "authors": [
-    "Aurelio Merenda <aurelio.merenda@buongiorno.com>",
-    "Fabio Fognani <fabio.fognani@buongiorno.com>"
-  ],
-  "authors": [
     { "name": "Aurelio Merenda", "email": "aurelio.merenda@buogiorno.com" },
     { "name": "Fabio Fognani", "email": "fabio.fognani@buongiorno.com" }
   ],
