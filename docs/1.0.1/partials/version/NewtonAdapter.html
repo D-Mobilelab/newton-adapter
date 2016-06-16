@@ -1,0 +1,150 @@
+<h1><code ng:non-bindable="">NewtonAdapter</code>
+<div><span class="hint"></span>
+</div>
+</h1>
+<div><h2 id="description">Description</h2>
+<div class="description"><div class="newtonadapter-page"><p>Adapter for Newton sdk to be used in B! web applications</p>
+</div></div>
+<div class="member method"><h2 id="methods">Methods</h2>
+<ul class="methods"><li><h3 id="methods_init">init(options)</h3>
+<div class="init"><div class="init-page"><p>Initializes Newton sdk and sets up internal configuration</p>
+</div><h5 id="methods_init_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>options</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="init-page"><p>configuration object</p>
+</div><table><thead><tr><th>Property</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>secretId</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="init-page"><p>secret id of the application</p>
+</div></td></tr><tr><td>enabled</td><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="init-page"><p>true if and only if Newton tracking is enabled</p>
+</div></td></tr><tr><td>logger</td><td><a href="" class="label type-hint type-hint-logger">Logger</a></td><td><div class="init-page"><p>any object containing the following methods: debug, log, info, warn, error</p>
+</div></td></tr><tr><td>properties</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="init-page"><p>custom data for Newton getSharedInstanceWithConfig method</p>
+</div></td></tr></tbody></table></td></tr></tbody></table><h4 id="methods_init_example">Example</h4>
+<div class="example"><div class="init-page"><pre class="prettyprint linenums">
+NewtonAdapter.init({
+    secretId: '123456789',
+    enabled: true,      // enable newton
+    waitLogin: true,    // wait for login to have been completed (async)
+    logger: console
+});
+</pre>
+</div></div>
+</div>
+</li>
+<li><h3 id="methods_isuserlogged">isUserLogged()</h3>
+<div class="isuserlogged"><div class="isuserlogged-page"><p>returns whether the user is already logged on Newton</p>
+</div><h5 id="methods_isuserlogged_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="isuserlogged-page"><p>true if and only if the user is already logged on Newton</p>
+</div></td></tr></table><h4 id="methods_isuserlogged_example">Example</h4>
+<div class="example"><div class="isuserlogged-page"><pre class="prettyprint linenums">
+NewtonAdapter.isUserLogged();
+</pre>
+</div></div>
+</div>
+</li>
+<li><h3 id="methods_login">login(options)</h3>
+<div class="login"><div class="login-page"><p>performs custom or external login via Newton sdk</p>
+</div><h5 id="methods_login_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>options</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="login-page"><p>configuration object</p>
+</div><table><thead><tr><th>Property</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>type</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="login-page"><p>allowed values: &#39;custom&#39; or &#39;external&#39;</p>
+</div></td></tr><tr><td>logged</td><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="login-page"><p>true if and only if the user is logged on the product</p>
+</div></td></tr><tr><td>userProperties</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="login-page"><p>an object containing data about the user</p>
+</div></td></tr></tbody></table></td></tr></tbody></table><h5 id="methods_login_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-promiselite">PromiseLite</a></td><td><div class="login-page"><p>promise that will be resolved when the login has been completed</p>
+</div></td></tr></table><h4 id="methods_login_example">Example</h4>
+<div class="example"><div class="login-page"><pre class="prettyprint linenums">
+NewtonAdapter.login({
+      logged: true,       // is user logged?
+      type: 'external'        // 'external' or 'custom'
+      userId: '123456789',    // mandatory for logged user
+      userProperties: {
+          msisdn: '+39123456789',
+          type: 'freemium'
+      }
+});
+</pre>
+</div></div>
+</div>
+</li>
+<li><h3 id="methods_rankcontent">rankContent(options, contentId, scope, score)</h3>
+<div class="rankcontent"><div class="rankcontent-page"><p>performs content ranking via Newton sdk</p>
+</div><h5 id="methods_rankcontent_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>options</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="rankcontent-page"><p>configuration object</p>
+</div></td></tr><tr><td>contentId</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="rankcontent-page"><p>unique identifier of the content</p>
+</div></td></tr><tr><td>scope</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="rankcontent-page"><p>type of action performed on the content</p>
+</div></td></tr><tr><td>score</td><td><a href="" class="label type-hint type-hint-number">number</a></td><td><div class="rankcontent-page"><p>the score associated to the content</p>
+</div></td></tr></tbody></table><h4 id="methods_rankcontent_example">Example</h4>
+<div class="example"><div class="rankcontent-page"><pre class="prettyprint linenums">
+NewtonAdapter.rankContent({
+      contentId: '123456777',
+      scope: 'social',
+      score: 4
+});
+</pre>
+</div></div>
+</div>
+</li>
+<li><h3 id="methods_startheartbeat">startHeartbeat(options)</h3>
+<div class="startheartbeat"><div class="startheartbeat-page"><p>performs timed events via Newton sdk</p>
+</div><h5 id="methods_startheartbeat_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>options</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="startheartbeat-page"><p>configuration object</p>
+</div><table><thead><tr><th>Property</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="startheartbeat-page"><p>name of the timed event</p>
+</div></td></tr><tr><td>properties</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="startheartbeat-page"><p>details of the timed event</p>
+</div></td></tr></tbody></table></td></tr></tbody></table><h4 id="methods_startheartbeat_example">Example</h4>
+<div class="example"><div class="startheartbeat-page"><pre class="prettyprint linenums">
+NewtonAdapter.startHeartbeat({
+      name: 'Playing',
+      properties: {
+          category: 'Game',
+          content: 'Fruit Slicer'
+      }
+  });
+</pre>
+</div></div>
+</div>
+</li>
+<li><h3 id="methods_stopheartbeat">stopHeartbeat(options)</h3>
+<div class="stopheartbeat"><div class="stopheartbeat-page"><p>stops timed events via Newton sdk</p>
+</div><h5 id="methods_stopheartbeat_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>options</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="stopheartbeat-page"><p>configuration object</p>
+</div><table><thead><tr><th>Property</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="stopheartbeat-page"><p>name of the timed event</p>
+</div></td></tr><tr><td>properties</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="stopheartbeat-page"><p>details of the timed event</p>
+</div></td></tr></tbody></table></td></tr></tbody></table><h4 id="methods_stopheartbeat_example">Example</h4>
+<div class="example"><div class="stopheartbeat-page"><pre class="prettyprint linenums">
+NewtonAdapter.stopHeartbeat({
+      name: 'Playing',
+      properties: {
+          category: 'Game',
+          content: 'Fruit Slicer'
+      }
+  });
+</pre>
+</div></div>
+</div>
+</li>
+<li><h3 id="methods_trackevent">trackEvent(options)</h3>
+<div class="trackevent"><div class="trackevent-page"><p>performs event tracking via Newton sdk</p>
+</div><h5 id="methods_trackevent_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>options</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="trackevent-page"><p>configuration object</p>
+</div></td></tr></tbody></table><h4 id="methods_trackevent_example">Example</h4>
+<div class="example"><div class="trackevent-page"><pre class="prettyprint linenums">
+NewtonAdapter.trackEvent({
+      name: 'Play',
+      properties: {
+          category: 'Game',
+          content: 'Fruit Slicer'
+      },
+      rank: {
+          contentId: '123456777',
+          scope: 'social',
+          score: 4
+      }
+});
+</pre>
+</div></div>
+</div>
+</li>
+<li><h3 id="methods_trackpageview">trackPageview(options)</h3>
+<div class="trackpageview"><div class="trackpageview-page"><p>performs pageview tracking via Newton sdk</p>
+</div><h5 id="methods_trackpageview_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>options</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="trackpageview-page"><p>configuration object</p>
+</div><table><thead><tr><th>Property</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>url</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="trackpageview-page"><p>url of the page we want to track</p>
+</div> <p><em>(default: window.location.href)</em></p></td></tr></tbody></table></td></tr></tbody></table><h4 id="methods_trackpageview_example">Example</h4>
+<div class="example"><div class="trackpageview-page"><pre class="prettyprint linenums">
+NewtonAdapter.trackPageview({
+      title: 'Fruit Page',
+      url: 'http://www.google.it'
+});
+</pre>
+</div></div>
+</div>
+</li>
+</ul>
+</div>
+</div>

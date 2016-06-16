@@ -1,2 +1,6 @@
+** 1.0.1 **
+- Fixed setCustomData for custom login
+- added default score equal to 1 for rankContent
+
 ** 1.0.0 **
 - init, login, trackEvent, trackPageview, rankContent, startHeartbeat, stopHeartbeat, isUserLogged methods; waitLogin feature; compatible with Newton 2.2
