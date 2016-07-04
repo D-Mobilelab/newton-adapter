@@ -193,6 +193,10 @@ var NewtonAdapter = new function(){
     * @description performs event tracking via Newton sdk
     *
     * @param {Object} options configuration object
+    * @param {string} options.name name of the event to track
+    * @param {object} options.properties custom datas of the event
+    * @param {object} options.rank rank event datas
+    *
     *
     * @example
     * <pre>
