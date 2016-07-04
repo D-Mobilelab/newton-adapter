@@ -25,17 +25,21 @@ var NewtonAdapter = new function(){
     *
     * @param {Object} options configuration object
     * @param {string} options.secretId secret id of the application
-    * @param {boolean} options.enabled true if and only if Newton tracking is enabled
-    * @param {Logger} options.logger any object containing the following methods: debug, log, info, warn, error
-    * @param {Object} options.properties custom data for Newton getSharedInstanceWithConfig method
+    * @param {boolean} options.enable true if and only if Newton tracking is enabled
+    * @param {boolean} options.waitLogin true if you want to track events only after login
+    * @param {Object} options.logger any object containing the following methods: debug, log, info, warn, error
+    * @param {Object} options.properties custom data for Newton
     * 
     * @example
     * <pre>
     *   NewtonAdapter.init({
     *       secretId: '123456789',
-    *       enabled: true,      // enable newton
+    *       enable: true,      // enable newton
     *       waitLogin: true,    // wait for login to have been completed (async)
-    *       logger: console
+    *       logger: console,
+    *       properties: {
+    *           hello: 'World'
+    *       }
     *   });
     * </pre>
     */
@@ -226,13 +230,17 @@ var NewtonAdapter = new function(){
     * @description performs pageview tracking via Newton sdk
     *
     * @param {Object} options configuration object
-    * @param {string} [options.url=window.location.href] url of the page we want to track
+    * @param {Object} [options.properties] Properties of the pageview
+    * @param {string} [options.properties.url=window.location.href] url of pageview
     *
     * @example
     * <pre>
     * NewtonAdapter.trackPageview({
-    *       title: 'Fruit Page',
-    *       url: 'http://www.google.it'
+    *       properties: {
+    *           url: 'http://www.google.it',
+    *           title: 'Game',
+    *           hello: 'World'
+    *       }
     * });
     * </pre>
     */
