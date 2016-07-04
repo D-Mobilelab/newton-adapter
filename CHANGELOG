@@ -1,3 +1,6 @@
+** 1.0.2 **
+- Documentation Updated
+
 ** 1.0.1 **
 - Fixed setCustomData for custom login
 - added default score equal to 1 for rankContent
