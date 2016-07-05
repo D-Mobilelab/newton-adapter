@@ -216,7 +216,7 @@ var NewtonAdapter = new function(){
             newtonInstance.sendEvent(options.name, createSimpleObject(options.properties));
             logger.log('NewtonAdapter', 'trackEvent', options.name, options.properties);
             if(options.rank){
-                if(!options.score) { options.score = 1; }
+                if(!options.rank.score) { options.rank.score = 1; }
                 newtonInstance.rankContent(options.rank.contentId, options.rank.scope, options.rank.score);
                 logger.log('NewtonAdapter', 'rankContent', options.rank);
             }
