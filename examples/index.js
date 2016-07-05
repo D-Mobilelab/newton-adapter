@@ -1,7 +1,7 @@
 NewtonAdapter.init({
 	secretId: '<local_host>',
-	enable: false,
-	waitLogin: false,
+	enable: true,
+	waitLogin: true,
 	logger: console,
 	properties: {
 		bridge_session_id: '123123123'
