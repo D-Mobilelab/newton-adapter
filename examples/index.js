@@ -1,14 +1,14 @@
 NewtonAdapter.init({
 	secretId: '<local_host>',
-	enable: true,
-	waitLogin: true,
+	enable: false,
+	waitLogin: false,
 	logger: console,
 	properties: {
-		bridgeSession: '123123123'
+		bridge_session_id: '123123123'
 	}
 });
 
-console.log( NewtonAdapter.isUserLogged() );
+// console.log( "isLogged: ", NewtonAdapter.isUserLogged() );
 
 // OK
 NewtonAdapter.rankContent({
@@ -70,4 +70,4 @@ NewtonAdapter.login({
 	}
 });
 
-console.log( NewtonAdapter.isUserLogged() );
+// console.log( "isLogged: ", NewtonAdapter.isUserLogged() );

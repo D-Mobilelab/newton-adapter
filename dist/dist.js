@@ -283,7 +283,9 @@ module.exports = PublicPromise;
 var PromiseLite = require('../bower_components/promiselite/src/promiselite.js');
 var NewtonAdapter = new function(){
 
-    var newtonInstance, logger, enablePromise, initPromise, loginPromise;
+    var newtonInstance, logger;
+    var enablePromise = new PromiseLite(); 
+    var loginPromise = new PromiseLite(); 
 
     var createSimpleObject = function(object){
         object = object || {};
@@ -303,25 +305,14 @@ var NewtonAdapter = new function(){
             };
         }
 
-        // init promises
+        // init enablePromise and init Newton
         enablePromise = new PromiseLite(); 
-        initPromise = new PromiseLite(); 
-        loginPromise = new PromiseLite(); 
-        enablePromise.fail(function(){
-            logger.warn('Newton not enabled');
-        });
-        initPromise.fail(function(){
-            logger.warn('Newton not initialized');
-        });
-        loginPromise.fail(function(){
-            logger.warn('Newton login not called');
-        });
-
-        // init newton and resolve initPromise
         enablePromise.then(function(){
             newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId, createSimpleObject(options.properties));
-            initPromise.resolve();
             logger.log('NewtonAdapter', 'Init', options);
+        });
+        enablePromise.fail(function(){
+            logger.warn('Newton not enabled');
         });
 
         // check if enabled
@@ -331,8 +322,14 @@ var NewtonAdapter = new function(){
             enablePromise.reject();
         }
 
-        // check if login is required
-        if(!options.waitLogin){
+        // init loginPromise
+        loginPromise = new PromiseLite(); 
+        loginPromise.fail(function(){
+            logger.warn('Newton login not called');
+        });
+
+        // resolve loginPromise if not waitLogin and enable
+        if(!options.waitLogin && options.enable){
             loginPromise.resolve();
         }
     };
@@ -348,7 +345,7 @@ var NewtonAdapter = new function(){
             }
         };
 
-        initPromise.then(function(){
+        enablePromise.then(function(){
             if(options.logged && !newtonInstance.isUserLogged()){
                 if(options.type === 'external'){
                     newtonInstance.getLoginBuilder()
