@@ -65,8 +65,8 @@ var NewtonAdapter = new function(){
             newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId, createSimpleObject(options.properties));
             logger.log('NewtonAdapter', 'Init', options);
         });
-        enablePromise.fail(function(){
-            logger.warn('Newton not enabled');
+        enablePromise.fail(function(error){
+            logger.warn('Newton not enabled', error);
         });
 
         // check if enabled
@@ -78,8 +78,8 @@ var NewtonAdapter = new function(){
 
         // init loginPromise
         loginPromise = new PromiseLite(); 
-        loginPromise.fail(function(){
-            logger.warn('Newton login not called');
+        loginPromise.fail(function(error){
+            logger.warn('Newton login not called', error);
         });
 
         // resolve loginPromise if not waitLogin and enable
