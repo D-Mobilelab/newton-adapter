@@ -1,4 +1,4 @@
-var PromiseLite = require('../bower_components/promiselite/src/promiselite.js');
+var PromiseLite = require('promiselite');
 
 /**
 * @ngdoc object
