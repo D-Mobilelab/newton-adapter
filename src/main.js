@@ -22,7 +22,7 @@ var NewtonAdapter = new function(){
     this.resetForTest = function(){
         enablePromise = new PromiseLite(); 
         loginPromise = new PromiseLite(); 
-    }
+    };
 
     /**
     * @ngdoc function
