@@ -32,7 +32,8 @@
     "promiselite": "git+https://github.com/D-Mobilelab/promiselite.git"
   },
   "devDependencies": {
-    "dml-js-boilerplate": "^2.0.2"
+    "dml-js-boilerplate": "^2.0.2",
+    "grunt": "^0.4.5"
   },
   "engines": {
     "node": "0.10.25"
