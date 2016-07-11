@@ -1,59 +1,67 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.NewtonAdapter = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-
 var PROMISE_STATUS = {
     0: 'pending',
     1: 'fulfilled',
     2: 'rejected'
-}
+};
 
-var PASS = function(arg){
+var pass = function(arg){
     return arg;
-}
+};
 
-var PrivatePromise = function(executor, nextProm, resolveMaxTimes){
+var PrivatePromise = function(executor, nextProm){
 
     // executor called at the end of the definition of Promise
     if (typeof executor !== 'undefined' && typeof executor !== 'function'){
-        throw 'PromiseLite :: executor must be a function, got ' + typeof executor;
+        throw new Error('PromiseLite :: executor must be a function, got ' + typeof executor);
     }
     
     var promiseInstance = this;
     var promiseStatusIndex = 0;
     var promiseValue;
     var promiseReason;
-    var maxTimesResolved = resolveMaxTimes || 1;
-    var timesResolved = 0;
     var next = nextProm || [];
 
     var getValue = function(){
         return promiseValue;
-    }
+    };
 
     var getReason = function(){
         return promiseReason;
-    }
+    };
     this.isPending = function(){
         return promiseStatusIndex === 0;
-    }
+    };
     this.isFulfilled = function(){
         return promiseStatusIndex === 1;
-    }
+    };
     this.isRejected = function(){
         return promiseStatusIndex === 2;
-    }
+    };
     this.isSettled = function(){
         return (promiseStatusIndex === 1) || (promiseStatusIndex === 2);
-    }
+    };
     this.getStatus = function(){
         return PROMISE_STATUS[promiseStatusIndex];
-    }
+    };
 
-    var immediatelyFulfill = function(success, error){        
-        var deferred = next.slice(1, next.length);
+    var getDeferredPromises = function(){
+        var toReturn = next.slice(1, next.length);
+        next.shift();
+        return toReturn;
+    };
 
-        if (error == undefined){
-            error = PASS;
+    var immediatelyFulfill = function(success, error){       
+
+        if (typeof success === 'undefined'){
+            success = pass;
         }
+
+        if (typeof error === 'undefined'){
+            error = pass;
+        }
+
+        var deferred = getDeferredPromises();
 
         return new PrivatePromise(function(res, rej){
             try {
@@ -62,62 +70,62 @@ var PrivatePromise = function(executor, nextProm, resolveMaxTimes){
                 // if we're trying to pass the error to the next node of the chain
                 // but the next node of the chain is undefined
                 // throw error, otherwise pass it forward through the chain
-                if (error == PASS && deferred.length == 0){
+                if (error === pass && deferred.length === 0){
                     throw err;
                 } else {
-                    rej(error(err));   
+                    rej(error(err));
                 }
             }
         }, deferred);
 
-    }
+    };
 
     var immediatelyReject = function(error){
-        if (error == undefined){
-            error = PASS;
+        if (typeof error === 'undefined'){
+            error = pass;
         }
-        
-        var deferred = next.slice(1, next.length);
+
+        var deferred = getDeferredPromises(); 
 
         return new PrivatePromise(function(res, rej){
             try {
-                rej(error(getReason()));
+                if (error === pass && deferred.length === 0){
+                    throw getReason();
+                } else {
+                    rej(error(getReason()));
+                }
             } catch (err){
-                if (deferred.length == 0){
+
+                if (deferred.length === 0){
                     throw err;
                 } else {
-                    rej(PASS(err));   
+                    rej(pass(err));
                 }
             }
         }, deferred);
         
-    }
+    };
     this.resolve = function(value){
-        if (promiseStatusIndex === 2){
+        if (promiseInstance.isSettled()){
             return promiseInstance;
         }
 
-        var maxTimesResolvedReached = !!maxTimesResolved && (timesResolved >= maxTimesResolved);
-        if (promiseStatusIndex === 1 && maxTimesResolvedReached){
-            return promiseInstance;
-        }
-
-        timesResolved += 1;
         promiseStatusIndex = 1;
         promiseValue = value;
 
         if (next.length > 0){
             var toDo = next[0];
             if (toDo.onSuccess === toDo.onError){
-                toDo.onError = PASS;
+                toDo.onError = pass;
             }
             return immediatelyFulfill(toDo.onSuccess, toDo.onError);   
         }
-    }
+    };
     this.reject = function(reason){
-        if (promiseStatusIndex === 2){
+        if (promiseInstance.isRejected()){
             return promiseInstance;
         }
+
         promiseStatusIndex = 2;
         promiseReason = reason;
 
@@ -125,52 +133,45 @@ var PrivatePromise = function(executor, nextProm, resolveMaxTimes){
             var toDo = next[0];
             return immediatelyReject(toDo.onError);
         }
-    }
+    };
 
     var addNext = function(onSuccess, onError){
-
-        if (typeof onError === 'undefined'){
-            onError = PASS;
-        }
-
-        if (typeof onSuccess === 'undefined'){
-            onSuccess = PASS;
-        }
 
         next.push({
             onSuccess: onSuccess,
             onError: onError
         });
-    }
+    };
     this.then = function(onSuccess, onError){
+
         if (promiseInstance.isPending()){
             addNext(onSuccess, onError);
             return promiseInstance;
         }
 
-        if (promiseInstance.isFulfilled()){
+        if (promiseInstance.isFulfilled() && !!onSuccess){
             return immediatelyFulfill(onSuccess, onError);
         }
 
-        if (promiseInstance.isRejected()){
+        if (promiseInstance.isRejected() && !!onError){
             return immediatelyReject(onError);
         }
-    }
+    };
     this.fail = function(onError){
         return promiseInstance.then(undefined, onError);
-    }
+    };
     this.force = function(callback){
         return promiseInstance.then(callback, callback);
-    }
+    };
 
     if (typeof executor === 'function'){
         executor(promiseInstance.resolve, promiseInstance.reject);
     }
 
-}
-var PublicPromise = function(executor, resolveMaxTimes){
-    return new PrivatePromise(executor, undefined, resolveMaxTimes);
-}
+};
+var PublicPromise = function(executor){
+    return new PrivatePromise(executor, undefined);
+};
 PublicPromise.all = function(promiseList){
     var promiseAll = new PublicPromise();
     var promiseCount = promiseList.length;
@@ -189,31 +190,32 @@ PublicPromise.all = function(promiseList){
             }
         }
 
-        if (counted == promiseCount){
+        if (counted === promiseCount){
             promiseAll.resolve(results);
         }
-    }
+    };
     
     var promise;
+
+    var innerFunction = function(num, prom){
+        prom.then(function(value){
+            fulfilled[num] = true;
+            results[num] = value;
+            checkAllFulfilled();
+        }).fail(function(reason){
+            fulfilled[num] = false;
+            reasons[num] = reason;
+            checkAllFulfilled();
+        });
+    };
     
-    for (var i=0; i<promiseList.length; i++){
+    for (var i = 0; i < promiseList.length; i++){
         promise = promiseList[i];
-        
-        (function(num, prom){
-            prom.then(function(value){
-                fulfilled[num] = true;
-                results[num] = value;
-                checkAllFulfilled();
-            }).fail(function(reason){
-                fulfilled[num] = false;
-                reasons[num] = reason;
-                checkAllFulfilled();
-            });
-        })(i, promise);
+        innerFunction(i, promise);
     }
 
     return promiseAll;
-}
+};
 PublicPromise.race = function(promiseList){
     var promiseRace = new PublicPromise();
     var promiseCount = promiseList.length;
@@ -221,22 +223,23 @@ PublicPromise.race = function(promiseList){
     var reasons = new Array(promiseCount);
     
     var promise;
-    for (var i=0; i<promiseList.length; i++){
+    var innerFunction = function(num, prom){
+        prom.then(function(value){
+            results[num] = value;
+            promiseRace.resolve(results);
+        }).fail(function(reason){
+            reasons[num] = reason;
+            promiseRace.reject(reasons);
+        });
+    };
+    
+    for (var i = 0; i < promiseList.length; i++){
         promise = promiseList[i];
-        
-        (function(num, prom){
-            prom.then(function(value){
-                results[num] = value;
-                promiseRace.resolve(results);
-            }).fail(function(reason){
-                reasons[num] = reason;
-                promiseRace.reject(reasons);
-            });
-        })(i, promise);
+        innerFunction(i, promise);
     }
 
     return promiseRace;
-}
+};
 PublicPromise.any = function(promiseList){
     var promiseAny = new PublicPromise();
     var promiseCount = promiseList.length;
@@ -246,41 +249,40 @@ PublicPromise.any = function(promiseList){
     var values = new Array(promiseCount);
 
     var allRejected = function(){
-        for (var j=0; j<promiseCount; j++){
+        for (var j = 0; j < promiseCount; j++){
             if (!rejected[j]){
                 return false;
             }
         }
         return true;
-    }
+    };
 
     var promise;
-    for (var i=0; i<promiseList.length; i++){
-        promise = promiseList[i];
-        
-        (function(num, prom){
-            prom.then(function(value){
-                values[num] = value;
-                promiseAny.resolve(values);
-            }).fail(function(reason){
-                rejected[num] = true;
-                reasons[num] = reason;
+    var innerFunction = function(num, prom){
+        prom.then(function(value){
+            values[num] = value;
+            promiseAny.resolve(values);
+        }).fail(function(reason){
+            rejected[num] = true;
+            reasons[num] = reason;
 
-                if (allRejected()){
-                    promiseAny.reject(reasons);
-                }
-            });
-        })(i, promise);
+            if (allRejected()){
+                promiseAny.reject(reasons);
+            }
+        });
+    };
+
+    for (var i = 0; i < promiseList.length; i++){
+        promise = promiseList[i];
+        innerFunction(i, promise);
     }
 
     return promiseAny;
-}
+};
 
 module.exports = PublicPromise;
-
-
 },{}],2:[function(require,module,exports){
-var PromiseLite = require('../bower_components/promiselite/src/promiselite.js');
+var PromiseLite = require('promiselite');
 var NewtonAdapter = new function(){
 
     var newtonInstance, logger;
@@ -418,5 +420,5 @@ var NewtonAdapter = new function(){
 };
 
 module.exports = NewtonAdapter;
-},{"../bower_components/promiselite/src/promiselite.js":1}]},{},[2])(2)
+},{"promiselite":1}]},{},[2])(2)
 });
