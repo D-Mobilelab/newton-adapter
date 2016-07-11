@@ -1,3 +1,16 @@
+// OK
+NewtonAdapter.trackEvent({
+	name: 'event_1_2',
+	properties: {
+		category: 'Miscellanous',
+		content: 'Majong'
+	}, 
+	rank: {
+		contentId: 'rank_1_4',
+	    scope: 'social'
+	}
+});
+
 NewtonAdapter.init({
 	secretId: '<local_host>',
 	enable: true,
@@ -12,19 +25,19 @@ NewtonAdapter.init({
 
 // OK
 NewtonAdapter.rankContent({
-	contentId: '2323',
+	contentId: 'rank_2_4',
     scope: 'social'
 });
 
 // OK
 NewtonAdapter.trackEvent({
-	name: 'Load',
+	name: 'event_2_2',
 	properties: {
 		category: 'Action',
 		content: 'Fruit Ninja'
 	}, 
 	rank: {
-		contentId: '3434',
+		contentId: 'rank_3_4',
 	    scope: 'social'
 	}
 });
@@ -36,7 +49,7 @@ NewtonAdapter.trackPageview({
 		url: '/home/'
 	}, 
 	rank: {
-		contentId: '4545',
+		contentId: 'rank_4_4',
 	    scope: 'social',
 	    score: 1
 	}

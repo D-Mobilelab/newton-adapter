@@ -1,10 +1,8 @@
 var NewtonAdapter = require('../src/main');
-var loggedFlag;
-var NewtonMock;
+var loggedFlag, NewtonMock;
 
 beforeEach(function(){
     loggedFlag = false;
-
     NewtonMock = {
         isUserLogged: function(){},
         sendEvent: function(){},
@@ -31,6 +29,10 @@ beforeEach(function(){
     };  
 
     spyOn(Newton, "getSharedInstanceWithConfig").and.callThrough();
+});
+
+afterEach(function(){
+    NewtonAdapter.resetForTest();
 });
 
 

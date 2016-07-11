@@ -293,6 +293,12 @@ var NewtonAdapter = new function(){
         object = object || {};
         return Newton.SimpleObject.fromJSONObject(object);
     };
+
+    // USE ONLY FOR TEST!
+    this.resetForTest = function(){
+        enablePromise = new PromiseLite(); 
+        loginPromise = new PromiseLite(); 
+    }
     this.init = function(options){
         // get logger
         if (options.logger){
@@ -308,7 +314,7 @@ var NewtonAdapter = new function(){
         }
 
         // init enablePromise and init Newton
-        enablePromise = new PromiseLite(); 
+        // enablePromise = new PromiseLite(); 
         enablePromise.then(function(){
             newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId, createSimpleObject(options.properties));
             logger.log('NewtonAdapter', 'Init', options);
@@ -325,7 +331,7 @@ var NewtonAdapter = new function(){
         }
 
         // init loginPromise
-        loginPromise = new PromiseLite(); 
+        // loginPromise = new PromiseLite(); 
         loginPromise.fail(function(error){
             logger.warn('Newton login not called', error);
         });
