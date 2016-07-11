@@ -298,7 +298,7 @@ var NewtonAdapter = new function(){
     this.resetForTest = function(){
         enablePromise = new PromiseLite(); 
         loginPromise = new PromiseLite(); 
-    }
+    };
     this.init = function(options){
         // get logger
         if (options.logger){
