@@ -10,8 +10,8 @@ module.exports = function (grunt) {
     ****         REQUIREMENTS         ****
     *************************************/
 
-    grunt.loadNpmTasks('./node_modules/dml-js-boilerplate/node_modules/grunt-contrib-clean/tasks');
-    grunt.loadTasks('./node_modules/dml-js-boilerplate/node_modules/grunt-contrib-connect/tasks');
+    // grunt.loadNpmTasks('./node_modules/dml-js-boilerplate/node_modules/grunt-contrib-clean/tasks');
+    // grunt.loadTasks('./node_modules/dml-js-boilerplate/node_modules/grunt-contrib-connect/tasks');
     require('load-grunt-tasks')(grunt, {
     	config: './node_modules/dml-js-boilerplate/package.json', 
     	scope: 'dependencies',
