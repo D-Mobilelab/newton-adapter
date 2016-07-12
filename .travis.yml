@@ -11,6 +11,8 @@ install:
   - npm install
   - npm install -g bower grunt
   - bower install
+  - ls -la node_modules/
+  - ls -la node_modules/dml-js-boilerplate/node_modules/
 
 script:
   - grunt travis -v
