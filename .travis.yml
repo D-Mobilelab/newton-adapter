@@ -8,13 +8,12 @@ branches:
    - master
 
 before_install:
-  - npm install -g npm@^3.5.2
+  - npm install -g bower grunt npm@3.5.2
 
 install:
   - npm -v
   - node -v
   - npm install
-  - npm install -g bower grunt
   - bower install
   - ls -la node_modules/
 
