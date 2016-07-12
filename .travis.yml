@@ -1,21 +1,23 @@
 language: node_js
 
 node_js:
-  - "4.2.6"
+  - "4"
 
 branches:
  only:
    - master
 
 before_install:
-  - npm install -g bower grunt npm@3.5.2
-
-install:
+  - npm install -g bower grunt npm@3
   - npm -v
   - node -v
+
+install:
   - npm install
   - bower install
-  - ls -la node_modules/
+
+after_install:
+  - ls -la node_modules/ 
 
 script:
   - grunt travis -v
