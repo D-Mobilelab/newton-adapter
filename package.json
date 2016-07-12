@@ -29,11 +29,10 @@
   "main": "src/main.js",
   "scripts": {},
   "dependencies": {
-    "promiselite": "git+https://github.com/D-Mobilelab/promiselite.git"
+    "promiselite": "^1.3.1"
   },
   "devDependencies": {
-    "dml-js-boilerplate": "^2.0.2",
-    "grunt": "^0.4.5"
+    "dml-js-boilerplate": "^2.0.2"
   },
   "engines": {
     "node": "0.10.25"
