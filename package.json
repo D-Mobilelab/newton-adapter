@@ -33,6 +33,7 @@
   },
   "devDependencies": {
     "grunt": "^0.4.5",
+    "load-grunt-tasks": "^3.2.0",
     "dml-js-boilerplate": "^2.0.2"
   },
   "engines": {

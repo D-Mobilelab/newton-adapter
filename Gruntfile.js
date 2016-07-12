@@ -12,7 +12,8 @@ module.exports = function (grunt) {
 
     require('load-grunt-tasks')(grunt, {
     	config: './node_modules/dml-js-boilerplate/package.json', 
-    	scope: 'dependencies'
+    	scope: 'dependencies',
+    	requireResolution: true
     });
 
     /*************************************
