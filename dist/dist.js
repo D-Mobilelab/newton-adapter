@@ -323,7 +323,7 @@ var NewtonAdapter = new function(){
         // check if enabled
         var isNewtonExist = !!window.Newton;
         if(!isNewtonExist){
-            logger.warn('Newton not exist');
+            logger.error('Newton not exist');
             enablePromise.reject();
         } else if(options.enable){
             enablePromise.resolve();
@@ -334,7 +334,7 @@ var NewtonAdapter = new function(){
 
         // init loginPromise
         loginPromise.fail(function(error){
-            logger.warn('Newton login not called', error);
+            logger.warn('Newton login failed', error);
         });
 
         // resolve loginPromise if not waitLogin and enable
