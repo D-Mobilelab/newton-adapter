@@ -318,20 +318,23 @@ var NewtonAdapter = new function(){
             newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId, createSimpleObject(options.properties));
             logger.log('NewtonAdapter', 'Init', options);
         });
-        enablePromise.fail(function(error){
-            logger.warn('Newton not enabled', error);
-        });
+        enablePromise.fail(function(){});
 
         // check if enabled
-        if (options.enable){
+        var isNewtonExist = !!window.Newton;
+        if(!isNewtonExist){
+            logger.error('Newton not exist');
+            enablePromise.reject();
+        } else if(options.enable){
             enablePromise.resolve();
         } else {
+            logger.warn('Newton not enabled');
             enablePromise.reject();
         }
 
         // init loginPromise
         loginPromise.fail(function(error){
-            logger.warn('Newton login not called', error);
+            logger.warn('Newton login failed', error);
         });
 
         // resolve loginPromise if not waitLogin and enable

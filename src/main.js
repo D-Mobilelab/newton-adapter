@@ -29,21 +29,21 @@ var NewtonAdapter = new function(){
     * @name init
     * @methodOf NewtonAdapter
     *
-    * @description Initializes Newton sdk and sets up internal configuration
+    * @description Initializes Newton sdk and sets up internal configuration.
     *
     * @param {Object} options configuration object
     * @param {string} options.secretId secret id of the application
-    * @param {boolean} options.enable true if and only if Newton tracking is enabled
-    * @param {boolean} options.waitLogin true if you want to track events only after login
+    * @param {boolean} options.enable enable or disable Newton calls
+    * @param {boolean} options.waitLogin true if you want to track events, heartbeats and rankings only after login. <br/><i>If true, you have to call login method in all cases, both for logged and unlogged users.
     * @param {Object} options.logger any object containing the following methods: debug, log, info, warn, error
-    * @param {Object} options.properties custom data for Newton
+    * @param {Object} options.properties custom data for Newton session
     * 
     * @example
     * <pre>
     *   NewtonAdapter.init({
     *       secretId: '123456789',
-    *       enable: true,      // enable newton
-    *       waitLogin: true,    // wait for login to have been completed (async)
+    *       enable: true,
+    *       waitLogin: true,
     *       logger: console,
     *       properties: {
     *           hello: 'World'
@@ -70,20 +70,23 @@ var NewtonAdapter = new function(){
             newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId, createSimpleObject(options.properties));
             logger.log('NewtonAdapter', 'Init', options);
         });
-        enablePromise.fail(function(error){
-            logger.warn('Newton not enabled', error);
-        });
+        enablePromise.fail(function(){});
 
         // check if enabled
-        if (options.enable){
+        var isNewtonExist = !!window.Newton;
+        if(!isNewtonExist){
+            logger.error('Newton not exist');
+            enablePromise.reject();
+        } else if(options.enable){
             enablePromise.resolve();
         } else {
+            logger.warn('Newton not enabled');
             enablePromise.reject();
         }
 
         // init loginPromise
         loginPromise.fail(function(error){
-            logger.warn('Newton login not called', error);
+            logger.warn('Newton login failed', error);
         });
 
         // resolve loginPromise if not waitLogin and enable
@@ -98,12 +101,13 @@ var NewtonAdapter = new function(){
     * @name login
     * @methodOf NewtonAdapter
     *
-    * @description performs custom or external login via Newton sdk
+    * @description Performs custom or external login via Newton sdk. <br/>
+    * <i>If you set waitLogin=true on init method, you have to call this method in all cases, for logged and unlogged users.</i>
     *
     * @param {Object} options configuration object
-    * @param {string} options.type allowed values: 'custom' or 'external'
-    * @param {boolean} options.logged true if and only if the user is logged on the product
-    * @param {Object} options.userProperties an object containing data about the user
+    * @param {string} options.type type of Newton login used, allowed values: 'custom' or 'external'
+    * @param {boolean} options.logged true if user is logged on product, false if user is unlogged
+    * @param {Object} options.userProperties custom user properties
     * @return {PromiseLite} promise that will be resolved when the login has been completed
     *
     * @example
@@ -162,7 +166,7 @@ var NewtonAdapter = new function(){
     * @name rankContent
     * @methodOf NewtonAdapter
     *
-    * @description performs content ranking via Newton sdk
+    * @description performs content ranking via Newton sdk.
     *
     * @param {Object} options configuration object
     * @param {string} contentId unique identifier of the content
@@ -191,7 +195,7 @@ var NewtonAdapter = new function(){
     * @name trackEvent
     * @methodOf NewtonAdapter
     *
-    * @description performs event tracking via Newton sdk
+    * @description performs event tracking via Newton sdk.
     *
     * @param {Object} options configuration object
     * @param {string} options.name name of the event to track
@@ -232,7 +236,7 @@ var NewtonAdapter = new function(){
     * @name trackPageview
     * @methodOf NewtonAdapter
     *
-    * @description performs pageview tracking via Newton sdk
+    * @description performs pageview tracking via Newton sdk.
     *
     * @param {Object} options configuration object
     * @param {Object} [options.properties] Properties of the pageview
@@ -268,7 +272,7 @@ var NewtonAdapter = new function(){
     * @name startHeartbeat
     * @methodOf NewtonAdapter
     *
-    * @description performs timed events via Newton sdk
+    * @description performs timed events via Newton sdk.
     *
     * @param {Object} options configuration object
     * @param {string} options.name name of the timed event
@@ -297,7 +301,7 @@ var NewtonAdapter = new function(){
     * @name stopHeartbeat
     * @methodOf NewtonAdapter
     *
-    * @description stops timed events via Newton sdk
+    * @description stops timed events via Newton sdk.
     *
     * @param {Object} options configuration object
     * @param {string} options.name name of the timed event
@@ -326,9 +330,9 @@ var NewtonAdapter = new function(){
     * @name isUserLogged
     * @methodOf NewtonAdapter
     *
-    * @description returns whether the user is already logged on Newton
+    * @description Check if the user is already logged on Newton.
     *
-    * @return {boolean} true if and only if the user is already logged on Newton
+    * @return {boolean} true if the user is already logged on Newton
     *
     * @example
     * <pre>

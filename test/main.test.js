@@ -117,11 +117,25 @@ describe('init -', function(){
 
     describe('enable: false - ', function(){
         beforeEach(function(){
+            customLogger = { 
+                debug: function(){},
+                log: function(){},
+                info: function(){},
+                warn: function(){},
+                error: function(){}
+            };
+            spyOn(customLogger, 'warn');
+
             NewtonAdapter.init({
                 secretId: '<local_host>',
                 enable: false,
-                waitLogin: false
+                waitLogin: false,
+                logger: customLogger
             });
+        });
+
+        it('correct warning is called', function(){
+            expect(customLogger.warn).toHaveBeenCalledWith('Newton not enabled');
         });
 
         it('trackEvent doesn\'t run anything', function(){
@@ -140,66 +154,85 @@ describe('init -', function(){
         });
     });
 
-    describe('custom logger -', function(){
+    it('log have been called from init', function(){
         var customLogger;
 
-        beforeEach(function(){
-            customLogger = { 
-                debug: function(){},
-                log: function(){},
-                info: function(){},
-                warn: function(){},
-                error: function(){}
-            };
-            spyOn(customLogger, 'log');
+        customLogger = { 
+            debug: function(){},
+            log: function(){},
+            info: function(){},
+            warn: function(){},
+            error: function(){}
+        };
+        spyOn(customLogger, 'log');
 
-            NewtonAdapter.init({
-                secretId: '<local_host>',
-                enable: true,
-                waitLogin: false,
-                logger: customLogger
-            });
+        NewtonAdapter.init({
+            secretId: '<local_host>',
+            enable: true,
+            waitLogin: false,
+            logger: customLogger
         });
 
-        it('log have been called from init', function(){
-            expect(customLogger.log).toHaveBeenCalled();
+        expect(customLogger.log).toHaveBeenCalled();
+    });
+
+    it('check if Newton exist', function(){
+        Newton = undefined;
+
+        customLogger = { 
+            debug: function(){},
+            log: function(){},
+            info: function(){},
+            warn: function(){},
+            error: function(){}
+        };
+        spyOn(customLogger, 'error');
+
+        NewtonAdapter.init({
+            secretId: '<local_host>',
+            enable: true,
+            waitLogin: false,
+            logger: customLogger
         });
+
+        expect(customLogger.error).toHaveBeenCalledWith('Newton not exist');
     });
 });
 
 
 /*** LOGIN ***/
 
-describe('login -', function(){
-    it('call callback method', function(){
-        NewtonAdapter.init({
-            secretId: '<local_host>',
-            enable: true,
-            waitLogin: false
-        });
-        var mock = {
-            callbackMethod: function(){}
-        };
-        spyOn(mock, "callbackMethod").and.callThrough();
-        NewtonAdapter.login({
-            logged: false,
-            callback: mock.callbackMethod
-        });
-        expect(mock.callbackMethod).toHaveBeenCalled();
+it('login - call callback method', function(){
+    NewtonAdapter.init({
+        secretId: '<local_host>',
+        enable: true,
+        waitLogin: false
     });
+
+    var mock = {
+        callbackMethod: function(){}
+    };
+    spyOn(mock, "callbackMethod").and.callThrough();
+
+    NewtonAdapter.login({
+        logged: false,
+        callback: mock.callbackMethod
+    });
+
+    expect(mock.callbackMethod).toHaveBeenCalled();
 });
 
 
 /*** RANK CONTENT ***/
 
 describe('rankContent -', function(){
-    var properties = {
-        contentId: '123456777',
-        scope: 'social',
-        score: 4
-    };
+    var properties;
 
     beforeEach(function(){
+        properties = {
+            contentId: '123456777',
+            scope: 'social'
+        };
         NewtonAdapter.init({
             secretId: '<local_host>',
             enable: true,
@@ -207,12 +240,27 @@ describe('rankContent -', function(){
         });
     });
 
-    it('rankContent() calls Newton.rankContent with correct properties', function(){
+    it('rankContent() - if score is undefined, then default score is 1', function(){
+        NewtonAdapter.rankContent(properties);
+        expect(NewtonMock.rankContent).toHaveBeenCalledWith(properties.contentId, properties.scope, 1);
+    });
+
+    it('rankContent() - calls Newton.rankContent with correct properties', function(){
+        properties.score = 4;
         NewtonAdapter.rankContent(properties);
         expect(NewtonMock.rankContent).toHaveBeenCalledWith(properties.contentId, properties.scope, properties.score);
     });
 
-    it('trackEvent() calls Newton.rankContent with correct properties', function(){
+    it('trackEvent() - if score is undefined, then default score is 1', function(){
+        NewtonAdapter.trackEvent({
+            name: 'Play',
+            rank: properties
+        });
+        expect(NewtonMock.rankContent).toHaveBeenCalledWith(properties.contentId, properties.scope, 1);
+    });
+
+    it('trackEvent() - calls Newton.rankContent with correct properties', function(){
+        properties.score = 4;
         NewtonAdapter.trackEvent({
             name: 'Play',
             rank: properties
@@ -220,7 +268,8 @@ describe('rankContent -', function(){
         expect(NewtonMock.rankContent).toHaveBeenCalledWith(properties.contentId, properties.scope, properties.score);
     });
 
-    it('trackPageview() calls Newton.rankContent with correct properties', function(){
+    it('trackPageview() - calls Newton.rankContent with correct properties', function(){
+        properties.score = 4;
         NewtonAdapter.trackPageview({
             url: 'http://www.google.it',
             rank: properties
