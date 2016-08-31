@@ -47,7 +47,7 @@ var PrivatePromise = function(executor, nextProm){
 
     var getDeferredPromises = function(){
         var toReturn = next.slice(1, next.length);
-        next.shift();
+        next = [];
         return toReturn;
     };
 
