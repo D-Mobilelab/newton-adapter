@@ -1,3 +1,6 @@
+** 1.4.1 **
+- Updated Promiselite to ~1.3.1
+
 ** 1.4.0 **
 - Init method checks if Newton exists
 
