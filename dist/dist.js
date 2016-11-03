@@ -1,4 +1,3 @@
-/* Version: 1.4.2 */ 
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.NewtonAdapter = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var PROMISE_STATUS = {
     0: 'pending',
@@ -286,7 +285,7 @@ module.exports = PublicPromise;
 var PromiseLite = require('promiselite');
 var NewtonAdapter = new function(){
 
-    var newtonInstance, logger;
+    var newtonInstance, logger, newtonversion;
     var enablePromise = new PromiseLite(); 
     var loginPromise = new PromiseLite(); 
 
@@ -314,9 +313,23 @@ var NewtonAdapter = new function(){
             };
         }
 
+        // get Newton version
+        if (options.newtonversion){
+            newtonversion = options.newtonversion;
+        } else {
+            newtonversion = 2;
+        }
+
         // init enablePromise and init Newton
         enablePromise.then(function(){
-            newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId, createSimpleObject(options.properties));
+            if(newtonversion === 1){
+                newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId);
+                if(!!options.properties){
+                    logger.warn('NewtonAdapter', 'Newton v.1 not support properties on init method');
+                }
+            } else {
+                newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId, createSimpleObject(options.properties));
+            }
             logger.log('NewtonAdapter', 'Init', options);
         });
         enablePromise.fail(function(){});
@@ -324,24 +337,26 @@ var NewtonAdapter = new function(){
         // check if enabled
         var isNewtonExist = !!window.Newton;
         if(!isNewtonExist){
-            logger.error('Newton not exist');
+            logger.error('NewtonAdapter', 'Newton not exist');
             enablePromise.reject();
         } else if(options.enable){
             enablePromise.resolve();
         } else {
-            logger.warn('Newton not enabled');
+            logger.warn('NewtonAdapter', 'Newton not enabled');
             enablePromise.reject();
         }
 
         // init loginPromise
         loginPromise.fail(function(error){
-            logger.warn('Newton login failed', error);
+            logger.warn('NewtonAdapter', 'Newton login failed', error);
         });
 
         // resolve loginPromise if not waitLogin and enable
         if(!options.waitLogin && options.enable){
             loginPromise.resolve();
         }
+
+        return enablePromise;
     };
     this.login = function(options){
         var loginCallback = function(){
@@ -358,19 +373,32 @@ var NewtonAdapter = new function(){
         enablePromise.then(function(){
             if(options.logged && !newtonInstance.isUserLogged()){
                 if(options.type === 'external'){
-                    newtonInstance.getLoginBuilder()
-                    .setCustomData( createSimpleObject(options.userProperties) )
-                    .setOnFlowCompleteCallback(loginCallback)
-                    .setExternalID(options.userId)
-                    .getExternalLoginFlow()
-                    .startLoginFlow();
+                    if(newtonversion === 1){
+                        logger.error('NewtonAdapter', 'Login', 'Newton v.1 not support external login');
+                    } else {
+                        newtonInstance.getLoginBuilder()
+                        .setCustomData( createSimpleObject(options.userProperties) )
+                        .setOnFlowCompleteCallback(loginCallback)
+                        .setExternalID(options.userId)
+                        .getExternalLoginFlow()
+                        .startLoginFlow();
+                    }
                 } else {
-                    newtonInstance.getLoginBuilder()
-                    .setCustomData( createSimpleObject(options.userProperties) )
-                    .setOnFlowCompleteCallback(loginCallback)
-                    .setCustomID(options.userId)
-                    .getCustomLoginFlow()
-                    .startLoginFlow();
+                    if(newtonversion === 1){
+                        newtonInstance.getLoginBuilder()
+                        .setLoginData( createSimpleObject(options.userProperties) )
+                        .setCallback(loginCallback)
+                        .setCustomID(options.userId)
+                        .getCustomFlow()
+                        .startLoginFlow();
+                    } else {
+                        newtonInstance.getLoginBuilder()
+                        .setCustomData( createSimpleObject(options.userProperties) )
+                        .setOnFlowCompleteCallback(loginCallback)
+                        .setCustomID(options.userId)
+                        .getCustomLoginFlow()
+                        .startLoginFlow();  
+                    }
                 }
             } else {
                 loginCallback();
@@ -382,7 +410,11 @@ var NewtonAdapter = new function(){
     this.rankContent = function(options){
         loginPromise.then(function(){
             if(!options.score) { options.score = 1; }
-            newtonInstance.rankContent(options.contentId, options.scope, options.score);
+            if(newtonversion === 1){
+                logger.error('NewtonAdapter', 'rankContent', 'Newton v.1 not support rank content');
+            } else {
+                newtonInstance.rankContent(options.contentId, options.scope, options.score);
+            }
             logger.log('NewtonAdapter', 'rankContent', options);
         });
     };
@@ -392,8 +424,12 @@ var NewtonAdapter = new function(){
             logger.log('NewtonAdapter', 'trackEvent', options.name, options.properties);
             if(options.rank){
                 if(!options.rank.score) { options.rank.score = 1; }
-                newtonInstance.rankContent(options.rank.contentId, options.rank.scope, options.rank.score);
-                logger.log('NewtonAdapter', 'rankContent', options.rank);
+                if(newtonversion === 1){
+                    logger.error('NewtonAdapter', 'rankContent', 'Newton v.1 not support rank content');
+                } else {
+                    newtonInstance.rankContent(options.rank.contentId, options.rank.scope, options.rank.score);
+                    logger.log('NewtonAdapter', 'rankContent', options.rank);
+                }
             }
         });
     };
@@ -423,7 +459,17 @@ var NewtonAdapter = new function(){
         });
     };
     this.isUserLogged = function(){
-        return Newton.getSharedInstance().isUserLogged();
+        try {
+            return Newton.getSharedInstance().isUserLogged();
+        } catch(e) {
+            enablePromise.then(function(){
+                logger.error('NewtonAdapter', 'isUserLogged', e);
+            });
+            return false;
+        }
+    };
+    this.isInitialized = function(){
+        return enablePromise.isSettled();
     };
 };
 

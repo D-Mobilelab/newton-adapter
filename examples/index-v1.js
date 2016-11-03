@@ -1,18 +1,5 @@
 console.log( "isInitialized: ", NewtonAdapter.isInitialized() );
 
-// OK
-NewtonAdapter.trackEvent({
-	name: 'event_1_2',
-	properties: {
-		category: 'Miscellanous',
-		content: 'Majong'
-	}, 
-	rank: {
-		contentId: 'rank_1_4',
-	    scope: 'social'
-	}
-});
-
 NewtonAdapter.init({
 	secretId: '<local_host>',
 	enable: true,
@@ -20,46 +7,27 @@ NewtonAdapter.init({
 	logger: console,
 	properties: {
 		bridge_session_id: '123123123'
-	}
+	},
+	newtonversion: 1
 });
 
 console.log( "isInitialized: ", NewtonAdapter.isInitialized() );
 
-// console.log( "isLogged: ", NewtonAdapter.isUserLogged() );
-
-// OK
-NewtonAdapter.rankContent({
-	contentId: 'rank_2_4',
-    scope: 'social'
-});
-
-// OK
 NewtonAdapter.trackEvent({
-	name: 'event_2_2',
+	name: 'event_1_2',
 	properties: {
-		category: 'Action',
-		content: 'Fruit Ninja'
-	}, 
-	rank: {
-		contentId: 'rank_3_4',
-	    scope: 'social'
+		category: 'Miscellanous',
+		content: 'Majong'
 	}
 });
 
-// OK
 NewtonAdapter.trackPageview({
 	properties: {
 		title: 'Fruit Ninja Page',
 		url: '/home/'
-	}, 
-	rank: {
-		contentId: 'rank_4_4',
-	    scope: 'social',
-	    score: 1
 	}
 });
 
-// OK
 NewtonAdapter.startHeartbeat({
 	name: 'Loading',
 	properties: {
@@ -67,7 +35,6 @@ NewtonAdapter.startHeartbeat({
 	}
 });
 
-// OK
 NewtonAdapter.stopHeartbeat({
 	name: 'Loading',
 	properties: {
@@ -78,8 +45,7 @@ NewtonAdapter.stopHeartbeat({
 
 NewtonAdapter.login({
 	logged: true,
-	type: 'external',
-	// CHECK
+	type: 'custom',
 	userId: '777888999',
 	userProperties: {
 		msisdn: '+3990909090',
@@ -87,4 +53,4 @@ NewtonAdapter.login({
 	}
 });
 
-// console.log( "isLogged: ", NewtonAdapter.isUserLogged() );
+console.log( "isLogged: ", NewtonAdapter.isUserLogged() );

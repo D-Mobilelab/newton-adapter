@@ -9,7 +9,19 @@ beforeEach(function(){
         timedEventStart: function(){},
         timedEventStop: function(){},
         isUserLogged: function(){ return loggedFlag; },
-        rankContent: function(){}
+        rankContent: function(){},
+        // login
+        getLoginBuilder: function(){ return this; },
+        setCustomData: function(){ return this; },
+        setLoginData: function(){ return this; },
+        setOnFlowCompleteCallback: function(){ return this; },
+        setCallback: function(){ return this; },
+        setExternalID: function(){ return this; },
+        setCustomID: function(){ return this; },
+        getExternalLoginFlow: function(){ return this; },
+        getCustomFlow: function(){ return this; },
+        getCustomLoginFlow: function(){ return this; },
+        startLoginFlow: function(){ return this; }
     };
 
     spyOn(NewtonMock, "sendEvent").and.callThrough();
@@ -17,6 +29,18 @@ beforeEach(function(){
     spyOn(NewtonMock, "timedEventStop").and.callThrough();
     spyOn(NewtonMock, "isUserLogged").and.callThrough();
     spyOn(NewtonMock, "rankContent").and.callThrough();
+    // login
+    spyOn(NewtonMock, "getLoginBuilder").and.callThrough();
+    spyOn(NewtonMock, "setCustomData").and.callThrough();
+    spyOn(NewtonMock, "setLoginData").and.callThrough();
+    spyOn(NewtonMock, "setOnFlowCompleteCallback").and.callThrough();
+    spyOn(NewtonMock, "setCallback").and.callThrough();
+    spyOn(NewtonMock, "setExternalID").and.callThrough();
+    spyOn(NewtonMock, "setCustomID").and.callThrough();
+    spyOn(NewtonMock, "getExternalLoginFlow").and.callThrough();
+    spyOn(NewtonMock, "getCustomFlow").and.callThrough();
+    spyOn(NewtonMock, "getCustomLoginFlow").and.callThrough();
+    spyOn(NewtonMock, "startLoginFlow").and.callThrough();
 
     Newton = {
         getSharedInstanceWithConfig: function(){ return NewtonMock; },
@@ -135,7 +159,7 @@ describe('init -', function(){
         });
 
         it('correct warning is called', function(){
-            expect(customLogger.warn).toHaveBeenCalledWith('Newton not enabled');
+            expect(customLogger.warn).toHaveBeenCalledWith('NewtonAdapter', 'Newton not enabled');
         });
 
         it('trackEvent doesn\'t run anything', function(){
@@ -195,31 +219,60 @@ describe('init -', function(){
             logger: customLogger
         });
 
-        expect(customLogger.error).toHaveBeenCalledWith('Newton not exist');
+        expect(customLogger.error).toHaveBeenCalledWith('NewtonAdapter', 'Newton not exist');
     });
 });
 
 
 /*** LOGIN ***/
 
-it('login - call callback method', function(){
-    NewtonAdapter.init({
-        secretId: '<local_host>',
-        enable: true,
-        waitLogin: false
-    });
-
-    var mock = {
-        callbackMethod: function(){}
+describe('login - ', function(){
+    var userId = '111222333444';
+    var userProperties = {
+        msisdn: '+39123456789'
     };
-    spyOn(mock, "callbackMethod").and.callThrough();
+    var callbackMethod = function(){};
 
-    NewtonAdapter.login({
-        logged: false,
-        callback: mock.callbackMethod
+    beforeEach(function(){
+        NewtonAdapter.init({
+            secretId: '<local_host>',
+            enable: true,
+            waitLogin: false
+        });
     });
 
-    expect(mock.callbackMethod).toHaveBeenCalled();
+    it('external login', function(){
+        NewtonAdapter.login({
+            logged: true,
+            userId: userId,
+            userProperties: userProperties,
+            callback: callbackMethod,
+            type: 'external'
+        });
+
+        expect(NewtonMock.getLoginBuilder).toHaveBeenCalled();
+        expect(NewtonMock.setCustomData).toHaveBeenCalledWith(userProperties);
+        // expect(NewtonMock.setOnFlowCompleteCallback).toHaveBeenCalledWith(callbackMethod.call();
+        expect(NewtonMock.setExternalID).toHaveBeenCalledWith(userId);
+        expect(NewtonMock.getExternalLoginFlow).toHaveBeenCalled();
+        expect(NewtonMock.startLoginFlow).toHaveBeenCalled();
+    });
+
+    it('custom login', function(){
+        NewtonAdapter.login({
+            logged: true,
+            userId: userId,
+            userProperties: userProperties,
+            callback: callbackMethod
+        });
+
+        expect(NewtonMock.getLoginBuilder).toHaveBeenCalled();
+        expect(NewtonMock.setCustomData).toHaveBeenCalledWith(userProperties);
+        // expect(NewtonMock.setOnFlowCompleteCallback).toHaveBeenCalledWith(callbackMethod.call();
+        expect(NewtonMock.setCustomID).toHaveBeenCalledWith(userId);
+        expect(NewtonMock.getCustomLoginFlow).toHaveBeenCalled();
+        expect(NewtonMock.startLoginFlow).toHaveBeenCalled();
+    });
 });
 
 
@@ -425,5 +478,103 @@ describe('isUserLogged -', function(){
 
     it('return right response', function(){
         expect(NewtonAdapter.isUserLogged()).toEqual(Newton.getSharedInstance().isUserLogged());
+    });
+});
+
+/*** IS INITIALIZED ***/
+
+describe('isInitialized -', function(){
+    it('return true if you have called init() before', function(){
+        NewtonAdapter.init({
+            secretId: '<local_host>',
+            enable: true,
+            waitLogin: false
+        });
+        expect(NewtonAdapter.isInitialized()).toBe(true);
+    });
+
+    it('return false if you have not called init() yet', function(){
+        expect(NewtonAdapter.isInitialized()).toBe(false);
+    });
+});
+
+
+/*** NEWTON VERSION 1 ***/
+describe('Newton version 1 - ', function(){
+    var secretId = '<local_host>';
+
+    beforeEach(function(){
+       customLogger = { 
+            debug: function(){},
+            log: function(){},
+            info: function(){},
+            warn: function(){},
+            error: function(){}
+        };
+        spyOn(customLogger, 'warn');
+        spyOn(customLogger, 'error');
+
+        NewtonAdapter.init({
+            secretId: secretId,
+            enable: true,
+            waitLogin: false,
+            logger: customLogger,
+            properties: { bridgeId: '123123123' },
+            newtonversion: 1
+        }); 
+    });
+
+    it('init calls getSharedInstanceWithConfig only with secretId', function(){
+        expect(Newton.getSharedInstanceWithConfig).toHaveBeenCalledWith(secretId);
+        expect(customLogger.warn).toHaveBeenCalledWith('NewtonAdapter', 'Newton v.1 not support properties on init method');
+    });
+
+    it('login returns an error if login type is external', function(){
+        NewtonAdapter.login({
+            logged: true,
+            type: 'external'
+        });
+        expect(customLogger.error).toHaveBeenCalledWith('NewtonAdapter', 'Login', 'Newton v.1 not support external login');
+    });
+
+    it('login makes custom login correctly', function(){
+        var userId = '111222333444';
+        var userProperties = {
+            msisdn: '+39123456789'
+        };
+        var callbackMethod = function(){};
+
+        NewtonAdapter.login({
+            logged: true,
+            userId: userId,
+            userProperties: userProperties,
+            callback: callbackMethod
+        });
+
+        expect(NewtonMock.getLoginBuilder).toHaveBeenCalled();
+        expect(NewtonMock.setLoginData).toHaveBeenCalledWith(userProperties);
+        // expect(NewtonMock.setCallback).toHaveBeenCalledWith(callbackMethod.call();
+        expect(NewtonMock.setCustomID).toHaveBeenCalledWith(userId);
+        expect(NewtonMock.getCustomFlow).toHaveBeenCalled();
+        expect(NewtonMock.startLoginFlow).toHaveBeenCalled();
+    });
+
+    it('rankContent returns an error', function(){
+        NewtonAdapter.rankContent({
+            contentId: '123456777',
+            scope: 'social'
+        });
+        expect(customLogger.error).toHaveBeenCalledWith('NewtonAdapter', 'rankContent', 'Newton v.1 not support rank content');
+    });
+
+    it('trackEvent returns an error if a rank properties is passed', function(){
+        NewtonAdapter.trackEvent({
+            name: 'Play',
+            rank: {
+                contentId: '123456777',
+                scope: 'social'
+            }
+        });
+        expect(customLogger.error).toHaveBeenCalledWith('NewtonAdapter', 'rankContent', 'Newton v.1 not support rank content');
     });
 });
