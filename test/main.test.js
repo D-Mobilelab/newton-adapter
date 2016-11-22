@@ -1,50 +1,50 @@
 var NewtonAdapter = require('../src/main');
-var loggedFlag, NewtonMock;
+var loggedFlag, NewtonMock, calls;
 
 beforeEach(function(){
     loggedFlag = false;
+    calls = [];
     NewtonMock = {
-        isUserLogged: function(){},
-        sendEvent: function(){},
-        timedEventStart: function(){},
-        timedEventStop: function(){},
-        isUserLogged: function(){ return loggedFlag; },
-        rankContent: function(){},
+        sendEvent: function(){ calls.push('sendEvent'); },
+        timedEventStart: function(){ calls.push('timedEventStart'); },
+        timedEventStop: function(){ calls.push('timedEventStop'); },
+        isUserLogged: function(){ calls.push('isUserLogged'); return loggedFlag; },
+        rankContent: function(){ calls.push('rankContent'); },
         // login
-        getLoginBuilder: function(){ return this; },
-        setCustomData: function(){ return this; },
-        setLoginData: function(){ return this; },
-        setOnFlowCompleteCallback: function(){ return this; },
-        setCallback: function(){ return this; },
-        setExternalID: function(){ return this; },
-        setCustomID: function(){ return this; },
-        getExternalLoginFlow: function(){ return this; },
-        getCustomFlow: function(){ return this; },
-        getCustomLoginFlow: function(){ return this; },
-        startLoginFlow: function(){ return this; }
+        getLoginBuilder: function(){ calls.push('getLoginBuilder'); return this; },
+        setCustomData: function(){ calls.push('setCustomData'); return this; },
+        setLoginData: function(){ calls.push('setLoginData'); return this; },
+        setOnFlowCompleteCallback: function(){ calls.push('setOnFlowCompleteCallback'); return this; },
+        setCallback: function(){ calls.push('setCallback'); return this; },
+        setExternalID: function(){ calls.push('setExternalID'); return this; },
+        setCustomID: function(){ calls.push('setCustomID'); return this; },
+        getExternalLoginFlow: function(){ calls.push('getExternalLoginFlow'); return this; },
+        getCustomFlow: function(){ calls.push('getCustomFlow'); return this; },
+        getCustomLoginFlow: function(){ calls.push('getCustomLoginFlow'); return this; },
+        startLoginFlow: function(){ calls.push('startLoginFlow'); return this; }
     };
 
-    spyOn(NewtonMock, "sendEvent").and.callThrough();
-    spyOn(NewtonMock, "timedEventStart").and.callThrough();
-    spyOn(NewtonMock, "timedEventStop").and.callThrough();
-    spyOn(NewtonMock, "isUserLogged").and.callThrough();
-    spyOn(NewtonMock, "rankContent").and.callThrough();
+    spyOn(NewtonMock, 'sendEvent').and.callThrough();
+    spyOn(NewtonMock, 'timedEventStart').and.callThrough();
+    spyOn(NewtonMock, 'timedEventStop').and.callThrough();
+    spyOn(NewtonMock, 'isUserLogged').and.callThrough();
+    spyOn(NewtonMock, 'rankContent').and.callThrough();
     // login
-    spyOn(NewtonMock, "getLoginBuilder").and.callThrough();
-    spyOn(NewtonMock, "setCustomData").and.callThrough();
-    spyOn(NewtonMock, "setLoginData").and.callThrough();
-    spyOn(NewtonMock, "setOnFlowCompleteCallback").and.callThrough();
-    spyOn(NewtonMock, "setCallback").and.callThrough();
-    spyOn(NewtonMock, "setExternalID").and.callThrough();
-    spyOn(NewtonMock, "setCustomID").and.callThrough();
-    spyOn(NewtonMock, "getExternalLoginFlow").and.callThrough();
-    spyOn(NewtonMock, "getCustomFlow").and.callThrough();
-    spyOn(NewtonMock, "getCustomLoginFlow").and.callThrough();
-    spyOn(NewtonMock, "startLoginFlow").and.callThrough();
+    spyOn(NewtonMock, 'getLoginBuilder').and.callThrough();
+    spyOn(NewtonMock, 'setCustomData').and.callThrough();
+    spyOn(NewtonMock, 'setLoginData').and.callThrough();
+    spyOn(NewtonMock, 'setOnFlowCompleteCallback').and.callThrough();
+    spyOn(NewtonMock, 'setCallback').and.callThrough();
+    spyOn(NewtonMock, 'setExternalID').and.callThrough();
+    spyOn(NewtonMock, 'setCustomID').and.callThrough();
+    spyOn(NewtonMock, 'getExternalLoginFlow').and.callThrough();
+    spyOn(NewtonMock, 'getCustomFlow').and.callThrough();
+    spyOn(NewtonMock, 'getCustomLoginFlow').and.callThrough();
+    spyOn(NewtonMock, 'startLoginFlow').and.callThrough();
 
     Newton = {
-        getSharedInstanceWithConfig: function(){ return NewtonMock; },
-        getSharedInstance: function() { return NewtonMock },
+        getSharedInstanceWithConfig: function(){ calls.push('getCustomFlow'); return NewtonMock; },
+        getSharedInstance: function() { return NewtonMock; },
         SimpleObject: {
             fromJSONObject: function(obj){
                 return obj;
@@ -52,7 +52,7 @@ beforeEach(function(){
         }       
     };  
 
-    spyOn(Newton, "getSharedInstanceWithConfig").and.callThrough();
+    spyOn(Newton, 'getSharedInstanceWithConfig').and.callThrough();
 });
 
 afterEach(function(){
@@ -60,27 +60,35 @@ afterEach(function(){
 });
 
 
-/*** INIT ***/
+/* INIT */
 
 describe('init -', function(){
-    it('call Newton.getSharedInstanceWithConfig with secretId', function(){
+    it('call Newton.getSharedInstanceWithConfig with secretId', function(done){
         var secretId = '<local_host>';
         NewtonAdapter.init({
             secretId: secretId,
             enable: true
+        }).then(function(){
+            expect(Newton.getSharedInstanceWithConfig).toHaveBeenCalledWith(secretId, {});
+            done();                        
+        }).catch(function(reason){
+            done.fail(reason);
         });
-        expect(Newton.getSharedInstanceWithConfig).toHaveBeenCalledWith(secretId, {});
     });
 
-    it('call Newton.getSharedInstanceWithConfig with secretId and properties', function(){
+    it('call Newton.getSharedInstanceWithConfig with secretId and properties', function(done){
         var secretId = '<local_host>';
         var properties = { bridgeId: '123123123' };
         NewtonAdapter.init({
             secretId: secretId,
             enable: true,
             properties: properties
+        }).then(function(){
+            expect(Newton.getSharedInstanceWithConfig).toHaveBeenCalledWith(secretId, properties);
+            done();                        
+        }).catch(function(reason){
+            done.fail(reason);
         });
-        expect(Newton.getSharedInstanceWithConfig).toHaveBeenCalledWith(secretId, properties);
     });
 
     describe('waitLogin: false - ', function(){
@@ -92,19 +100,31 @@ describe('init -', function(){
             });
         });
 
-        it('trackEvent doesn\'t wait login', function(){
-            NewtonAdapter.trackEvent('Play');
-            expect(NewtonMock.sendEvent).toHaveBeenCalled();
+        it('trackEvent doesn\'t wait login', function(done){
+            NewtonAdapter.trackEvent('Play').then(function(){
+                expect(NewtonMock.sendEvent).toHaveBeenCalled();
+                done();                        
+            }).catch(function(reason){
+                done.fail(reason);
+            });
         });
 
-        it('startHeartbeat doesn\'t wait login', function(){
-            NewtonAdapter.startHeartbeat('Play');
-            expect(NewtonMock.timedEventStart).toHaveBeenCalled();
+        it('startHeartbeat doesn\'t wait login', function(done){
+            NewtonAdapter.startHeartbeat('Play').then(function(){
+                expect(NewtonMock.timedEventStart).toHaveBeenCalled();
+                done();                        
+            }).catch(function(reason){
+                done.fail(reason);
+            });
         });
 
-        it('stopHeartbeat doesn\'t wait login', function(){
-            NewtonAdapter.stopHeartbeat('Play');
-            expect(NewtonMock.timedEventStop).toHaveBeenCalled();
+        it('stopHeartbeat doesn\'t wait login', function(done){
+            NewtonAdapter.stopHeartbeat('Play').then(function(){
+                expect(NewtonMock.timedEventStop).toHaveBeenCalled();
+                done();                        
+            }).catch(function(reason){
+                done.fail(reason);
+            });
         });
     });
 
@@ -117,29 +137,39 @@ describe('init -', function(){
             });
         });
 
-        it('trackEvent waits login', function(){
+        it('trackEvent waits login', function(done){
             NewtonAdapter.trackEvent('Play');
-            expect(NewtonMock.sendEvent).not.toHaveBeenCalled();
-            NewtonAdapter.login({ logged: false });
-            expect(NewtonMock.sendEvent).toHaveBeenCalled();
+            NewtonAdapter.login({ logged: false }).then(function(){
+                expect(calls.indexOf('startLoginFlow')).toBeLessThan(calls.indexOf('sendEvent'));
+                done();                        
+            }).catch(function(reason){
+                done.fail(reason);
+            });
         });
 
-        it('startHeartbeat waits login', function(){
+        it('startHeartbeat waits login', function(done){
             NewtonAdapter.startHeartbeat('Play');
-            expect(NewtonMock.timedEventStart).not.toHaveBeenCalled();
-            NewtonAdapter.login({ logged: false });
-            expect(NewtonMock.timedEventStart).toHaveBeenCalled();
+            NewtonAdapter.login({ logged: false }).then(function(){
+                expect(calls.indexOf('startLoginFlow')).toBeLessThan(calls.indexOf('timedEventStart'));
+                done();                        
+            }).catch(function(reason){
+                done.fail(reason);
+            });
         });
 
-        it('stopHeartbeat waits login', function(){
+        it('stopHeartbeat waits login', function(done){
             NewtonAdapter.stopHeartbeat('Play');
-            expect(NewtonMock.timedEventStop).not.toHaveBeenCalled();
-            NewtonAdapter.login({ logged: false });
-            expect(NewtonMock.timedEventStop).toHaveBeenCalled();
+            NewtonAdapter.login({ logged: false }).then(function(){
+                expect(calls.indexOf('startLoginFlow')).toBeLessThan(calls.indexOf('timedEventStop'));
+                done();                        
+            }).catch(function(reason){
+                done.fail(reason);
+            });
         });
     });
 
     describe('enable: false - ', function(){
+        var customLogger, initPromise;
         beforeEach(function(){
             customLogger = { 
                 debug: function(){},
@@ -150,7 +180,7 @@ describe('init -', function(){
             };
             spyOn(customLogger, 'warn');
 
-            NewtonAdapter.init({
+            initPromise = NewtonAdapter.init({
                 secretId: '<local_host>',
                 enable: false,
                 waitLogin: false,
@@ -158,27 +188,45 @@ describe('init -', function(){
             });
         });
 
-        it('correct warning is called', function(){
-            expect(customLogger.warn).toHaveBeenCalledWith('NewtonAdapter', 'Newton not enabled');
+        it('correct warning is called', function(done){
+            initPromise.then(function(){
+                done.fail();
+            }).catch(function(reason){
+                expect(reason).toEqual(new Error('Newton not enabled'));
+                expect(customLogger.warn).toHaveBeenCalledWith('NewtonAdapter', 'Newton not enabled');
+                done();
+            });
         });
 
-        it('trackEvent doesn\'t run anything', function(){
-            NewtonAdapter.trackEvent('Play');
-            expect(NewtonMock.sendEvent).not.toHaveBeenCalled();
+        it('trackEvent doesn\'t run anything', function(done){
+            NewtonAdapter.trackEvent('Play').then(function(){
+                done.fail();
+            }).catch(function(){
+                expect(NewtonMock.sendEvent).not.toHaveBeenCalled();
+                done();
+            });
         });
 
-        it('startHeartbeat doesn\'t run anything', function(){
-            NewtonAdapter.startHeartbeat('Play');
-            expect(NewtonMock.timedEventStart).not.toHaveBeenCalled();
+        it('startHeartbeat doesn\'t run anything', function(done){
+            NewtonAdapter.startHeartbeat('Play').then(function(){
+                done.fail();
+            }).catch(function(){
+                expect(NewtonMock.timedEventStart).not.toHaveBeenCalled();
+                done();
+            });
         });
 
-        it('stopHeartbeat doesn\'t run anything', function(){
-            NewtonAdapter.stopHeartbeat('Play');
-            expect(NewtonMock.timedEventStop).not.toHaveBeenCalled();
+        it('stopHeartbeat doesn\'t run anything', function(done){
+            NewtonAdapter.stopHeartbeat('Play').then(function(){
+                done.fail();
+            }).catch(function(){
+                expect(NewtonMock.timedEventStop).not.toHaveBeenCalled();
+                done();
+            });
         });
     });
 
-    it('log have been called from init', function(){
+    it('log have been called from init', function(done){
         var customLogger;
 
         customLogger = { 
@@ -195,12 +243,16 @@ describe('init -', function(){
             enable: true,
             waitLogin: false,
             logger: customLogger
+        }).then(function(){
+            expect(customLogger.log).toHaveBeenCalled();
+            done();
+        }).catch(function(reason){
+            done.fail(reason);
         });
-
-        expect(customLogger.log).toHaveBeenCalled();
+        
     });
 
-    it('check if Newton exist', function(){
+    it('check if Newton exist', function(done){
         Newton = undefined;
 
         customLogger = { 
@@ -217,14 +269,19 @@ describe('init -', function(){
             enable: true,
             waitLogin: false,
             logger: customLogger
+        }).then(function(){
+            done.fail(reason);
+        }).catch(function(reason){
+            expect(customLogger.error).toHaveBeenCalledWith('NewtonAdapter', 'Newton not exist');
+            expect(reason).toEqual(new Error('Newton not exist'));
+            done();
         });
-
-        expect(customLogger.error).toHaveBeenCalledWith('NewtonAdapter', 'Newton not exist');
+        
     });
 });
 
 
-/*** LOGIN ***/
+/* LOGIN */
 
 describe('login - ', function(){
     var userId = '111222333444';
@@ -241,42 +298,48 @@ describe('login - ', function(){
         });
     });
 
-    it('external login', function(){
+    it('external login', function(done){
         NewtonAdapter.login({
             logged: true,
             userId: userId,
             userProperties: userProperties,
             callback: callbackMethod,
             type: 'external'
-        });
-
-        expect(NewtonMock.getLoginBuilder).toHaveBeenCalled();
-        expect(NewtonMock.setCustomData).toHaveBeenCalledWith(userProperties);
-        // expect(NewtonMock.setOnFlowCompleteCallback).toHaveBeenCalledWith(callbackMethod.call();
-        expect(NewtonMock.setExternalID).toHaveBeenCalledWith(userId);
-        expect(NewtonMock.getExternalLoginFlow).toHaveBeenCalled();
-        expect(NewtonMock.startLoginFlow).toHaveBeenCalled();
+        }).then(function(){
+            expect(NewtonMock.getLoginBuilder).toHaveBeenCalled();
+            expect(NewtonMock.setCustomData).toHaveBeenCalledWith(userProperties);
+            // expect(NewtonMock.setOnFlowCompleteCallback).toHaveBeenCalledWith(callbackMethod.call();
+            expect(NewtonMock.setExternalID).toHaveBeenCalledWith(userId);
+            expect(NewtonMock.getExternalLoginFlow).toHaveBeenCalled();
+            expect(NewtonMock.startLoginFlow).toHaveBeenCalled();
+            done();
+        }).catch(function(reason){
+            done.fail(reason);
+        });        
     });
 
-    it('custom login', function(){
+    it('custom login', function(done){
         NewtonAdapter.login({
             logged: true,
             userId: userId,
             userProperties: userProperties,
             callback: callbackMethod
+        }).then(function(){
+            expect(NewtonMock.getLoginBuilder).toHaveBeenCalled();
+            expect(NewtonMock.setCustomData).toHaveBeenCalledWith(userProperties);
+            // expect(NewtonMock.setOnFlowCompleteCallback).toHaveBeenCalledWith(callbackMethod.call();
+            expect(NewtonMock.setCustomID).toHaveBeenCalledWith(userId);
+            expect(NewtonMock.getCustomLoginFlow).toHaveBeenCalled();
+            expect(NewtonMock.startLoginFlow).toHaveBeenCalled();
+            done();
+        }).catch(function(reason){
+            done.fail(reason);
         });
-
-        expect(NewtonMock.getLoginBuilder).toHaveBeenCalled();
-        expect(NewtonMock.setCustomData).toHaveBeenCalledWith(userProperties);
-        // expect(NewtonMock.setOnFlowCompleteCallback).toHaveBeenCalledWith(callbackMethod.call();
-        expect(NewtonMock.setCustomID).toHaveBeenCalledWith(userId);
-        expect(NewtonMock.getCustomLoginFlow).toHaveBeenCalled();
-        expect(NewtonMock.startLoginFlow).toHaveBeenCalled();
     });
 });
 
 
-/*** RANK CONTENT ***/
+/* RANK CONTENT */
 
 describe('rankContent -', function(){
     var properties;
@@ -293,46 +356,66 @@ describe('rankContent -', function(){
         });
     });
 
-    it('rankContent() - if score is undefined, then default score is 1', function(){
-        NewtonAdapter.rankContent(properties);
-        expect(NewtonMock.rankContent).toHaveBeenCalledWith(properties.contentId, properties.scope, 1);
+    it('rankContent() - if score is undefined, then default score is 1', function(done){
+        NewtonAdapter.rankContent(properties).then(function(){
+            expect(NewtonMock.rankContent).toHaveBeenCalledWith(properties.contentId, properties.scope, 1);
+            done();
+        }).catch(function(reason){
+            done.fail(reason);
+        });
     });
 
-    it('rankContent() - calls Newton.rankContent with correct properties', function(){
+    it('rankContent() - calls Newton.rankContent with correct properties', function(done){
         properties.score = 4;
-        NewtonAdapter.rankContent(properties);
-        expect(NewtonMock.rankContent).toHaveBeenCalledWith(properties.contentId, properties.scope, properties.score);
+        NewtonAdapter.rankContent(properties).then(function(){
+            expect(NewtonMock.rankContent).toHaveBeenCalledWith(properties.contentId, properties.scope, properties.score);
+            done();
+        }).catch(function(reason){
+            done.fail(reason);
+        });
     });
 
-    it('trackEvent() - if score is undefined, then default score is 1', function(){
+    it('trackEvent() - if score is undefined, then default score is 1', function(done){
         NewtonAdapter.trackEvent({
             name: 'Play',
             rank: properties
+        }).then(function(){
+            expect(NewtonMock.rankContent).toHaveBeenCalledWith(properties.contentId, properties.scope, 1);
+            done();
+        }).catch(function(reason){
+            done.fail(reason);
         });
-        expect(NewtonMock.rankContent).toHaveBeenCalledWith(properties.contentId, properties.scope, 1);
     });
 
-    it('trackEvent() - calls Newton.rankContent with correct properties', function(){
+    it('trackEvent() - calls Newton.rankContent with correct properties', function(done){
         properties.score = 4;
         NewtonAdapter.trackEvent({
             name: 'Play',
             rank: properties
-        });
-        expect(NewtonMock.rankContent).toHaveBeenCalledWith(properties.contentId, properties.scope, properties.score);
+        }).then(function(){
+            expect(NewtonMock.rankContent).toHaveBeenCalledWith(properties.contentId, properties.scope, properties.score);
+            done();
+        }).catch(function(reason){
+            done.fail(reason);
+        });        
     });
 
-    it('trackPageview() - calls Newton.rankContent with correct properties', function(){
+    it('trackPageview() - calls Newton.rankContent with correct properties', function(done){
         properties.score = 4;
         NewtonAdapter.trackPageview({
             url: 'http://www.google.it',
             rank: properties
+        }).then(function(){
+            expect(NewtonMock.rankContent).toHaveBeenCalledWith(properties.contentId, properties.scope, properties.score);
+            done();
+        }).catch(function(reason){
+            done.fail(reason);
         });
-        expect(NewtonMock.rankContent).toHaveBeenCalledWith(properties.contentId, properties.scope, properties.score);
     });
 });
 
 
-/*** TRACK EVENT ***/
+/* TRACK EVENT */
 
 describe('trackEvent -', function(){
     beforeEach(function(){
@@ -343,27 +426,35 @@ describe('trackEvent -', function(){
         });
     });
 
-    it('call Newton.sendEvent with event name and properties', function(){
+    it('call Newton.sendEvent with event name and properties', function(done){
         var eventName = 'Play';
         var eventProperties = { content: 'Fruit Slicer' };
         NewtonAdapter.trackEvent({
             name: eventName,
             properties: eventProperties
+        }).then(function(){
+            expect(NewtonMock.sendEvent).toHaveBeenCalledWith(eventName, eventProperties);
+            done();
+        }).catch(function(reason){
+            done.fail(reason);
         });
-        expect(NewtonMock.sendEvent).toHaveBeenCalledWith(eventName, eventProperties);
     });
 
-    it('call Newton.sendEvent with void properties', function(){
+    it('call Newton.sendEvent with void properties', function(done){
         var eventName = 'Play';
         NewtonAdapter.trackEvent({
             name: eventName
-        });
-        expect(NewtonMock.sendEvent).toHaveBeenCalledWith(eventName, {});
+        }).then(function(){
+            expect(NewtonMock.sendEvent).toHaveBeenCalledWith(eventName, {});
+            done();
+        }).catch(function(reason){
+            done.fail(reason);
+        });        
     });
 });
 
 
-/*** TRACK PAGEVIEW ***/
+/* TRACK PAGEVIEW */
 
 describe('trackPageview -', function(){
     beforeEach(function(){
@@ -374,39 +465,51 @@ describe('trackPageview -', function(){
         });
     });
 
-    it('call Newton.sendEvent with event "pageview" and properties, with url', function(){
+    it('call Newton.sendEvent with event "pageview" and properties, with url', function(done){
         var eventProperties = { 
             content: 'Fruit Slicer',
             url: 'http://www.google.com' 
         };
         NewtonAdapter.trackPageview({
             properties: eventProperties
+        }).then(function(){
+            expect(NewtonMock.sendEvent).toHaveBeenCalledWith("pageview", eventProperties);
+            done();
+        }).catch(function(reason){
+            done.fail(reason);
         });
-        expect(NewtonMock.sendEvent).toHaveBeenCalledWith("pageview", eventProperties);
     });
 
-    it('call Newton.sendEvent with event "pageview" and properties, without url', function(){
+    it('call Newton.sendEvent with event "pageview" and properties, without url', function(done){
         var eventProperties = { 
             content: 'Fruit Slicer'
         };
         NewtonAdapter.trackPageview({
             properties: eventProperties
+        }).then(function(){
+            eventProperties.url = window.location.href;
+            expect(NewtonMock.sendEvent).toHaveBeenCalledWith("pageview", eventProperties);
+            done();
+        }).catch(function(reason){
+            done.fail(reason);
         });
-        eventProperties['url'] = window.location.href;
-        expect(NewtonMock.sendEvent).toHaveBeenCalledWith("pageview", eventProperties);
     });
 
-    it('call Newton.sendEvent with event "pageview" and void properties', function(){
+    it('call Newton.sendEvent with event "pageview" and void properties', function(done){
         var eventProperties = { 
             url: window.location.href 
         };
-        NewtonAdapter.trackPageview();
-        expect(NewtonMock.sendEvent).toHaveBeenCalledWith("pageview", eventProperties);
+        NewtonAdapter.trackPageview().then(function(){
+            expect(NewtonMock.sendEvent).toHaveBeenCalledWith("pageview", eventProperties);
+            done();
+        }).catch(function(reason){
+            done.fail(reason);
+        });
     });
 });
 
 
-/*** START HEARTBEAT ***/
+/* START HEARTBEAT */
 
 describe('startHeartbeat -', function(){
     beforeEach(function(){
@@ -417,27 +520,35 @@ describe('startHeartbeat -', function(){
         });
     });
 
-    it('call Newton.timedEventStart with event name and properties', function(){
+    it('call Newton.timedEventStart with event name and properties', function(done){
         var eventName = 'Zoom-Nav';
         var eventProperties = { content: 'Fruit Slicer' };
         NewtonAdapter.startHeartbeat({
             name: eventName,
             properties: eventProperties
+        }).then(function(){
+            expect(NewtonMock.timedEventStart).toHaveBeenCalledWith(eventName, eventProperties);
+            done();
+        }).catch(function(reason){
+            done.fail(reason);
         });
-        expect(NewtonMock.timedEventStart).toHaveBeenCalledWith(eventName, eventProperties);
     });
 
-    it('call Newton.timedEventStart with void properties', function(){
+    it('call Newton.timedEventStart with void properties', function(done){
         var eventName = 'Zoom-Nav';
         NewtonAdapter.startHeartbeat({
             name: eventName
+        }).then(function(){
+            expect(NewtonMock.timedEventStart).toHaveBeenCalledWith(eventName, {});
+            done();
+        }).catch(function(reason){
+            done.fail(reason);
         });
-        expect(NewtonMock.timedEventStart).toHaveBeenCalledWith(eventName, {});
     });
 });
 
 
-/*** STOP HEARTBEAT ***/
+/* STOP HEARTBEAT */
 
 describe('stopHeartbeat -', function(){
     beforeEach(function(){
@@ -448,27 +559,35 @@ describe('stopHeartbeat -', function(){
         });
     });
 
-    it('call Newton.timedEventStop with event name and properties', function(){
+    it('call Newton.timedEventStop with event name and properties', function(done){
         var eventName = 'Zoom-Nav';
         var eventProperties = { content: 'Fruit Slicer' };
         NewtonAdapter.stopHeartbeat({
             name: eventName,
             properties: eventProperties
+        }).then(function(){
+            expect(NewtonMock.timedEventStop).toHaveBeenCalledWith(eventName, eventProperties);
+            done();
+        }).catch(function(reason){
+            done.fail(reason);
         });
-        expect(NewtonMock.timedEventStop).toHaveBeenCalledWith(eventName, eventProperties);
     });
 
-    it('call Newton.timedEventStop with void properties', function(){
+    it('call Newton.timedEventStop with void properties', function(done){
         var eventName = 'Zoom-Nav';
         NewtonAdapter.stopHeartbeat({
             name: eventName
+        }).then(function(){
+            expect(NewtonMock.timedEventStop).toHaveBeenCalledWith(eventName, {});
+            done();
+        }).catch(function(reason){
+            done.fail(reason);
         });
-        expect(NewtonMock.timedEventStop).toHaveBeenCalledWith(eventName, {});
     });
 });
 
 
-/*** IS LOGGED ***/
+/* IS LOGGED */
 
 describe('isUserLogged -', function(){
     it('call Newton.getSharedInstance().isUserLogged() and return right response', function(){
@@ -481,16 +600,20 @@ describe('isUserLogged -', function(){
     });
 });
 
-/*** IS INITIALIZED ***/
+/* IS INITIALIZED */
 
 describe('isInitialized -', function(){
-    it('return true if you have called init() before', function(){
+    it('return true if you have called init() before', function(done){
         NewtonAdapter.init({
             secretId: '<local_host>',
             enable: true,
             waitLogin: false
+        }).then(function(){
+            expect(NewtonAdapter.isInitialized()).toBe(true);
+            done();
+        }).catch(function(reason){
+            done.fail(reason);
         });
-        expect(NewtonAdapter.isInitialized()).toBe(true);
     });
 
     it('return false if you have not called init() yet', function(){
@@ -499,12 +622,13 @@ describe('isInitialized -', function(){
 });
 
 
-/*** NEWTON VERSION 1 ***/
+/* NEWTON VERSION 1 */
 describe('Newton version 1 - ', function(){
     var secretId = '<local_host>';
+    var customLogger, promise;
 
     beforeEach(function(){
-       customLogger = { 
+        customLogger = { 
             debug: function(){},
             log: function(){},
             info: function(){},
@@ -514,7 +638,7 @@ describe('Newton version 1 - ', function(){
         spyOn(customLogger, 'warn');
         spyOn(customLogger, 'error');
 
-        NewtonAdapter.init({
+        promise = NewtonAdapter.init({
             secretId: secretId,
             enable: true,
             waitLogin: false,
@@ -524,20 +648,29 @@ describe('Newton version 1 - ', function(){
         }); 
     });
 
-    it('init calls getSharedInstanceWithConfig only with secretId', function(){
-        expect(Newton.getSharedInstanceWithConfig).toHaveBeenCalledWith(secretId);
-        expect(customLogger.warn).toHaveBeenCalledWith('NewtonAdapter', 'Newton v.1 not support properties on init method');
+    it('init calls getSharedInstanceWithConfig only with secretId', function(done){
+        promise.then(function(){
+            expect(Newton.getSharedInstanceWithConfig).toHaveBeenCalledWith(secretId);
+            expect(customLogger.warn).toHaveBeenCalledWith('NewtonAdapter', 'Newton v.1 not support properties on init method');
+            done();
+        }).catch(function(reason){
+            done.fail();
+        });
     });
 
-    it('login returns an error if login type is external', function(){
+    it('login returns an error if login type is external', function(done){
         NewtonAdapter.login({
             logged: true,
             type: 'external'
+        }).then(function(){
+            expect(customLogger.error).toHaveBeenCalledWith('NewtonAdapter', 'Login', 'Newton v.1 not support external login');
+            done();
+        }).catch(function(reason){
+            done.fail(reason);
         });
-        expect(customLogger.error).toHaveBeenCalledWith('NewtonAdapter', 'Login', 'Newton v.1 not support external login');
     });
 
-    it('login makes custom login correctly', function(){
+    it('login makes custom login correctly', function(done){
         var userId = '111222333444';
         var userProperties = {
             msisdn: '+39123456789'
@@ -549,32 +682,43 @@ describe('Newton version 1 - ', function(){
             userId: userId,
             userProperties: userProperties,
             callback: callbackMethod
+        }).then(function(){
+            expect(NewtonMock.getLoginBuilder).toHaveBeenCalled();
+            expect(NewtonMock.setLoginData).toHaveBeenCalledWith(userProperties);
+            // expect(NewtonMock.setCallback).toHaveBeenCalledWith(callbackMethod.call();
+            expect(NewtonMock.setCustomID).toHaveBeenCalledWith(userId);
+            expect(NewtonMock.getCustomFlow).toHaveBeenCalled();
+            expect(NewtonMock.startLoginFlow).toHaveBeenCalled();
+            done();
+        }).catch(function(reason){
+            done.fail(reason);
         });
-
-        expect(NewtonMock.getLoginBuilder).toHaveBeenCalled();
-        expect(NewtonMock.setLoginData).toHaveBeenCalledWith(userProperties);
-        // expect(NewtonMock.setCallback).toHaveBeenCalledWith(callbackMethod.call();
-        expect(NewtonMock.setCustomID).toHaveBeenCalledWith(userId);
-        expect(NewtonMock.getCustomFlow).toHaveBeenCalled();
-        expect(NewtonMock.startLoginFlow).toHaveBeenCalled();
     });
 
-    it('rankContent returns an error', function(){
+    it('rankContent returns an error', function(done){
         NewtonAdapter.rankContent({
             contentId: '123456777',
             scope: 'social'
+        }).then(function(){
+            expect(customLogger.error).toHaveBeenCalledWith('NewtonAdapter', 'rankContent', 'Newton v.1 not support rank content');
+            done();
+        }).catch(function(reason){
+            done.fail(reason);
         });
-        expect(customLogger.error).toHaveBeenCalledWith('NewtonAdapter', 'rankContent', 'Newton v.1 not support rank content');
     });
 
-    it('trackEvent returns an error if a rank properties is passed', function(){
+    it('trackEvent returns an error if a rank properties is passed', function(done){
         NewtonAdapter.trackEvent({
             name: 'Play',
             rank: {
                 contentId: '123456777',
                 scope: 'social'
             }
+        }).then(function(){
+            expect(customLogger.error).toHaveBeenCalledWith('NewtonAdapter', 'rankContent', 'Newton v.1 not support rank content');
+            done();
+        }).catch(function(reason){
+            done.fail(reason);
         });
-        expect(customLogger.error).toHaveBeenCalledWith('NewtonAdapter', 'rankContent', 'Newton v.1 not support rank content');
     });
 });

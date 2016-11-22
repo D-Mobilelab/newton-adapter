@@ -1,4 +1,4 @@
-var PromiseLite = require('promiselite');
+var Promise = require('promise-polyfill');
 
 /**
 * @ngdoc object
@@ -10,8 +10,27 @@ var PromiseLite = require('promiselite');
 var NewtonAdapter = new function(){
 
     var newtonInstance, logger, newtonversion;
-    var enablePromise = new PromiseLite(); 
-    var loginPromise = new PromiseLite(); 
+    var enablePromiseResolve, enablePromiseReject, enablePromiseFullfilled, loginPromiseResolve, loginPromiseReject, loginPromiseFullfilled;
+    var enablePromise = new Promise(function(resolve, reject){
+        enablePromiseResolve = function(data){
+            enablePromiseFullfilled = true;
+            resolve(data);
+        };
+        enablePromiseReject = function(data){
+            enablePromiseFullfilled = true;
+            reject(data);
+        };
+    }); 
+    var loginPromise = new Promise(function(resolve, reject){
+        loginPromiseResolve = function(data){
+            loginPromiseFullfilled = true;
+            resolve(data);
+        };
+        loginPromiseReject = function(data){
+            loginPromiseFullfilled = true;
+            reject(data);
+        };
+    }); 
 
     var createSimpleObject = function(object){
         object = object || {};
@@ -20,8 +39,28 @@ var NewtonAdapter = new function(){
 
     // USE ONLY FOR TEST!
     this.resetForTest = function(){
-        enablePromise = new PromiseLite(); 
-        loginPromise = new PromiseLite(); 
+        enablePromiseFullfilled = false;
+        loginPromiseFullfilled = false;
+        enablePromise = new Promise(function(resolve, reject){
+            enablePromiseResolve = function(data){
+                enablePromiseFullfilled = true;
+                resolve(data);
+            };
+            enablePromiseReject = function(data){
+                enablePromiseFullfilled = true;
+                reject(data);
+            };
+        }); 
+        loginPromise = new Promise(function(resolve, reject){
+            loginPromiseResolve = function(data){
+                loginPromiseFullfilled = true;
+                resolve(data);
+            };
+            loginPromiseReject = function(data){
+                loginPromiseFullfilled = true;
+                reject(data);
+            };
+        }); 
     };
 
     /**
@@ -88,28 +127,30 @@ var NewtonAdapter = new function(){
             }
             logger.log('NewtonAdapter', 'Init', options);
         });
-        enablePromise.fail(function(){});
+        enablePromise.catch(function(){});
 
         // check if enabled
         var isNewtonExist = !!window.Newton;
         if(!isNewtonExist){
             logger.error('NewtonAdapter', 'Newton not exist');
-            enablePromise.reject();
-        } else if(options.enable){
-            enablePromise.resolve();
+            enablePromiseReject(new Error('Newton not exist'));
+            loginPromiseReject(new Error('Newton not exist'));
+        } else if(options.enable){           
+            enablePromiseResolve();
         } else {
             logger.warn('NewtonAdapter', 'Newton not enabled');
-            enablePromise.reject();
+            enablePromiseReject(new Error('Newton not enabled'));
+            loginPromiseReject(new Error('Newton not enabled'));
         }
 
         // init loginPromise
-        loginPromise.fail(function(error){
+        loginPromise.catch(function(error){
             logger.warn('NewtonAdapter', 'Newton login failed', error);
         });
 
         // resolve loginPromise if not waitLogin and enable
         if(!options.waitLogin && options.enable){
-            loginPromise.resolve();
+            loginPromiseResolve();
         }
 
         return enablePromise;
@@ -149,10 +190,10 @@ var NewtonAdapter = new function(){
             try {
                 if(options.callback){ options.callback.call(); }
                 logger.log('NewtonAdapter', 'Login', options);
-                loginPromise.resolve();
+                loginPromiseResolve();
             } catch(err) {
                 logger.error('NewtonAdapter', 'Login', err);
-                loginPromise.reject();
+                loginPromiseReject(err);
             }
         };
 
@@ -226,6 +267,7 @@ var NewtonAdapter = new function(){
             }
             logger.log('NewtonAdapter', 'rankContent', options);
         });
+        return loginPromise;
     };
 
     /**
@@ -271,6 +313,7 @@ var NewtonAdapter = new function(){
                 }
             }
         });
+        return loginPromise;
     };
 
     /**
@@ -306,7 +349,7 @@ var NewtonAdapter = new function(){
             options.properties.url = window.location.href;
         }
         options.name = 'pageview';
-        NewtonAdapter.trackEvent(options);
+        return NewtonAdapter.trackEvent(options);
     };
 
     /**
@@ -336,6 +379,7 @@ var NewtonAdapter = new function(){
             logger.log('NewtonAdapter', 'startHeartbeat', options);
             newtonInstance.timedEventStart(options.name, createSimpleObject(options.properties));
         });
+        return loginPromise;
     };
 
     /**
@@ -365,6 +409,7 @@ var NewtonAdapter = new function(){
             newtonInstance.timedEventStop(options.name, createSimpleObject(options.properties));
             logger.log('NewtonAdapter', 'stopHeartbeat', options);
         });
+        return loginPromise;
     };
 
     /**
@@ -407,7 +452,7 @@ var NewtonAdapter = new function(){
     * </pre>
     */
     this.isInitialized = function(){
-        return enablePromise.isSettled();
+        return !!enablePromiseFullfilled;
     };
 };
 
