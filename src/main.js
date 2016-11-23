@@ -9,36 +9,11 @@ var Promise = require('promise-polyfill');
 */
 var NewtonAdapter = new function(){
 
-    var newtonInstance, logger, newtonversion;
-    var enablePromiseResolve, enablePromiseReject, enablePromiseFullfilled, loginPromiseResolve, loginPromiseReject, loginPromiseFullfilled;
-    var enablePromise = new Promise(function(resolve, reject){
-        enablePromiseResolve = function(data){
-            enablePromiseFullfilled = true;
-            resolve(data);
-        };
-        enablePromiseReject = function(data){
-            enablePromiseFullfilled = true;
-            reject(data);
-        };
-    }); 
-    var loginPromise = new Promise(function(resolve, reject){
-        loginPromiseResolve = function(data){
-            loginPromiseFullfilled = true;
-            resolve(data);
-        };
-        loginPromiseReject = function(data){
-            loginPromiseFullfilled = true;
-            reject(data);
-        };
-    }); 
+    var newtonInstance, logger, newtonversion, beforeInit;
+    var enablePromise, enablePromiseResolve, enablePromiseReject, enablePromiseFullfilled;
+    var loginPromise, loginPromiseResolve, loginPromiseReject, loginPromiseFullfilled;
 
-    var createSimpleObject = function(object){
-        object = object || {};
-        return Newton.SimpleObject.fromJSONObject(object);
-    };
-
-    // USE ONLY FOR TEST!
-    this.resetForTest = function(){
+    (beforeInit = function(){
         enablePromiseFullfilled = false;
         loginPromiseFullfilled = false;
         enablePromise = new Promise(function(resolve, reject){
@@ -61,6 +36,16 @@ var NewtonAdapter = new function(){
                 reject(data);
             };
         }); 
+    })();
+
+    var createSimpleObject = function(object){
+        object = object || {};
+        return Newton.SimpleObject.fromJSONObject(object);
+    };
+
+    // USE ONLY FOR TEST!
+    this.resetForTest = function(){
+        beforeInit();
     };
 
     /**
@@ -78,7 +63,7 @@ var NewtonAdapter = new function(){
     * @param {Object} [options.logger=disabled logger] logger object containing the methods: debug, log, info, warn, error
     * @param {Object} [options.properties={}] custom data for Newton session<br/><i>Newton version 1: this property is not supported</i>
     *
-    * @return {PromiseLite} promise that will be resolved when the init has been completed
+    * @return {Promise} promise that will be resolved when the init has been completed
     * 
     * @example
     * <pre>
@@ -170,7 +155,7 @@ var NewtonAdapter = new function(){
     * @param {boolean} [options.logged=false] true if user is logged, false if user is unlogged
     * @param {Object} [options.userProperties={}] custom user properties
     *
-    * @return {PromiseLite} promise that will be resolved when the login has been completed
+    * @return {Promise} promise that will be resolved when the login has been completed
     *
     * @example
     * <pre>
@@ -248,6 +233,8 @@ var NewtonAdapter = new function(){
     * @param {string} scope type of action performed on the content
     * @param {number} score the score associated to the content
     *
+    * @return {Promise} promise that will be resolved when the login has been completed
+    *
     * @example
     * <pre>
     * NewtonAdapter.rankContent({
@@ -282,6 +269,7 @@ var NewtonAdapter = new function(){
     * @param {object} [options.properties={}] custom datas of the event
     * @param {object} [options.rank={}] rank event datas. Newton version 1: feature not supported
     *
+    * @return {Promise} promise that will be resolved when the login has been completed
     *
     * @example
     * <pre>
@@ -327,6 +315,8 @@ var NewtonAdapter = new function(){
     * @param {Object} options.properties Properties of the pageview
     * @param {string} [options.properties.url=window.location.href] url of pageview
     *
+    * @return {Promise} promise that will be resolved when the login has been completed
+    *
     * @example
     * <pre>
     * NewtonAdapter.trackPageview({
@@ -363,6 +353,8 @@ var NewtonAdapter = new function(){
     * @param {string} options.name name of the timed event
     * @param {Object} [options.properties={}] details of the timed event
     *
+    * @return {Promise} promise that will be resolved when the login has been completed
+    *
     * @example
     * <pre>
     * NewtonAdapter.startHeartbeat({
@@ -392,6 +384,8 @@ var NewtonAdapter = new function(){
     * @param {Object} options configuration object
     * @param {string} options.name name of the timed event
     * @param {Object} [options.properties={}] details of the timed event
+    *
+    * @return {Promise} promise that will be resolved when the login has been completed
     *
     * @example
     * <pre>

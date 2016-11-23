@@ -218,24 +218,34 @@
 var Promise = require('promise-polyfill');
 var NewtonAdapter = new function(){
 
-    var newtonInstance, logger, newtonversion;
-    var enablePromiseResolve, enablePromiseReject, loginPromiseResolve, loginPromiseReject;
-    var enablePromise = new Promise(function(resolve, reject){
-        enablePromiseResolve = function(data){
-            resolve(data);
-        };
-        enablePromiseReject = function(data){
-            reject(data);
-        };
-    }); 
-    var loginPromise = new Promise(function(resolve, reject){
-        loginPromiseResolve = function(data){
-            resolve(data);
-        };
-        loginPromiseReject = function(data){
-            reject(data);
-        };
-    }); 
+    var newtonInstance, logger, newtonversion, beforeInit;
+    var enablePromise, enablePromiseResolve, enablePromiseReject, enablePromiseFullfilled;
+    var loginPromise, loginPromiseResolve, loginPromiseReject, loginPromiseFullfilled;
+
+    (beforeInit = function(){
+        enablePromiseFullfilled = false;
+        loginPromiseFullfilled = false;
+        enablePromise = new Promise(function(resolve, reject){
+            enablePromiseResolve = function(data){
+                enablePromiseFullfilled = true;
+                resolve(data);
+            };
+            enablePromiseReject = function(data){
+                enablePromiseFullfilled = true;
+                reject(data);
+            };
+        }); 
+        loginPromise = new Promise(function(resolve, reject){
+            loginPromiseResolve = function(data){
+                loginPromiseFullfilled = true;
+                resolve(data);
+            };
+            loginPromiseReject = function(data){
+                loginPromiseFullfilled = true;
+                reject(data);
+            };
+        }); 
+    })();
 
     var createSimpleObject = function(object){
         object = object || {};
@@ -244,23 +254,7 @@ var NewtonAdapter = new function(){
 
     // USE ONLY FOR TEST!
     this.resetForTest = function(){
-        // TODO: check this for test
-        enablePromise = new Promise(function(resolve, reject){
-            enablePromiseResolve = function(data){
-                resolve(data);
-            };
-            enablePromiseReject = function(data){
-                reject(data);
-            };
-        }); 
-        loginPromise = new Promise(function(resolve, reject){
-            loginPromiseResolve = function(data){
-                resolve(data);
-            };
-            loginPromiseReject = function(data){
-                reject(data);
-            };
-        }); 
+        beforeInit();
     };
     this.init = function(options){
         // get logger
@@ -411,7 +405,7 @@ var NewtonAdapter = new function(){
             options.properties.url = window.location.href;
         }
         options.name = 'pageview';
-        NewtonAdapter.trackEvent(options);
+        return NewtonAdapter.trackEvent(options);
     };
     this.startHeartbeat = function(options){
         loginPromise.then(function(){
@@ -438,8 +432,7 @@ var NewtonAdapter = new function(){
         }
     };
     this.isInitialized = function(){
-        // TODO: check this
-        // return enablePromise.isSettled();
+        return !!enablePromiseFullfilled;
     };
 };
 

@@ -29,8 +29,7 @@
   "main": "src/main.js",
   "scripts": {},
   "dependencies": {
-    "promise-polyfill": "^6.0.2",
-    "promiselite": "~1.3.2"
+    "promise-polyfill": "^6.0.2"
   },
   "devDependencies": {
     "dml-js-boilerplate": "~2.1.0"
