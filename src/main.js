@@ -428,7 +428,11 @@ var NewtonAdapter = new function(){
     */
     this.isUserLogged = function(){
         try {
-            return Newton.getSharedInstance().isUserLogged();
+            if(newtonInstance){
+                return Newton.getSharedInstance().isUserLogged();
+            } else {
+                return newtonInstance.isUserLogged();
+            }
         } catch(e) {
             enablePromise.then(function(){
                 logger.error('NewtonAdapter', 'isUserLogged', e);
