@@ -278,6 +278,19 @@ describe('init -', function(){
         });
         
     });
+
+    it('Newton is executed after deviceready event is triggered', function(done){
+        var event = new CustomEvent('deviceready', { detail: Date.now() });
+        NewtonAdapter.init({
+            secretId: '<local_host>',
+            enable: true,
+            waitDeviceReady: true
+        }).then(function(){
+            expect(Newton.getSharedInstanceWithConfig).toHaveBeenCalled();
+            done();
+        });
+        document.dispatchEvent(event);
+    });
 });
 
 
@@ -473,7 +486,7 @@ describe('trackPageview -', function(){
         NewtonAdapter.trackPageview({
             properties: eventProperties
         }).then(function(){
-            expect(NewtonMock.sendEvent).toHaveBeenCalledWith("pageview", eventProperties);
+            expect(NewtonMock.sendEvent).toHaveBeenCalledWith('pageview', eventProperties);
             done();
         }).catch(function(reason){
             done.fail(reason);
@@ -488,7 +501,7 @@ describe('trackPageview -', function(){
             properties: eventProperties
         }).then(function(){
             eventProperties.url = window.location.href;
-            expect(NewtonMock.sendEvent).toHaveBeenCalledWith("pageview", eventProperties);
+            expect(NewtonMock.sendEvent).toHaveBeenCalledWith('pageview', eventProperties);
             done();
         }).catch(function(reason){
             done.fail(reason);
@@ -500,7 +513,7 @@ describe('trackPageview -', function(){
             url: window.location.href 
         };
         NewtonAdapter.trackPageview().then(function(){
-            expect(NewtonMock.sendEvent).toHaveBeenCalledWith("pageview", eventProperties);
+            expect(NewtonMock.sendEvent).toHaveBeenCalledWith('pageview', eventProperties);
             done();
         }).catch(function(reason){
             done.fail(reason);
@@ -590,13 +603,33 @@ describe('stopHeartbeat -', function(){
 /* IS LOGGED */
 
 describe('isUserLogged -', function(){
-    it('call Newton.getSharedInstance().isUserLogged() and return right response', function(){
+    it('not call isUserLogged() before init', function(){
         NewtonAdapter.isUserLogged();
-        expect(NewtonMock.isUserLogged).toHaveBeenCalled();
+        expect(NewtonMock.isUserLogged).not.toHaveBeenCalled();
     });
 
-    it('return right response', function(){
-        expect(NewtonAdapter.isUserLogged()).toEqual(Newton.getSharedInstance().isUserLogged());
+    it('call isUserLogged() after init', function(done){
+        NewtonAdapter.init({
+            secretId: '<local_host>',
+            enable: true,
+            waitLogin: false
+        }).then(function(){
+            NewtonAdapter.isUserLogged();
+            expect(NewtonMock.isUserLogged).toHaveBeenCalled();
+            done();
+        });
+    });
+
+    it('return right response', function(done){
+        NewtonAdapter.init({
+            secretId: '<local_host>',
+            enable: true,
+            waitLogin: false
+        }).then(function(){
+            expect(NewtonAdapter.isUserLogged()).toEqual(Newton.getSharedInstance().isUserLogged());
+            done();
+        });
+        // expect(NewtonAdapter.isUserLogged()).toEqual(Newton.getSharedInstance().isUserLogged());
     });
 });
 

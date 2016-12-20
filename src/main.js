@@ -14,6 +14,7 @@ var NewtonAdapter = new function(){
     var loginPromise, loginPromiseResolve, loginPromiseReject, loginPromiseFullfilled;
 
     (beforeInit = function(){
+        newtonInstance = false;
         enablePromiseFullfilled = false;
         loginPromiseFullfilled = false;
         enablePromise = new Promise(function(resolve, reject){
@@ -59,6 +60,7 @@ var NewtonAdapter = new function(){
     * @param {string} options.secretId secret id of the application
     * @param {boolean} [options.enable=false] enable or disable calls to Newton library
     * @param {boolean} [options.waitLogin=false] track events, heartbeats and rankings only after login<br/><i>If true, you have to call login() in all cases, both for logged and unlogged users.
+    * @param {boolean} [options.waitDeviceReady=false] wait deviceReady event to initialize Newton library. It's useful for hybrid environment
     * @param {integer} [options.newtonversion=2] version of Newton, it can be 1 or 2.
     * @param {Object} [options.logger=disabled logger] logger object containing the methods: debug, log, info, warn, error
     * @param {Object} [options.properties={}] custom data for Newton session<br/><i>Newton version 1: this property is not supported</i>
@@ -71,6 +73,7 @@ var NewtonAdapter = new function(){
     *       secretId: '123456789',
     *       enable: true,
     *       waitLogin: true,
+    *       waitDeviceReady: false,
     *       version: 2,
     *       logger: console,
     *       properties: {
@@ -120,8 +123,12 @@ var NewtonAdapter = new function(){
             logger.error('NewtonAdapter', 'Newton not exist');
             enablePromiseReject(new Error('Newton not exist'));
             loginPromiseReject(new Error('Newton not exist'));
-        } else if(options.enable){           
-            enablePromiseResolve();
+        } else if(options.enable){
+            if(options.waitDeviceReady){
+                document.addEventListener('deviceready', enablePromiseResolve, false);
+            } else {
+                enablePromiseResolve();
+            }        
         } else {
             logger.warn('NewtonAdapter', 'Newton not enabled');
             enablePromiseReject(new Error('Newton not enabled'));
@@ -421,12 +428,9 @@ var NewtonAdapter = new function(){
     * </pre>
     */
     this.isUserLogged = function(){
-        try {
-            return Newton.getSharedInstance().isUserLogged();
-        } catch(e) {
-            enablePromise.then(function(){
-                logger.error('NewtonAdapter', 'isUserLogged', e);
-            });
+        if(newtonInstance){
+            return newtonInstance.isUserLogged();
+        } else {
             return false;
         }
     };
