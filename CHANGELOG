@@ -1,3 +1,7 @@
+** 1.7.0 **
+- Added waitDeviceReady parameter to init()
+- improved isUserLogged()
+
 ** 1.6.0 **
 - PromiseLite replaced by PromisePolyfill
 - every method returns a chainable promise
