@@ -14,6 +14,7 @@ var NewtonAdapter = new function(){
     var loginPromise, loginPromiseResolve, loginPromiseReject, loginPromiseFullfilled;
 
     (beforeInit = function(){
+        newtonInstance = false;
         enablePromiseFullfilled = false;
         loginPromiseFullfilled = false;
         enablePromise = new Promise(function(resolve, reject){
