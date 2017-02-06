@@ -196,7 +196,7 @@ var NewtonAdapter = new function(){
                         logger.error('NewtonAdapter', 'Login', 'Newton v.1 not support external login');
                     } else {
                         newtonInstance.getLoginBuilder()
-                        .setCustomData( createSimpleObject(options.userProperties) )
+                        .setCustomData(createSimpleObject(options.userProperties))
                         .setOnFlowCompleteCallback(loginCallback)
                         .setExternalID(options.userId)
                         .getExternalLoginFlow()
@@ -205,14 +205,14 @@ var NewtonAdapter = new function(){
                 } else {
                     if(newtonversion === 1){
                         newtonInstance.getLoginBuilder()
-                        .setLoginData( createSimpleObject(options.userProperties) )
+                        .setLoginData(createSimpleObject(options.userProperties))
                         .setCallback(loginCallback)
                         .setCustomID(options.userId)
                         .getCustomFlow()
                         .startLoginFlow();
                     } else {
                         newtonInstance.getLoginBuilder()
-                        .setCustomData( createSimpleObject(options.userProperties) )
+                        .setCustomData(createSimpleObject(options.userProperties))
                         .setOnFlowCompleteCallback(loginCallback)
                         .setCustomID(options.userId)
                         .getCustomLoginFlow()
