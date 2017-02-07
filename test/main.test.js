@@ -10,6 +10,8 @@ beforeEach(function(){
         timedEventStop: function(){ calls.push('timedEventStop'); },
         isUserLogged: function(){ calls.push('isUserLogged'); return loggedFlag; },
         rankContent: function(){ calls.push('rankContent'); },
+        getUserToken: function(){ calls.push('getUserToken'); },
+        setUserStateChangeListener: function(callback){ calls.push('setUserStateChangeListener'); callback.call(); },
         // login
         getLoginBuilder: function(){ calls.push('getLoginBuilder'); return this; },
         setCustomData: function(){ calls.push('setCustomData'); return this; },
@@ -29,6 +31,8 @@ beforeEach(function(){
     spyOn(NewtonMock, 'timedEventStop').and.callThrough();
     spyOn(NewtonMock, 'isUserLogged').and.callThrough();
     spyOn(NewtonMock, 'rankContent').and.callThrough();
+    spyOn(NewtonMock, 'getUserToken').and.callThrough();
+    spyOn(NewtonMock, 'setUserStateChangeListener').and.callThrough();
     // login
     spyOn(NewtonMock, 'getLoginBuilder').and.callThrough();
     spyOn(NewtonMock, 'setCustomData').and.callThrough();
@@ -636,13 +640,35 @@ describe('isUserLogged -', function(){
 /* IS INITIALIZED */
 
 describe('isInitialized -', function(){
-    it('return true if you have called init() before', function(done){
+    it('not call isUserLogged() before init', function(){
+        NewtonAdapter.isUserLogged();
+        expect(NewtonMock.isUserLogged).not.toHaveBeenCalled();
+    });
+
+    it('call isUserLogged() after init', function(done){
         NewtonAdapter.init({
             secretId: '<local_host>',
             enable: true,
             waitLogin: false
         }).then(function(){
-            expect(NewtonAdapter.isInitialized()).toBe(true);
+            NewtonAdapter.isUserLogged();
+            expect(NewtonMock.isUserLogged).toHaveBeenCalled();
+            done();
+        });
+    });
+});
+
+/* GET USER TOKEN */
+
+describe('getUserToken -', function(){
+    it('getUserToken call relative Newton method', function(done){
+        NewtonAdapter.init({
+            secretId: '<local_host>',
+            enable: true,
+            waitLogin: false
+        }).then(function(){
+            NewtonAdapter.getUserToken();
+            expect(NewtonMock.getUserToken).toHaveBeenCalled();
             done();
         }).catch(function(reason){
             done.fail(reason);
@@ -650,10 +676,38 @@ describe('isInitialized -', function(){
     });
 
     it('return false if you have not called init() yet', function(){
-        expect(NewtonAdapter.isInitialized()).toBe(false);
+        var returnFlag = NewtonAdapter.getUserToken();
+        expect(NewtonMock.getUserToken).not.toHaveBeenCalled();
+        expect(returnFlag).toBe(false);
     });
 });
 
+/* SET USER STATE CHANGE LISTENER */
+
+describe('setUserStateChangeListener -', function(){
+    it('setUserStateChangeListener call relative Newton method and call callback', function(done){
+        NewtonAdapter.init({
+            secretId: '<local_host>',
+            enable: true,
+            waitLogin: false
+        }).then(function(){
+            var mock = { callback: function(){} };
+            spyOn(mock, 'callback').and.callThrough();
+            NewtonAdapter.setUserStateChangeListener(mock.callback);
+            expect(NewtonMock.setUserStateChangeListener).toHaveBeenCalled();
+            expect(mock.callback).toHaveBeenCalled();
+            done();
+        }).catch(function(reason){
+            done.fail(reason);
+        });
+    });
+
+    it('return false if you have not called init() yet', function(){
+        var returnFlag = NewtonAdapter.setUserStateChangeListener();
+        expect(NewtonMock.setUserStateChangeListener).not.toHaveBeenCalled();
+        expect(returnFlag).toBe(false);
+    });
+});
 
 /* NEWTON VERSION 1 */
 describe('Newton version 1 - ', function(){

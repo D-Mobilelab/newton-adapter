@@ -452,6 +452,53 @@ var NewtonAdapter = new function(){
     this.isInitialized = function(){
         return !!enablePromiseFullfilled;
     };
+
+    /**
+    * @ngdoc function
+    * @name getUserToken
+    * @methodOf NewtonAdapter
+    *
+    * @description Get Newton user token
+    *
+    * @return {string} Newton user token
+    *
+    * @example
+    * <pre>
+    * NewtonAdapter.getUserToken();
+    * </pre>
+    */
+    this.getUserToken = function(){
+        if(newtonInstance){
+            return newtonInstance.getUserToken();
+        } else {
+            return false;
+        }
+    };
+
+    /**
+    * @ngdoc function
+    * @name setUserStateChangeListener
+    * @methodOf NewtonAdapter
+    *
+    * @description Listen user state change
+    *
+    * @param {function} callback method called when user changes state
+    *
+    * @return {boolean} return true if Newton is already initialized, else false. If not inizialized, the callback doesn't listen user state change
+    *
+    * @example
+    * <pre>
+    * NewtonAdapter.setUserStateChangeListener(function(state){ console.log(state); });
+    * </pre>
+    */
+    this.setUserStateChangeListener = function(callback){
+        if(newtonInstance){
+            newtonInstance.setUserStateChangeListener(callback);
+            return true;
+        } else {
+            return false;
+        }
+    };
 };
 
 module.exports = NewtonAdapter;

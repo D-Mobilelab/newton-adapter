@@ -49,7 +49,7 @@ gulp.task('serve', ['build'], function(){
         server: {}
     });
     gulp.watch(['dist/**/*.js'], browsersync.reload);
-    gulp.watch(['src/**/*.js'], ['build']);
+    gulp.watch(['src/**/*.js', 'test/**/*.test.js'], ['build']);
 });
 
 gulp.task('servetest', ['test'], function(){
