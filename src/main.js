@@ -45,6 +45,12 @@ var NewtonAdapter = new function(){
     };
 
     // USE ONLY FOR TEST!
+    /**
+     * TODO:
+     * consider to introduce process.env.NODE_ENV in build process
+     * if(process.env.NODE_ENV === 'test'){}
+     * this will be dead-code eliminated when NODE_ENV is 'production' === 'test'
+     */
     this.resetForTest = function(){
         beforeInit();
     };
