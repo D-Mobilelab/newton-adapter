@@ -191,19 +191,9 @@ var NewtonAdapter = new function(){
 
         enablePromise.then(function(){
             if(options.logged && !newtonInstance.isUserLogged()){
-                if(options.type === 'external'){
-                    if(newtonversion === 1){
-                        logger.error('NewtonAdapter', 'Login', 'Newton v.1 not support external login');
-                    } else {
-                        newtonInstance.getLoginBuilder()
-                        .setCustomData(createSimpleObject(options.userProperties))
-                        .setOnFlowCompleteCallback(loginCallback)
-                        .setExternalID(options.userId)
-                        .getExternalLoginFlow()
-                        .startLoginFlow();
-                    }
-                } else {
-                    if(newtonversion === 1){
+                if(!options.type){ options.type = 'custom'; }
+                if(newtonversion === 1){
+                    if(options.type === 'custom'){
                         newtonInstance.getLoginBuilder()
                         .setLoginData(createSimpleObject(options.userProperties))
                         .setCallback(loginCallback)
@@ -211,12 +201,65 @@ var NewtonAdapter = new function(){
                         .getCustomFlow()
                         .startLoginFlow();
                     } else {
-                        newtonInstance.getLoginBuilder()
-                        .setCustomData(createSimpleObject(options.userProperties))
-                        .setOnFlowCompleteCallback(loginCallback)
-                        .setCustomID(options.userId)
-                        .getCustomLoginFlow()
-                        .startLoginFlow();  
+                        logger.error('NewtonAdapter', 'Login', 'Newton v.1 not support this type of login');
+                    }
+                } else {
+                    if(options.type === 'custom'){
+                        if(options.userId){
+                            newtonInstance.getLoginBuilder()
+                            .setCustomData(createSimpleObject(options.userProperties))
+                            .setOnFlowCompleteCallback(loginCallback)
+                            .setCustomID(options.userId)
+                            .getCustomLoginFlow()
+                            .startLoginFlow();  
+                        } else {
+                            logger.error('NewtonAdapter', 'Login', 'Custom login requires userId');
+                        }
+                    } else if(options.type === 'external'){
+                        if(options.userId && options.userProperties){
+                            newtonInstance.getLoginBuilder()
+                            .setCustomData(createSimpleObject(options.userProperties))
+                            .setOnFlowCompleteCallback(loginCallback)
+                            .setExternalID(options.userId)
+                            .getExternalLoginFlow()
+                            .startLoginFlow();
+                        } else {
+                            logger.error('NewtonAdapter', 'Login', 'External login requires userId and properties');
+                        }
+                    } else if(options.type === 'msisdn'){
+                        if(options.msisdn && options.pin){
+                            newtonInstance.getLoginBuilder()
+                            .setOnFlowCompleteCallback(loginCallback)
+                            .setMSISDN(options.msisdn)
+                            .setPIN(options.pin)
+                            .getMSISDNPINLoginFlow()
+                            .startLoginFlow();
+                        } else {
+                            logger.error('NewtonAdapter', 'Login', 'MSISDN login requires msisdn and pin');
+                        }
+                    } else if(options.type === 'autologin'){
+                        if(options.domain){
+                            newtonInstance.getLoginBuilder()
+                            .setOnFlowCompleteCallback(loginCallback)
+                            .__setDomain(options.domain)
+                            .getMSISDNURLoginFlow()
+                            .startLoginFlow();
+                        } else {
+                            logger.error('NewtonAdapter', 'Login', 'Autologin requires domain');
+                        }
+                    } else if(options.type === 'oauth'){
+                        if(options.provider && options.access_token){
+                            newtonInstance.getLoginBuilder()
+                            .setOAuthProvider(options.provider)
+                            .setAccessToken(options.access_token)
+                            .setOnFlowCompleteCallback(loginCallback)
+                            .getOAuthLoginFlow()
+                            .startLoginFlow();
+                        } else {
+                            logger.error('NewtonAdapter', 'Login', 'OAuth requires provider and access_token');
+                        }
+                    } else {
+                        logger.error('NewtonAdapter', 'Login', 'This type of logis is not supported');
                     }
                 }
             } else {
