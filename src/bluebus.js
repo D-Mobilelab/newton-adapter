@@ -31,7 +31,7 @@ module.exports = {
         }
     },
 
-    trigger: function(key, parameters){
+    trigger: function(key, parameters){       
         var event = this.events[key];
         if(event){
             if(!event.triggered){
@@ -39,11 +39,20 @@ module.exports = {
                     event.stack[i].call(this, parameters);
                 }
             }
-            this.events[key] = {
-                triggered: true,
-                parameters: parameters,
-                stack: []
-            };
+        }
+        this.events[key] = {
+            triggered: true,
+            parameters: parameters,
+            stack: []
+        };
+    },
+
+    isTriggered: function(key){
+        var event = this.events[key];
+        if(event){
+            return event.triggered;
+        } else {
+            return false;
         }
     },
 

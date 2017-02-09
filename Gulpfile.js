@@ -31,7 +31,7 @@ gulp.task('clean', function(){
     return del('dist/**/*', { force: true });
 });
 
-gulp.task('build', ['lint', 'test', 'clean'], function(){
+gulp.task('build', ['lint', 'clean'], function(){
     return gulp.src('src/main.js')
     .pipe(webpack({
         output: {

@@ -10,39 +10,18 @@ var Bluebus = require('./bluebus');
 */
 var NewtonAdapter = new function(){
 
-    var newtonInstance, logger, newtonversion, beforeInit;
-    var enablePromise, enablePromiseResolve, enablePromiseReject, enablePromiseFullfilled;
-    var loginPromise, loginPromiseResolve, loginPromiseReject, loginPromiseFullfilled;
-
-    (beforeInit = function(){
-        newtonInstance = false;
-        enablePromiseFullfilled = false;
-        loginPromiseFullfilled = false;
-        enablePromise = new Promise(function(resolve, reject){
-            enablePromiseResolve = function(data){
-                enablePromiseFullfilled = true;
-                resolve(data);
-            };
-            enablePromiseReject = function(data){
-                enablePromiseFullfilled = true;
-                reject(data);
-            };
-        }); 
-        loginPromise = new Promise(function(resolve, reject){
-            loginPromiseResolve = function(data){
-                loginPromiseFullfilled = true;
-                resolve(data);
-            };
-            loginPromiseReject = function(data){
-                loginPromiseFullfilled = true;
-                reject(data);
-            };
-        }); 
-    })();
-
+    var newtonversion = 2;
+    var newtonInstance = false;
+    var logger = { 
+        debug: function(){},
+        log: function(){},
+        info: function(){},
+        warn: function(){},
+        error: function(){}
+    }; 
     var createSimpleObject = function(object){
-        object = object || {};
-        return Newton.SimpleObject.fromJSONObject(object);
+        var newObject = object || {};
+        return Newton.SimpleObject.fromJSONObject(newObject);
     };
 
     // USE ONLY FOR TEST!
@@ -53,7 +32,15 @@ var NewtonAdapter = new function(){
      * this will be dead-code eliminated when NODE_ENV is 'production' === 'test'
      */
     this.resetForTest = function(){
-        beforeInit();
+        newtonversion = 2;
+        newtonInstance = false;
+        logger = { 
+            debug: function(){},
+            log: function(){},
+            info: function(){},
+            warn: function(){},
+            error: function(){}
+        }; 
     };
 
     /**
@@ -90,69 +77,59 @@ var NewtonAdapter = new function(){
     * </pre>
     */
     this.init = function(options){
-        // get logger
-        if (options.logger){
-            logger = options.logger;
-        } else {
-            logger = { 
-                debug: function(){},
-                log: function(){},
-                info: function(){},
-                warn: function(){},
-                error: function(){}
-            };
-        }
-
-        // get Newton version
-        if (options.newtonversion){
-            newtonversion = options.newtonversion;
-        } else {
-            newtonversion = 2;
-        }
-
-        // init enablePromise and init Newton
-        enablePromise.then(function(){
-            if(newtonversion === 1){
-                newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId);
-                if(!!options.properties){
-                    logger.warn('NewtonAdapter', 'Newton v.1 not support properties on init method');
-                }
-            } else {
-                newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId, createSimpleObject(options.properties));
+        // create promise
+        return new Promise(function(resolve, reject){  
+            // get logger
+            if(options.logger){
+                logger = options.logger;
             }
-            logger.log('NewtonAdapter', 'Init', options);
-        });
-        enablePromise.catch(function(){});
 
-        // check if enabled
-        var isNewtonExist = !!window.Newton;
-        if(!isNewtonExist){
-            logger.error('NewtonAdapter', 'Newton not exist');
-            enablePromiseReject(new Error('Newton not exist'));
-            loginPromiseReject(new Error('Newton not exist'));
-        } else if(options.enable){
-            if(options.waitDeviceReady){
-                document.addEventListener('deviceready', enablePromiseResolve, false);
+            // get newtonversion
+            if(options.newtonversion){
+                newtonversion = options.newtonversion;
+            }
+
+            // check if Newton exists
+            if(!Newton){
+                reject();
+                logger.error('NewtonAdapter', 'Newton not exist');
             } else {
-                enablePromiseResolve();
-            }        
-        } else {
-            logger.warn('NewtonAdapter', 'Newton not enabled');
-            enablePromiseReject(new Error('Newton not enabled'));
-            loginPromiseReject(new Error('Newton not enabled'));
-        }
 
-        // init loginPromise
-        loginPromise.catch(function(error){
-            logger.warn('NewtonAdapter', 'Newton login failed', error);
+                // init Newton and trigger init
+                var initNewton = function(){
+                    if(newtonversion === 1){
+                        newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId);
+                        if(options.properties){
+                            logger.warn('NewtonAdapter', 'Newton v.1 not support properties on init method');
+                        }
+                    } else {
+                        newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId, createSimpleObject(options.properties));
+                    }
+
+                    // resolve, trigger and log
+                    resolve(true);
+                    logger.log('NewtonAdapter', 'Init', options);
+                    Bluebus.trigger('init');
+
+                    // trigger login if waitLogin is false
+                    if(!options.waitLogin){
+                        Bluebus.trigger('login');
+                    }
+                };
+
+                // call initNewton if enabled
+                if(!options.enable){
+                    resolve(false);
+                    logger.warn('NewtonAdapter', 'Newton not enabled');
+                } else {
+                    if(options.waitDeviceReady){
+                        document.addEventListener('deviceready', initNewton, false);
+                    } else {
+                        initNewton();
+                    }
+                }
+            }
         });
-
-        // resolve loginPromise if not waitLogin and enable
-        if(!options.waitLogin && options.enable){
-            loginPromiseResolve();
-        }
-
-        return enablePromise;
     };
 
 
@@ -185,96 +162,112 @@ var NewtonAdapter = new function(){
     * </pre>
     */
     this.login = function(options){
-        var loginCallback = function(){
-            try {
-                if(options.callback){ options.callback.call(); }
-                logger.log('NewtonAdapter', 'Login', options);
-                loginPromiseResolve();
-            } catch(err) {
-                logger.error('NewtonAdapter', 'Login', err);
-                loginPromiseReject(err);
-            }
-        };
+        // create promise
+        return new Promise(function(resolve, reject){
+            
+            // login Newton and trigger login
+            var loginNewton = function(){
+                try {
+                    // callback, resolve, trigger and log
+                    if(options.callback){ options.callback.call(); }
+                    resolve();
+                    logger.log('NewtonAdapter', 'Login', options);
+                    Bluebus.trigger('login');
+                } catch(err) {
+                    // reject and log
+                    reject();
+                    logger.error('NewtonAdapter', 'Login', err);
+                }
+            };
 
-        enablePromise.then(function(){
-            if(options.logged && !newtonInstance.isUserLogged()){
-                if(!options.type){ options.type = 'custom'; }
-                if(newtonversion === 1){
-                    if(options.type === 'custom'){
-                        newtonInstance.getLoginBuilder()
-                        .setLoginData(createSimpleObject(options.userProperties))
-                        .setCallback(loginCallback)
-                        .setCustomID(options.userId)
-                        .getCustomFlow()
-                        .startLoginFlow();
-                    } else {
-                        logger.error('NewtonAdapter', 'Login', 'Newton v.1 not support this type of login');
-                    }
+            // wait init trigger
+            Bluebus.bind('init', function(){
+
+                if(!options.logged || newtonInstance.isUserLogged()){
+                    loginNewton();
                 } else {
-                    if(options.type === 'custom'){
-                        if(options.userId){
-                            newtonInstance.getLoginBuilder()
-                            .setCustomData(createSimpleObject(options.userProperties))
-                            .setOnFlowCompleteCallback(loginCallback)
-                            .setCustomID(options.userId)
-                            .getCustomLoginFlow()
-                            .startLoginFlow();  
+                    var loginType = options.type ? options.type : 'custom';
+
+                    // newton version 1
+                    if(newtonversion === 1){
+                        if(loginType === 'custom'){
+                            if(options.userId){
+                                newtonInstance.getLoginBuilder()
+                                .setLoginData(createSimpleObject(options.userProperties))
+                                .setCallback(loginNewton)
+                                .setCustomID(options.userId)
+                                .getCustomFlow()
+                                .startLoginFlow();  
+                            } else {
+                                logger.error('NewtonAdapter', 'Login', 'Custom login requires userId');
+                            }
                         } else {
-                            logger.error('NewtonAdapter', 'Login', 'Custom login requires userId');
+                            logger.error('NewtonAdapter', 'Login', 'Newton v.1 not support this type of login');
                         }
-                    } else if(options.type === 'external'){
-                        if(options.userId && options.userProperties){
-                            newtonInstance.getLoginBuilder()
-                            .setCustomData(createSimpleObject(options.userProperties))
-                            .setOnFlowCompleteCallback(loginCallback)
-                            .setExternalID(options.userId)
-                            .getExternalLoginFlow()
-                            .startLoginFlow();
-                        } else {
-                            logger.error('NewtonAdapter', 'Login', 'External login requires userId and properties');
-                        }
-                    } else if(options.type === 'msisdn'){
-                        if(options.msisdn && options.pin){
-                            newtonInstance.getLoginBuilder()
-                            .setOnFlowCompleteCallback(loginCallback)
-                            .setMSISDN(options.msisdn)
-                            .setPIN(options.pin)
-                            .getMSISDNPINLoginFlow()
-                            .startLoginFlow();
-                        } else {
-                            logger.error('NewtonAdapter', 'Login', 'MSISDN login requires msisdn and pin');
-                        }
-                    } else if(options.type === 'autologin'){
-                        if(options.domain){
-                            newtonInstance.getLoginBuilder()
-                            .setOnFlowCompleteCallback(loginCallback)
-                            .__setDomain(options.domain)
-                            .getMSISDNURLoginFlow()
-                            .startLoginFlow();
-                        } else {
-                            logger.error('NewtonAdapter', 'Login', 'Autologin requires domain');
-                        }
-                    } else if(options.type === 'oauth'){
-                        if(options.provider && options.access_token){
-                            newtonInstance.getLoginBuilder()
-                            .setOAuthProvider(options.provider)
-                            .setAccessToken(options.access_token)
-                            .setOnFlowCompleteCallback(loginCallback)
-                            .getOAuthLoginFlow()
-                            .startLoginFlow();
-                        } else {
-                            logger.error('NewtonAdapter', 'Login', 'OAuth requires provider and access_token');
-                        }
+
+                    // newton version 2
                     } else {
-                        logger.error('NewtonAdapter', 'Login', 'This type of logis is not supported');
+                        if(loginType === 'custom'){
+                            if(options.userId){
+                                newtonInstance.getLoginBuilder()
+                                .setCustomData(createSimpleObject(options.userProperties))
+                                .setOnFlowCompleteCallback(loginNewton)
+                                .setCustomID(options.userId)
+                                .getCustomLoginFlow()
+                                .startLoginFlow();  
+                            } else {
+                                logger.error('NewtonAdapter', 'Login', 'Custom login requires userId');
+                            }
+                        } else if(loginType === 'external'){
+                            if(options.userId && options.userProperties){
+                                newtonInstance.getLoginBuilder()
+                                .setCustomData(createSimpleObject(options.userProperties))
+                                .setOnFlowCompleteCallback(loginNewton)
+                                .setExternalID(options.userId)
+                                .getExternalLoginFlow()
+                                .startLoginFlow();
+                            } else {
+                                logger.error('NewtonAdapter', 'Login', 'External login requires userId and properties');
+                            }
+                        } else if(loginType === 'msisdn'){
+                            if(options.msisdn && options.pin){
+                                newtonInstance.getLoginBuilder()
+                                .setOnFlowCompleteCallback(loginNewton)
+                                .setMSISDN(options.msisdn)
+                                .setPIN(options.pin)
+                                .getMSISDNPINLoginFlow()
+                                .startLoginFlow();
+                            } else {
+                                logger.error('NewtonAdapter', 'Login', 'MSISDN login requires msisdn and pin');
+                            }
+                        } else if(loginType === 'autologin'){
+                            if(options.domain){
+                                newtonInstance.getLoginBuilder()
+                                .setOnFlowCompleteCallback(loginNewton)
+                                .__setDomain(options.domain)
+                                .getMSISDNURLoginFlow()
+                                .startLoginFlow();
+                            } else {
+                                logger.error('NewtonAdapter', 'Login', 'Autologin requires domain');
+                            }
+                        } else if(loginType === 'oauth'){
+                            if(options.provider && options.access_token){
+                                newtonInstance.getLoginBuilder()
+                                .setOAuthProvider(options.provider)
+                                .setAccessToken(options.access_token)
+                                .setOnFlowCompleteCallback(loginNewton)
+                                .getOAuthLoginFlow()
+                                .startLoginFlow();
+                            } else {
+                                logger.error('NewtonAdapter', 'Login', 'OAuth requires provider and access_token');
+                            }
+                        } else {
+                            logger.error('NewtonAdapter', 'Login', 'This type of logis is not supported');
+                        }
                     }
                 }
-            } else {
-                loginCallback();
-            }
+            });
         });
-
-        return loginPromise;
     };
 
 
@@ -302,16 +295,19 @@ var NewtonAdapter = new function(){
     * </pre>
     */
     this.rankContent = function(options){
-        loginPromise.then(function(){
-            if(!options.score) { options.score = 1; }
-            if(newtonversion === 1){
-                logger.error('NewtonAdapter', 'rankContent', 'Newton v.1 not support rank content');
-            } else {
-                newtonInstance.rankContent(options.contentId, options.scope, options.score);
-            }
-            logger.log('NewtonAdapter', 'rankContent', options);
+        return new Promise(function(resolve, reject){
+            Bluebus.bind('login', function(){
+                var score = options.score ? options.score : 1;
+                if(newtonversion === 1){
+                    reject();
+                    logger.error('NewtonAdapter', 'rankContent', 'Newton v.1 not support rank content');
+                } else {
+                    newtonInstance.rankContent(options.contentId, options.scope, score);
+                    resolve();
+                    logger.log('NewtonAdapter', 'rankContent', options);
+                }
+            });
         });
-        return loginPromise;
     };
 
     /**
@@ -345,20 +341,22 @@ var NewtonAdapter = new function(){
     * </pre>
     */
     this.trackEvent = function(options){
-        loginPromise.then(function(){
-            newtonInstance.sendEvent(options.name, createSimpleObject(options.properties));
-            logger.log('NewtonAdapter', 'trackEvent', options.name, options.properties);
-            if(options.rank){
-                if(!options.rank.score) { options.rank.score = 1; }
-                if(newtonversion === 1){
-                    logger.error('NewtonAdapter', 'rankContent', 'Newton v.1 not support rank content');
-                } else {
-                    newtonInstance.rankContent(options.rank.contentId, options.rank.scope, options.rank.score);
-                    logger.log('NewtonAdapter', 'rankContent', options.rank);
+        return new Promise(function(resolve, reject){
+            Bluebus.bind('login', function(){
+                newtonInstance.sendEvent(options.name, createSimpleObject(options.properties));
+                resolve();
+                logger.log('NewtonAdapter', 'trackEvent', options.name, options.properties);
+                if(options.rank){
+                    var score = options.rank.score ? options.rank.score : 1;
+                    if(newtonversion === 1){
+                        logger.error('NewtonAdapter', 'rankContent', 'Newton v.1 not support rank content');
+                    } else {
+                        newtonInstance.rankContent(options.rank.contentId, options.rank.scope, score);
+                        logger.log('NewtonAdapter', 'rankContent', options.rank);
+                    }
                 }
-            }
+            });
         });
-        return loginPromise;
     };
 
     /**
@@ -386,16 +384,11 @@ var NewtonAdapter = new function(){
     * </pre>
     */
     this.trackPageview = function(options){
-        if(!options){
-            options = {};
+        var eventParams = options || { properties: {} };
+        eventParams.name = 'pageview';
+        if(!eventParams.properties.url){
+            eventParams.properties.url = window.location.href;
         }
-        if(!options.properties){
-            options.properties = {};
-        }
-        if(!options.properties.url){
-            options.properties.url = window.location.href;
-        }
-        options.name = 'pageview';
         return NewtonAdapter.trackEvent(options);
     };
 
@@ -424,11 +417,13 @@ var NewtonAdapter = new function(){
     * </pre>
     */
     this.startHeartbeat = function(options){
-        loginPromise.then(function(){
-            logger.log('NewtonAdapter', 'startHeartbeat', options);
-            newtonInstance.timedEventStart(options.name, createSimpleObject(options.properties));
+        return new Promise(function(resolve, reject){
+            Bluebus.bind('login', function(){
+                newtonInstance.timedEventStart(options.name, createSimpleObject(options.properties));
+                resolve();
+                logger.log('NewtonAdapter', 'startHeartbeat', options);                
+            });
         });
-        return loginPromise;
     };
 
     /**
@@ -456,11 +451,13 @@ var NewtonAdapter = new function(){
     * </pre>
     */
     this.stopHeartbeat = function(options){
-        loginPromise.then(function(){
-            newtonInstance.timedEventStop(options.name, createSimpleObject(options.properties));
-            logger.log('NewtonAdapter', 'stopHeartbeat', options);
+        return new Promise(function(resolve, reject){
+            Bluebus.bind('login', function(){
+                newtonInstance.timedEventStop(options.name, createSimpleObject(options.properties));
+                resolve();
+                logger.log('NewtonAdapter', 'startHeartbeat', options);                
+            });
         });
-        return loginPromise;
     };
 
     /**
@@ -500,7 +497,7 @@ var NewtonAdapter = new function(){
     * </pre>
     */
     this.isInitialized = function(){
-        return !!enablePromiseFullfilled;
+        return Bluebus.isTriggered('init');
     };
 
     /**
