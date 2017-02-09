@@ -1,33 +1,13 @@
 var NewtonAdapter = require('../../src/main');
-var calls = require('../mock').calls;
-var NewtonMock = require('../mock').NewtonMock;
-Newton = require('../mock').Newton;
+var Mock = require('../mock');
+var calls, NewtonMock;
 
 describe('INIT', function(){
     beforeEach(function(){
-        spyOn(NewtonMock, 'sendEvent').and.callThrough();
-        spyOn(NewtonMock, 'timedEventStart').and.callThrough();
-        spyOn(NewtonMock, 'timedEventStop').and.callThrough();
-        spyOn(NewtonMock, 'isUserLogged').and.callThrough();
-        spyOn(NewtonMock, 'rankContent').and.callThrough();
-        // spyOn(NewtonMock, 'getUserToken').and.callThrough();
-        // spyOn(NewtonMock, 'setUserStateChangeListener').and.callThrough();
-        // spyOn(NewtonMock, 'getLoginBuilder').and.callThrough();
-        // spyOn(NewtonMock, 'setCustomData').and.callThrough();
-        // spyOn(NewtonMock, 'setLoginData').and.callThrough();
-        // spyOn(NewtonMock, 'setOnFlowCompleteCallback').and.callThrough();
-        // spyOn(NewtonMock, 'setCallback').and.callThrough();
-        // spyOn(NewtonMock, 'setExternalID').and.callThrough();
-        // spyOn(NewtonMock, 'setCustomID').and.callThrough();
-        // spyOn(NewtonMock, 'getExternalLoginFlow').and.callThrough();
-        // spyOn(NewtonMock, 'getCustomFlow').and.callThrough();
-        // spyOn(NewtonMock, 'getCustomLoginFlow').and.callThrough();
-        // spyOn(NewtonMock, 'startLoginFlow').and.callThrough();
-        spyOn(Newton, 'getSharedInstanceWithConfig').and.callThrough();
-    });
-
-    afterEach(function(){
-        NewtonAdapter.resetForTest();
+        Mock.boostrap();
+        calls = Mock.calls;
+        NewtonMock = Mock.NewtonMock;
+        Newton = Mock.Newton;
     });
 
     it('call Newton.getSharedInstanceWithConfig with secretId', function(done){
