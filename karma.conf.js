@@ -7,7 +7,7 @@ module.exports = function(config) {
         frameworks: ['jasmine'],
         
         files: [
-            'test/*.test.js'
+            'test/spec/*.js'
         ],
 
         browsers: [
@@ -20,7 +20,7 @@ module.exports = function(config) {
         ],
 
         preprocessors: {
-            'test/*.test.js': ['webpack'],
+            'test/spec/*.js': ['webpack'],
             'src/*.js': ['coverage']
         },
 
