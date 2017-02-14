@@ -10,6 +10,10 @@ describe('INIT', function(){
         Newton = Mock.Newton;
     });
 
+    afterEach(function(){
+        NewtonAdapter.resetForTest();
+    });
+
     it('call Newton.getSharedInstanceWithConfig with secretId', function(done){
         var secretId = '<local_host>';
         NewtonAdapter.init({

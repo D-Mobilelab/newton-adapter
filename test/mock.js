@@ -17,7 +17,7 @@ var Mock = {
             setCustomData: function(){ Mock.calls.push('setCustomData'); return this; },
             setLoginData: function(){ Mock.calls.push('setLoginData'); return this; },
             setOnFlowCompleteCallback: function(callback){ Mock.calls.push('setOnFlowCompleteCallback'); callback.call(); return this; },
-            setCallback: function(){ Mock.calls.push('setCallback'); return this; },
+            setCallback: function(callback){ Mock.calls.push('setCallback'); callback.call(); return this; },
             setExternalID: function(){ Mock.calls.push('setExternalID'); return this; },
             setCustomID: function(){ Mock.calls.push('setCustomID'); return this; },
             getExternalLoginFlow: function(){ Mock.calls.push('getExternalLoginFlow'); return this; },

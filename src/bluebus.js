@@ -65,7 +65,7 @@ module.exports = {
     },
 
     cleanAll: function(){
-        this.events = [];
+        this.events = {};
     }
 
 };

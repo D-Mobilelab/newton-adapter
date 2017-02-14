@@ -2,7 +2,7 @@ var NewtonAdapter = require('../../src/main');
 var Mock = require('../mock');
 var calls, NewtonMock;
 
-describe('INIT', function(){
+describe('LOGIN', function(){
     beforeEach(function(done){
         Mock.boostrap();
         calls = Mock.calls;
@@ -18,6 +18,10 @@ describe('INIT', function(){
         }).catch(function(reason){
             done.fail(reason);
         });
+    });
+
+    afterEach(function(){
+        NewtonAdapter.resetForTest();
     });
 
     it('external login', function(done){
