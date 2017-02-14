@@ -1,15 +1,27 @@
-window.Newton = require('./NewtonMock');
-var NewtonAdapter = require('../src/main');
+var NewtonAdapter = require('../../src/main');
+var Mock = require('../mock');
+var calls, NewtonMock;
 
-/* TRACK PAGEVIEW */
+describe('PAGEVIEW', function(){
+    beforeEach(function(done){
+        Mock.boostrap();
+        calls = Mock.calls;
+        NewtonMock = Mock.NewtonMock;
+        Newton = Mock.Newton;
 
-describe('trackPageview -', function(){
-    beforeEach(function(){
         NewtonAdapter.init({
             secretId: '<local_host>',
             enable: true,
             waitLogin: false
+        }).then(function(){
+            done();
+        }).catch(function(reason){
+            done.fail(reason);
         });
+    });
+
+    afterEach(function(){
+        NewtonAdapter.resetForTest();
     });
 
     it('call Newton.sendEvent with event "pageview" and properties, with url', function(done){
@@ -42,7 +54,7 @@ describe('trackPageview -', function(){
         });
     });
 
-    it('call Newton.sendEvent with event "pageview" and void properties', function(done){
+    it('call Newton.sendEvent with event "pageview"', function(done){
         var eventProperties = { 
             url: window.location.href 
         };

@@ -1,20 +1,32 @@
-window.Newton = require('./NewtonMock');
-var NewtonAdapter = require('../src/main');
-/* RANK CONTENT */
+var NewtonAdapter = require('../../src/main');
+var Mock = require('../mock');
+var calls, NewtonMock, properties;
 
-describe('rankContent -', function(){
-    var properties;
+describe('RANK CONTENT', function(){
+    beforeEach(function(done){
+        Mock.boostrap();
+        calls = Mock.calls;
+        NewtonMock = Mock.NewtonMock;
+        Newton = Mock.Newton;
 
-    beforeEach(function(){
         properties = {
             contentId: '123456777',
             scope: 'social'
         };
+
         NewtonAdapter.init({
             secretId: '<local_host>',
             enable: true,
             waitLogin: false
+        }).then(function(){
+            done();
+        }).catch(function(reason){
+            done.fail(reason);
         });
+    });
+
+    afterEach(function(){
+        NewtonAdapter.resetForTest();
     });
 
     it('rankContent() - if score is undefined, then default score is 1', function(done){

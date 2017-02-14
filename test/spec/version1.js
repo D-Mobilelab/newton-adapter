@@ -1,11 +1,15 @@
-window.Newton = require('./NewtonMock');
-var NewtonAdapter = require('../src/main');
-/* NEWTON VERSION 1 */
-describe('Newton version 1 - ', function(){
-    var secretId = '<local_host>';
-    var customLogger, promise;
+var NewtonAdapter = require('../../src/main');
+var Mock = require('../mock');
+var calls, NewtonMock, customLogger, secretId;
 
-    beforeEach(function(){
+describe('VERSION 1', function(){
+    beforeEach(function(done){
+        Mock.boostrap();
+        calls = Mock.calls;
+        NewtonMock = Mock.NewtonMock;
+        Newton = Mock.Newton;
+
+        secretId = '<local_host>';        
         customLogger = { 
             debug: function(){},
             log: function(){},
@@ -16,24 +20,27 @@ describe('Newton version 1 - ', function(){
         spyOn(customLogger, 'warn');
         spyOn(customLogger, 'error');
 
-        promise = NewtonAdapter.init({
+        NewtonAdapter.init({
             secretId: secretId,
             enable: true,
             waitLogin: false,
             logger: customLogger,
             properties: { bridgeId: '123123123' },
             newtonversion: 1
-        }); 
-    });
-
-    it('init calls getSharedInstanceWithConfig only with secretId', function(done){
-        promise.then(function(){
-            expect(Newton.getSharedInstanceWithConfig).toHaveBeenCalledWith(secretId);
-            expect(customLogger.warn).toHaveBeenCalledWith('NewtonAdapter', 'Newton v.1 not support properties on init method');
+        }).then(function(){
             done();
         }).catch(function(reason){
-            done.fail();
+            done.fail(reason);
         });
+    });
+
+    afterEach(function(){
+        NewtonAdapter.resetForTest();
+    });
+
+    it('init calls getSharedInstanceWithConfig only with secretId', function(){
+        expect(Newton.getSharedInstanceWithConfig).toHaveBeenCalledWith(secretId);
+        expect(customLogger.warn).toHaveBeenCalledWith('NewtonAdapter', 'Newton v.1 not support properties on init method');
     });
 
     it('login returns an error if login type is external', function(done){
@@ -41,10 +48,10 @@ describe('Newton version 1 - ', function(){
             logged: true,
             type: 'external'
         }).then(function(){
-            expect(customLogger.error).toHaveBeenCalledWith('NewtonAdapter', 'Login', 'Newton v.1 not support external login');
-            done();
+            done.fail();
         }).catch(function(reason){
-            done.fail(reason);
+            expect(customLogger.error).toHaveBeenCalledWith('NewtonAdapter', 'Login', 'Newton v.1 not support this type of login');
+            done();
         });
     });
 
@@ -78,10 +85,10 @@ describe('Newton version 1 - ', function(){
             contentId: '123456777',
             scope: 'social'
         }).then(function(){
+            done.fail(reason);
+        }).catch(function(reason){
             expect(customLogger.error).toHaveBeenCalledWith('NewtonAdapter', 'rankContent', 'Newton v.1 not support rank content');
             done();
-        }).catch(function(reason){
-            done.fail(reason);
         });
     });
 

@@ -1,22 +1,35 @@
-window.Newton = require('./NewtonMock');
-var NewtonAdapter = require('../src/main');
-/* LOGIN */
-describe('login - ', function(){
-    var userId = '111222333444';
-    var userProperties = {
-        msisdn: '+39123456789'
-    };
-    var callbackMethod = function(){};
+var NewtonAdapter = require('../../src/main');
+var Mock = require('../mock');
+var calls, NewtonMock;
 
-    beforeEach(function(){
+describe('LOGIN', function(){
+    beforeEach(function(done){
+        Mock.boostrap();
+        calls = Mock.calls;
+        NewtonMock = Mock.NewtonMock;
+        Newton = Mock.Newton;
+
         NewtonAdapter.init({
             secretId: '<local_host>',
             enable: true,
             waitLogin: false
+        }).then(function(){
+            done();
+        }).catch(function(reason){
+            done.fail(reason);
         });
     });
 
+    afterEach(function(){
+        NewtonAdapter.resetForTest();
+    });
+
     it('external login', function(done){
+        var userId = '111222333444';
+        var userProperties = {
+            msisdn: '+39123456789'
+        };
+        var callbackMethod = function(){};
         NewtonAdapter.login({
             logged: true,
             userId: userId,
@@ -37,6 +50,11 @@ describe('login - ', function(){
     });
 
     it('custom login', function(done){
+        var userId = '111222333444';
+        var userProperties = {
+            msisdn: '+39123456789'
+        };
+        var callbackMethod = function(){};
         NewtonAdapter.login({
             logged: true,
             userId: userId,
@@ -53,38 +71,5 @@ describe('login - ', function(){
         }).catch(function(reason){
             done.fail(reason);
         });
-    });
-});
-
-/* IS LOGGED */
-
-describe('isUserLogged -', function(){
-    it('not call isUserLogged() before init', function(){
-        NewtonAdapter.isUserLogged();
-        expect(NewtonMock.isUserLogged).not.toHaveBeenCalled();
-    });
-
-    it('call isUserLogged() after init', function(done){
-        NewtonAdapter.init({
-            secretId: '<local_host>',
-            enable: true,
-            waitLogin: false
-        }).then(function(){
-            NewtonAdapter.isUserLogged();
-            expect(NewtonMock.isUserLogged).toHaveBeenCalled();
-            done();
-        });
-    });
-
-    it('return right response', function(done){
-        NewtonAdapter.init({
-            secretId: '<local_host>',
-            enable: true,
-            waitLogin: false
-        }).then(function(){
-            expect(NewtonAdapter.isUserLogged()).toEqual(Newton.getSharedInstance().isUserLogged());
-            done();
-        });
-        // expect(NewtonAdapter.isUserLogged()).toEqual(Newton.getSharedInstance().isUserLogged());
     });
 });
