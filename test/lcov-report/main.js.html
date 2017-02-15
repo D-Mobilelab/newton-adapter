@@ -1,0 +1,1724 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for main.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="prettify.css" />
+    <link rel="stylesheet" href="base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="index.html">All files</a> main.js
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">81.63% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>120/147</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">72.5% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>58/80</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">90.91% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>30/33</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">81.51% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>119/146</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line high'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483
+484
+485
+486
+487
+488
+489
+490
+491
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517
+518
+519
+520
+521
+522
+523
+524
+525
+526
+527
+528
+529
+530
+531
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542
+543
+544
+545
+546
+547
+548
+549
+550
+551
+552
+553
+554</td><td class="line-coverage quiet"><span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">50x</span>
+<span class="cline-any cline-yes">50x</span>
+<span class="cline-any cline-yes">50x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">50x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">52x</span>
+<span class="cline-any cline-yes">52x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">42x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">38x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">38x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">38x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">38x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">38x</span>
+<span class="cline-any cline-yes">35x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">30x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">35x</span>
+<span class="cline-any cline-yes">35x</span>
+<span class="cline-any cline-yes">35x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">35x</span>
+<span class="cline-any cline-yes">32x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">38x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">35x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span></td><td class="text"><pre class="prettyprint lang-js">var Promise = require('promise-polyfill');
+var Bluebus = require('./bluebus');
+&nbsp;
+/**
+* @ngdoc object
+* @name NewtonAdapter
+*
+* @description
+* Adapter for Newton sdk to be used in B! web applications
+*/
+var NewtonAdapter = new function(){
+&nbsp;
+    var newtonversion, newtonInstance, logger, beforeInit;
+&nbsp;
+    (beforeInit = function(){
+        newtonversion = 2;
+        newtonInstance = false;
+        logger = { 
+            debug: <span class="fstat-no" title="function not covered" >fu</span>nction(){},
+            log: function(){},
+            info: <span class="fstat-no" title="function not covered" >fu</span>nction(){},
+            warn: function(){},
+            error: <span class="fstat-no" title="function not covered" >fu</span>nction(){}
+        }; 
+        Bluebus.cleanAll();
+    })();
+    
+    var createSimpleObject = function(object){
+        var newObject = object || {};
+        return Newton.SimpleObject.fromJSONObject(newObject);
+    };
+&nbsp;
+    // USE ONLY FOR TEST!
+    this.resetForTest = function(){
+        beforeInit();
+    };
+&nbsp;
+    /**
+    * @ngdoc function
+    * @name init
+    * @methodOf NewtonAdapter
+    *
+    * @description Initializes Newton sdk and sets up internal configuration.
+    *
+    * @param {Object} options configuration object
+    * @param {string} options.secretId secret id of the application
+    * @param {boolean} [options.enable=false] enable or disable calls to Newton library
+    * @param {boolean} [options.waitLogin=false] track events, heartbeats and rankings only after login&lt;br/&gt;&lt;i&gt;If true, you have to call login() in all cases, both for logged and unlogged users.
+    * @param {boolean} [options.waitDeviceReady=false] wait deviceReady event to initialize Newton library. It's useful for hybrid environment
+    * @param {integer} [options.newtonversion=2] version of Newton, it can be 1 or 2.
+    * @param {Object} [options.logger=disabled logger] logger object containing the methods: debug, log, info, warn, error
+    * @param {Object} [options.properties={}] custom data for Newton session&lt;br/&gt;&lt;i&gt;Newton version 1: this property is not supported&lt;/i&gt;
+    *
+    * @return {Promise} promise that will be resolved when the init has been completed
+    * 
+    * @example
+    * &lt;pre&gt;
+    *   NewtonAdapter.init({
+    *       secretId: '123456789',
+    *       enable: true,
+    *       waitLogin: true,
+    *       waitDeviceReady: false,
+    *       version: 2,
+    *       logger: console,
+    *       properties: {
+    *           hello: 'World'
+    *       }
+    *   });
+    * &lt;/pre&gt;
+    */
+    this.init = function(options){
+        // create promise
+        return new Promise(function(resolve, reject){  
+            // get logger
+            if(options.logger){
+                logger = options.logger;
+            }
+&nbsp;
+            // get newtonversion
+            if(options.newtonversion){
+                newtonversion = options.newtonversion;
+            }
+&nbsp;
+            // check if Newton exists
+            <span class="missing-if-branch" title="if path not taken" >I</span>if(!Newton){
+<span class="cstat-no" title="statement not covered" >                reject();</span>
+<span class="cstat-no" title="statement not covered" >                logger.error('NewtonAdapter', 'Newton not exist');</span>
+            } else {
+&nbsp;
+                // init Newton and trigger init
+                var initNewton = function(){
+                    if(newtonversion === 1){
+                        newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId);
+                        <span class="missing-if-branch" title="else path not taken" >E</span>if(options.properties){
+                            logger.warn('NewtonAdapter', 'Newton v.1 not support properties on init method');
+                        }
+                    } else {
+                        newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId, createSimpleObject(options.properties));
+                    }
+&nbsp;
+                    // resolve, trigger and log
+                    resolve(true);
+                    logger.log('NewtonAdapter', 'Init', options);
+                    Bluebus.trigger('init');
+&nbsp;
+                    // trigger login if waitLogin is false
+                    if(!options.waitLogin){
+                        Bluebus.trigger('login');
+                    }
+                };
+&nbsp;
+                // call initNewton if enabled
+                if(!options.enable){
+                    resolve(false);
+                    logger.warn('NewtonAdapter', 'Newton not enabled');
+                } else {
+                    if(options.waitDeviceReady){
+                        document.addEventListener('deviceready', initNewton, false);
+                    } else {
+                        initNewton();
+                    }
+                }
+            }
+        });
+    };
+&nbsp;
+&nbsp;
+    /**
+    * @ngdoc function
+    * @name login
+    * @methodOf NewtonAdapter
+    *
+    * @description Performs custom or external login via Newton sdk. &lt;br/&gt;
+    * &lt;i&gt;If you set waitLogin=true on init method, you have to call this method in all cases, for logged and unlogged users.&lt;/i&gt;
+    *
+    * @param {Object} options configuration object
+    * @param {string} [options.type="custom"] type of Newton login used, it can be 'custom' or 'external'&lt;br&gt;&lt;i&gt;Newton version 1: external login not supported&lt;/i&gt;
+    * @param {boolean} [options.logged=false] true if user is logged, false if user is unlogged
+    * @param {Object} [options.userProperties={}] custom user properties
+    *
+    * @return {Promise} promise that will be resolved when the login has been completed
+    *
+    * @example
+    * &lt;pre&gt;
+    * NewtonAdapter.login({
+    *       logged: true,
+    *       type: 'external',
+    *       userId: '123456789',
+    *       userProperties: {
+    *           msisdn: '+39123456789',
+    *           type: 'freemium'
+    *       }
+    * });
+    * &lt;/pre&gt;
+    */
+    this.login = function(options){
+        // create promise
+        return new Promise(function(resolve, reject){
+            
+            // login Newton and trigger login
+            var loginNewton = function(){
+                try {
+                    // callback, resolve, trigger and log
+                    if(options.callback){ options.callback.call(); }
+                    resolve();
+                    logger.log('NewtonAdapter', 'Login', options);
+                    Bluebus.trigger('login');
+                } catch(err) {
+                    // reject and log
+<span class="cstat-no" title="statement not covered" >                    reject();</span>
+<span class="cstat-no" title="statement not covered" >                    logger.error('NewtonAdapter', 'Login', err);</span>
+                }
+            };
+&nbsp;
+            // wait init trigger
+            Bluebus.bind('init', function(){
+&nbsp;
+                if(!options.logged || newtonInstance.isUserLogged()){                    
+                    loginNewton();
+                } else {                    
+                    var loginType = options.type ? options.type : 'custom';
+&nbsp;
+                    // newton version 1
+                    if(newtonversion === 1){
+                        if(loginType === 'custom'){
+                            <span class="missing-if-branch" title="else path not taken" >E</span>if(options.userId){
+                                newtonInstance.getLoginBuilder()
+                                .setLoginData(createSimpleObject(options.userProperties))
+                                .setCallback(loginNewton)
+                                .setCustomID(options.userId)
+                                .getCustomFlow()
+                                .startLoginFlow();  
+                            } else {
+<span class="cstat-no" title="statement not covered" >                                reject();</span>
+<span class="cstat-no" title="statement not covered" >                                logger.error('NewtonAdapter', 'Login', 'Custom login requires userId');</span>
+                            }
+                        } else {
+                            reject();                            
+                            logger.error('NewtonAdapter', 'Login', 'Newton v.1 not support this type of login');
+                        }
+&nbsp;
+                    // newton version 2
+                    } else {
+                        if(loginType === 'custom'){
+                            <span class="missing-if-branch" title="else path not taken" >E</span>if(options.userId){
+                                newtonInstance.getLoginBuilder()
+                                .setCustomData(createSimpleObject(options.userProperties))
+                                .setOnFlowCompleteCallback(loginNewton)
+                                .setCustomID(options.userId)
+                                .getCustomLoginFlow()
+                                .startLoginFlow();  
+                            } else {
+<span class="cstat-no" title="statement not covered" >                                reject();</span>
+<span class="cstat-no" title="statement not covered" >                                logger.error('NewtonAdapter', 'Login', 'Custom login requires userId');</span>
+                            }
+                        } else <span class="missing-if-branch" title="else path not taken" >E</span>if(loginType === 'external'){
+                            <span class="missing-if-branch" title="else path not taken" >E</span>if(options.userId &amp;&amp; options.userProperties){
+                                newtonInstance.getLoginBuilder()
+                                .setCustomData(createSimpleObject(options.userProperties))
+                                .setOnFlowCompleteCallback(loginNewton)
+                                .setExternalID(options.userId)
+                                .getExternalLoginFlow()
+                                .startLoginFlow();
+                            } else {
+<span class="cstat-no" title="statement not covered" >                                reject();</span>
+<span class="cstat-no" title="statement not covered" >                                logger.error('NewtonAdapter', 'Login', 'External login requires userId and properties');</span>
+                            }
+                        } else <span class="cstat-no" title="statement not covered" >if(loginType === 'msisdn'){</span>
+<span class="cstat-no" title="statement not covered" >                            if(options.msisdn &amp;&amp; options.pin){</span>
+<span class="cstat-no" title="statement not covered" >                                newtonInstance.getLoginBuilder()</span>
+                                .setOnFlowCompleteCallback(loginNewton)
+                                .setMSISDN(options.msisdn)
+                                .setPIN(options.pin)
+                                .getMSISDNPINLoginFlow()
+                                .startLoginFlow();
+                            } else {
+<span class="cstat-no" title="statement not covered" >                                reject();</span>
+<span class="cstat-no" title="statement not covered" >                                logger.error('NewtonAdapter', 'Login', 'MSISDN login requires msisdn and pin');</span>
+                            }
+                        } else <span class="cstat-no" title="statement not covered" >if(loginType === 'autologin'){</span>
+<span class="cstat-no" title="statement not covered" >                            if(options.domain){</span>
+<span class="cstat-no" title="statement not covered" >                                newtonInstance.getLoginBuilder()</span>
+                                .setOnFlowCompleteCallback(loginNewton)
+                                .__setDomain(options.domain)
+                                .getMSISDNURLoginFlow()
+                                .startLoginFlow();
+                            } else {
+<span class="cstat-no" title="statement not covered" >                                reject();</span>
+<span class="cstat-no" title="statement not covered" >                                logger.error('NewtonAdapter', 'Login', 'Autologin requires domain');</span>
+                            }
+                        } else <span class="cstat-no" title="statement not covered" >if(loginType === 'oauth'){</span>
+<span class="cstat-no" title="statement not covered" >                            if(options.provider &amp;&amp; options.access_token){</span>
+<span class="cstat-no" title="statement not covered" >                                newtonInstance.getLoginBuilder()</span>
+                                .setOAuthProvider(options.provider)
+                                .setAccessToken(options.access_token)
+                                .setOnFlowCompleteCallback(loginNewton)
+                                .getOAuthLoginFlow()
+                                .startLoginFlow();
+                            } else {
+<span class="cstat-no" title="statement not covered" >                                reject();</span>
+<span class="cstat-no" title="statement not covered" >                                logger.error('NewtonAdapter', 'Login', 'OAuth requires provider and access_token');</span>
+                            }
+                        } else {
+<span class="cstat-no" title="statement not covered" >                            reject();</span>
+<span class="cstat-no" title="statement not covered" >                            logger.error('NewtonAdapter', 'Login', 'This type of logis is not supported');</span>
+                        }
+                    }
+                }
+            });
+        });
+    };
+&nbsp;
+&nbsp;
+    /**
+    * @ngdoc function
+    * @name rankContent
+    * @methodOf NewtonAdapter
+    *
+    * @description Performs content ranking via Newton sdk&lt;br&gt;&lt;i&gt;Newton version 1: feature not supported&lt;/i&gt;
+    *
+    * @param {Object} options configuration object
+    * @param {string} contentId unique identifier of the content
+    * @param {string} scope type of action performed on the content
+    * @param {number} score the score associated to the content
+    *
+    * @return {Promise} promise that will be resolved when the login has been completed
+    *
+    * @example
+    * &lt;pre&gt;
+    * NewtonAdapter.rankContent({
+    *       contentId: '123456777',
+    *       scope: 'social',
+    *       score: 4
+    * });
+    * &lt;/pre&gt;
+    */
+    this.rankContent = function(options){
+        return new Promise(function(resolve, reject){
+            Bluebus.bind('login', function(){
+                var score = options.score ? options.score : 1;
+                if(newtonversion === 1){
+                    reject();
+                    logger.error('NewtonAdapter', 'rankContent', 'Newton v.1 not support rank content');
+                } else {
+                    newtonInstance.rankContent(options.contentId, options.scope, score);
+                    resolve();
+                    logger.log('NewtonAdapter', 'rankContent', options);
+                }
+            });
+        });
+    };
+&nbsp;
+    /**
+    * @ngdoc function
+    * @name trackEvent
+    * @methodOf NewtonAdapter
+    *
+    * @description Performs event tracking via Newton sdk.
+    *
+    * @param {Object} options configuration object
+    * @param {string} options.name name of the event to track
+    * @param {object} [options.properties={}] custom datas of the event
+    * @param {object} [options.rank={}] rank event datas. Newton version 1: feature not supported
+    *
+    * @return {Promise} promise that will be resolved when the login has been completed
+    *
+    * @example
+    * &lt;pre&gt;
+    * NewtonAdapter.trackEvent({
+    *       name: 'Play',
+    *       properties: {
+    *           category: 'Game',
+    *           content: 'Fruit Slicer'
+    *       },
+    *       rank: {
+    *           contentId: '123456777',
+    *           scope: 'social',
+    *           score: 4
+    *       }
+    * });
+    * &lt;/pre&gt;
+    */
+    this.trackEvent = function(options){
+        return new Promise(function(resolve, reject){
+            Bluebus.bind('login', function(){
+                newtonInstance.sendEvent(options.name, createSimpleObject(options.properties));
+                resolve();
+                logger.log('NewtonAdapter', 'trackEvent', options.name, options.properties);
+                if(options.rank){
+                    var score = options.rank.score ? options.rank.score : 1;
+                    if(newtonversion === 1){
+                        logger.error('NewtonAdapter', 'rankContent', 'Newton v.1 not support rank content');
+                    } else {
+                        newtonInstance.rankContent(options.rank.contentId, options.rank.scope, score);
+                        logger.log('NewtonAdapter', 'rankContent', options.rank);
+                    }
+                }
+            });
+        });
+    };
+&nbsp;
+    /**
+    * @ngdoc function
+    * @name trackPageview
+    * @methodOf NewtonAdapter
+    *
+    * @description Performs pageview tracking via Newton sdk.
+    *
+    * @param {Object} options configuration object
+    * @param {Object} options.properties Properties of the pageview
+    * @param {string} [options.properties.url=window.location.href] url of pageview
+    *
+    * @return {Promise} promise that will be resolved when the login has been completed
+    *
+    * @example
+    * &lt;pre&gt;
+    * NewtonAdapter.trackPageview({
+    *       properties: {
+    *           url: 'http://www.google.it',
+    *           title: 'Game',
+    *           hello: 'World'
+    *       }
+    * });
+    * &lt;/pre&gt;
+    */
+    this.trackPageview = function(options){
+        var eventParams = options || {};
+        eventParams.name = 'pageview';
+        if(!eventParams.properties){
+            eventParams.properties = {};
+        }
+        if(!eventParams.properties.url){
+            eventParams.properties.url = window.location.href;
+        }
+        return NewtonAdapter.trackEvent(eventParams);
+    };
+&nbsp;
+    /**
+    * @ngdoc function
+    * @name startHeartbeat
+    * @methodOf NewtonAdapter
+    *
+    * @description Performs timed events via Newton sdk.
+    *
+    * @param {Object} options configuration object
+    * @param {string} options.name name of the timed event
+    * @param {Object} [options.properties={}] details of the timed event
+    *
+    * @return {Promise} promise that will be resolved when the login has been completed
+    *
+    * @example
+    * &lt;pre&gt;
+    * NewtonAdapter.startHeartbeat({
+    *       name: 'Playing',
+    *       properties: {
+    *           category: 'Game',
+    *           content: 'Fruit Slicer'
+    *       }
+    *   });
+    * &lt;/pre&gt;
+    */
+    this.startHeartbeat = function(options){
+        return new Promise(function(resolve, reject){
+            Bluebus.bind('login', function(){
+                newtonInstance.timedEventStart(options.name, createSimpleObject(options.properties));
+                resolve();
+                logger.log('NewtonAdapter', 'startHeartbeat', options);                
+            });
+        });
+    };
+&nbsp;
+    /**
+    * @ngdoc function
+    * @name stopHeartbeat
+    * @methodOf NewtonAdapter
+    *
+    * @description Stops timed events via Newton sdk.
+    *
+    * @param {Object} options configuration object
+    * @param {string} options.name name of the timed event
+    * @param {Object} [options.properties={}] details of the timed event
+    *
+    * @return {Promise} promise that will be resolved when the login has been completed
+    *
+    * @example
+    * &lt;pre&gt;
+    * NewtonAdapter.stopHeartbeat({
+    *       name: 'Playing',
+    *       properties: {
+    *           category: 'Game',
+    *           content: 'Fruit Slicer'
+    *       }
+    *   });
+    * &lt;/pre&gt;
+    */
+    this.stopHeartbeat = function(options){
+        return new Promise(function(resolve, reject){
+            Bluebus.bind('login', function(){
+                newtonInstance.timedEventStop(options.name, createSimpleObject(options.properties));
+                resolve();
+                logger.log('NewtonAdapter', 'startHeartbeat', options);                
+            });
+        });
+    };
+&nbsp;
+    /**
+    * @ngdoc function
+    * @name isUserLogged
+    * @methodOf NewtonAdapter
+    *
+    * @description Check if the user is already logged on Newton.&lt;br&gt;&lt;i&gt;If called before init, this method returns false.&lt;/i&gt;
+    *
+    * @return {boolean} true if the user is already logged on Newton, else false
+    *
+    * @example
+    * &lt;pre&gt;
+    * NewtonAdapter.isUserLogged();
+    * &lt;/pre&gt;
+    */
+    this.isUserLogged = function(){
+        if(newtonInstance){
+            return newtonInstance.isUserLogged();
+        } else {
+            return false;
+        }
+    };
+&nbsp;
+    /**
+    * @ngdoc function
+    * @name isInitialized
+    * @methodOf NewtonAdapter
+    *
+    * @description Check if NewtonAdapter is initialized.
+    *
+    * @return {boolean} true if NewtonAdapter is already initialized (you have called init method)
+    *
+    * @example
+    * &lt;pre&gt;
+    * NewtonAdapter.isInitialized();
+    * &lt;/pre&gt;
+    */
+    this.isInitialized = function(){
+        return Bluebus.isTriggered('init');
+    };
+&nbsp;
+    /**
+    * @ngdoc function
+    * @name getUserToken
+    * @methodOf NewtonAdapter
+    *
+    * @description Get Newton user token
+    *
+    * @return {string} Newton user token
+    *
+    * @example
+    * &lt;pre&gt;
+    * NewtonAdapter.getUserToken();
+    * &lt;/pre&gt;
+    */
+    this.getUserToken = function(){
+        if(newtonInstance){
+            return newtonInstance.getUserToken();
+        } else {
+            return false;
+        }
+    };
+&nbsp;
+    /**
+    * @ngdoc function
+    * @name setUserStateChangeListener
+    * @methodOf NewtonAdapter
+    *
+    * @description Listen user state change
+    *
+    * @param {function} callback method called when user changes state
+    *
+    * @return {boolean} return true if Newton is already initialized, else false. If not inizialized, the callback doesn't listen user state change
+    *
+    * @example
+    * &lt;pre&gt;
+    * NewtonAdapter.setUserStateChangeListener(function(state){ console.log(state); });
+    * &lt;/pre&gt;
+    */
+    this.setUserStateChangeListener = function(callback){
+        if(newtonInstance){
+            newtonInstance.setUserStateChangeListener(callback);
+            return true;
+        } else {
+            return false;
+        }
+    };
+};
+&nbsp;
+module.exports = NewtonAdapter;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Wed Feb 15 2017 12:02:14 GMT+0100 (CET)
+</div>
+</div>
+<script src="prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="sorter.js"></script>
+</body>
+</html>

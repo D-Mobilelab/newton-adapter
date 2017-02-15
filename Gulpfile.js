@@ -53,10 +53,9 @@ gulp.task('serve', ['build'], function(){
 
 gulp.task('servetest', ['test'], function(){
     browsersync({
-        startPath: '/test/coverage/',
+        startPath: '/test/lcov-report',
         server: {
-            baseDir: '.',
-            directory: true
+            baseDir: '.'
         }
     });
     gulp.watch(['src/**/*.js', 'test/**/*.test.js', 'karma.conf.js', browsersync.reload], ['test']);

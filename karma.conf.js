@@ -1,3 +1,5 @@
+var path = require('path');
+
 // Karma configuration
 module.exports = function(config) {
     config.set({
@@ -6,30 +8,35 @@ module.exports = function(config) {
 
         frameworks: ['jasmine'],
         
-        files: [
-            'test/spec/*.js'
-        ],
+        files: ['test/spec/*.js'],
 
-        browsers: [
-            'PhantomJS',
-        ],
+        browsers: ['PhantomJS'],
 
-        reporters: [
-            'spec',
-            'coverage'
-        ],
+        reporters: ['spec', 'coverage-istanbul'],
 
         preprocessors: {
-            'test/spec/*.js': ['webpack'],
-            'src/*.js': ['coverage']
+            'test/spec/*.js': ['webpack']
+            // 'src/*.js': ['coverage']
         },
 
-        coverageReporter: {
+        coverageIstanbulReporter: {
+            reports: ['text-summary', 'lcov'],
+            fixWebpackSourcePaths: true,
             type: 'lcov',
-            dir: 'test/coverage/'
+            dir: 'test/'
         },
 
-        webpack: {},
+        webpack: {
+            module: {
+                rules: [
+                    {
+                        test: /main\.js$/,
+                        include: path.resolve('src/'),
+                        loader: 'istanbul-instrumenter-loader'
+                    }
+                ]
+            }
+        },
 
         webpackMiddleware: {
             stats: 'errors-only'
