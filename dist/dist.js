@@ -66,28 +66,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	*/
 	var NewtonAdapter = new function(){
 
-	    var newtonversion = 2;
-	    var newtonInstance = false;
-	    var logger = { 
-	        debug: function(){},
-	        log: function(){},
-	        info: function(){},
-	        warn: function(){},
-	        error: function(){}
-	    }; 
-	    var createSimpleObject = function(object){
-	        var newObject = object || {};
-	        return Newton.SimpleObject.fromJSONObject(newObject);
-	    };
+	    var newtonversion, newtonInstance, logger, beforeInit;
 
-	    // USE ONLY FOR TEST!
-	    /**
-	     * TODO:
-	     * consider to introduce process.env.NODE_ENV in build process
-	     * if(process.env.NODE_ENV === 'test'){}
-	     * this will be dead-code eliminated when NODE_ENV is 'production' === 'test'
-	     */
-	    this.resetForTest = function(){
+	    (beforeInit = function(){
 	        newtonversion = 2;
 	        newtonInstance = false;
 	        logger = { 
@@ -97,6 +78,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	            warn: function(){},
 	            error: function(){}
 	        }; 
+	        Bluebus.cleanAll();
+	    })();
+	    
+	    var createSimpleObject = function(object){
+	        var newObject = object || {};
+	        return Newton.SimpleObject.fromJSONObject(newObject);
+	    };
+
+	    // USE ONLY FOR TEST!
+	    this.resetForTest = function(){
+	        beforeInit();
 	    };
 
 	    /**
@@ -239,9 +231,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // wait init trigger
 	            Bluebus.bind('init', function(){
 
-	                if(!options.logged || newtonInstance.isUserLogged()){
+	                if(!options.logged || newtonInstance.isUserLogged()){                    
 	                    loginNewton();
-	                } else {
+	                } else {                    
 	                    var loginType = options.type ? options.type : 'custom';
 
 	                    // newton version 1
@@ -255,9 +247,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	                                .getCustomFlow()
 	                                .startLoginFlow();  
 	                            } else {
+	                                reject();
 	                                logger.error('NewtonAdapter', 'Login', 'Custom login requires userId');
 	                            }
 	                        } else {
+	                            reject();                            
 	                            logger.error('NewtonAdapter', 'Login', 'Newton v.1 not support this type of login');
 	                        }
 
@@ -272,6 +266,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                                .getCustomLoginFlow()
 	                                .startLoginFlow();  
 	                            } else {
+	                                reject();
 	                                logger.error('NewtonAdapter', 'Login', 'Custom login requires userId');
 	                            }
 	                        } else if(loginType === 'external'){
@@ -283,6 +278,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                                .getExternalLoginFlow()
 	                                .startLoginFlow();
 	                            } else {
+	                                reject();
 	                                logger.error('NewtonAdapter', 'Login', 'External login requires userId and properties');
 	                            }
 	                        } else if(loginType === 'msisdn'){
@@ -294,6 +290,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                                .getMSISDNPINLoginFlow()
 	                                .startLoginFlow();
 	                            } else {
+	                                reject();
 	                                logger.error('NewtonAdapter', 'Login', 'MSISDN login requires msisdn and pin');
 	                            }
 	                        } else if(loginType === 'autologin'){
@@ -304,6 +301,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                                .getMSISDNURLoginFlow()
 	                                .startLoginFlow();
 	                            } else {
+	                                reject();
 	                                logger.error('NewtonAdapter', 'Login', 'Autologin requires domain');
 	                            }
 	                        } else if(loginType === 'oauth'){
@@ -315,9 +313,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	                                .getOAuthLoginFlow()
 	                                .startLoginFlow();
 	                            } else {
+	                                reject();
 	                                logger.error('NewtonAdapter', 'Login', 'OAuth requires provider and access_token');
 	                            }
 	                        } else {
+	                            reject();
 	                            logger.error('NewtonAdapter', 'Login', 'This type of logis is not supported');
 	                        }
 	                    }
@@ -440,12 +440,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    * </pre>
 	    */
 	    this.trackPageview = function(options){
-	        var eventParams = options || { properties: {} };
+	        var eventParams = options || {};
 	        eventParams.name = 'pageview';
+	        if(!eventParams.properties){
+	            eventParams.properties = {};
+	        }
 	        if(!eventParams.properties.url){
 	            eventParams.properties.url = window.location.href;
 	        }
-	        return NewtonAdapter.trackEvent(options);
+	        return NewtonAdapter.trackEvent(eventParams);
 	    };
 
 	    /**
@@ -1355,7 +1358,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    },
 
 	    cleanAll: function(){
-	        this.events = [];
+	        this.events = {};
 	    }
 
 	};

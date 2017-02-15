@@ -48,8 +48,7 @@ gulp.task('serve', ['build'], function(){
         startPath: '/examples/',
         server: {}
     });
-    gulp.watch(['dist/**/*.js'], browsersync.reload);
-    gulp.watch(['src/**/*.js', 'test/**/*.test.js'], ['build']);
+    gulp.watch(['src/**/*.js', 'test/**/*.test.js'], ['build', browsersync.reload]);
 });
 
 gulp.task('servetest', ['test'], function(){
@@ -60,6 +59,5 @@ gulp.task('servetest', ['test'], function(){
             directory: true
         }
     });
-    gulp.watch(['test/coverage/*'], browsersync.reload);
-    gulp.watch(['src/**/*.js', 'test/**/*.test.js', 'karma.conf.js'], ['test']);
+    gulp.watch(['src/**/*.js', 'test/**/*.test.js', 'karma.conf.js', browsersync.reload], ['test']);
 });
