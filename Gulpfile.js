@@ -7,8 +7,10 @@ var eslint = require('gulp-eslint');
 var webpack = require('gulp-webpack');
 var del = require('del');
 var browsersync = require('browser-sync');
-var karma = require('karma');
+// var karma = require('karma');
 var coveralls = require('gulp-coveralls');
+var shell = require('gulp-shell');
+var argv = require('yargs').argv;
 
 /********************
  * TASKS
@@ -21,11 +23,18 @@ gulp.task('eslint', function() {
     .pipe(eslint.failOnError());
 });
 
-gulp.task('test', function(done){
-    new karma.Server({
-        configFile: [__dirname, '/karma.conf.js'].join(''),
-        singleRun: true
-    }, done).start();
+gulp.task('test:single', shell.task(['./node_modules/karma/bin/karma start karma.conf.js']));
+
+gulp.task('test', ['test:single'], function(){
+    if(argv.watch){
+        browsersync({
+            startPath: '/test/lcov-report',
+            server: {
+                baseDir: '.'
+            }
+        });
+        gulp.watch(['src/**/*.js', 'test/spec/*.js', 'karma.conf.js'], ['test:single', browsersync.reload]);
+    }
 });
 
 gulp.task('coveralls', function(){
@@ -56,14 +65,3 @@ gulp.task('serve', ['build'], function(){
     });
     gulp.watch(['src/**/*.js', 'test/**/*.test.js'], ['build', browsersync.reload]);
 });
-
-gulp.task('servetest', ['test'], function(){
-    browsersync({
-        startPath: '/test/lcov-report',
-        server: {
-            baseDir: '.'
-        }
-    });
-    gulp.watch(['src/**/*.js', 'test/**/*.test.js', 'karma.conf.js', browsersync.reload], ['test']);
-});
-

@@ -39,6 +39,8 @@ module.exports = function(config) {
 
         webpackMiddleware: {
             stats: 'errors-only'
-        }
+        },
+
+        singleRun: true
     });
 };
