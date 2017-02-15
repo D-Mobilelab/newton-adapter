@@ -16,7 +16,6 @@ module.exports = function(config) {
 
         preprocessors: {
             'test/spec/*.js': ['webpack']
-            // 'src/*.js': ['coverage']
         },
 
         coverageIstanbulReporter: {

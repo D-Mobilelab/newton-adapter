@@ -8,12 +8,13 @@ var webpack = require('gulp-webpack');
 var del = require('del');
 var browsersync = require('browser-sync');
 var karma = require('karma');
+var coveralls = require('gulp-coveralls');
 
 /********************
  * TASKS
  *******************/
 
-gulp.task('lint', function() {
+gulp.task('eslint', function() {
     return gulp.src('src/**/*.js')
     .pipe(eslint())
     .pipe(eslint.format())
@@ -27,11 +28,16 @@ gulp.task('test', function(done){
     }, done).start();
 });
 
+gulp.task('coveralls', function(){
+    gulp.src('test/lcov.info')
+    .pipe(coveralls());
+});
+
 gulp.task('clean', function(){
     return del('dist/**/*', { force: true });
 });
 
-gulp.task('build', ['lint', 'test', 'clean'], function(){
+gulp.task('build', ['eslint', 'test', 'clean'], function(){
     return gulp.src('src/main.js')
     .pipe(webpack({
         output: {
@@ -60,3 +66,4 @@ gulp.task('servetest', ['test'], function(){
     });
     gulp.watch(['src/**/*.js', 'test/**/*.test.js', 'karma.conf.js', browsersync.reload], ['test']);
 });
+
