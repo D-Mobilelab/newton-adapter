@@ -1,7 +1,3 @@
-/********************
- * PLUGINS
- *******************/
-
 var gulp = require('gulp');
 var eslint = require('gulp-eslint');
 var webpack = require('gulp-webpack');
@@ -12,9 +8,9 @@ var coveralls = require('gulp-coveralls');
 var shell = require('gulp-shell');
 var argv = require('yargs').argv;
 
-/********************
- * TASKS
- *******************/
+gulp.task('clean', function(){
+    return del('dist/**/*', { force: true });
+});
 
 gulp.task('eslint', function() {
     return gulp.src('src/**/*.js')
@@ -42,11 +38,7 @@ gulp.task('coveralls', function(){
     .pipe(coveralls());
 });
 
-gulp.task('clean', function(){
-    return del('dist/**/*', { force: true });
-});
-
-gulp.task('build', ['eslint', 'test', 'clean'], function(){
+gulp.task('webpack', function(){
     return gulp.src('src/main.js')
     .pipe(webpack({
         output: {
@@ -58,10 +50,12 @@ gulp.task('build', ['eslint', 'test', 'clean'], function(){
     .pipe(gulp.dest('dist/'));
 });
 
+gulp.task('build', ['eslint', 'test', 'clean', 'webpack']);
+
 gulp.task('serve', ['build'], function(){
     browsersync({
         startPath: '/examples/',
         server: {}
     });
-    gulp.watch(['src/**/*.js', 'test/**/*.test.js'], ['build', browsersync.reload]);
+    gulp.watch(['examples/**/*.js', 'src/**/*.js', 'test/**/*.test.js'], ['build', browsersync.reload]);
 });
