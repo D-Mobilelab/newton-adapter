@@ -1,0 +1,2 @@
+- login msisdn(msisdn+pin for msisdn, else autologin) > login msisdn(msisdn+pin) e autologin(domain)
+- logout returns a promise

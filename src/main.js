@@ -273,6 +273,43 @@ var NewtonAdapter = new function(){
 
     /**
     * @ngdoc function
+    * @name logout
+    * @methodOf NewtonAdapter
+    *
+    * @description Performs logout from Newton if user is logged
+    *
+    * @return {Promise} promise that will be resolved when the logout has been completed
+    *
+    * @example
+    * <pre>
+    * NewtonAdapter.logout();
+    * </pre>
+    */
+    this.logout = function(){
+        // create promise
+        return new Promise(function(resolve, reject){
+            
+            // wait init trigger
+            Bluebus.bind('init', function(){
+                try {
+                    if(newtonInstance.isUserLogged()){                    
+                        newtonInstance.userLogout();
+                        resolve();
+                    } else {                    
+                        logger.warn('NewtonAdapter', 'User is already unlogged');
+                        resolve();
+                    }
+                } catch(err) {
+                    logger.error('NewtonAdapter', 'Logout', err);
+                    reject();
+                }
+            });
+        });
+    };
+
+
+    /**
+    * @ngdoc function
     * @name rankContent
     * @methodOf NewtonAdapter
     *
