@@ -3,10 +3,10 @@ var eslint = require('gulp-eslint');
 var webpack = require('gulp-webpack');
 var del = require('del');
 var browsersync = require('browser-sync');
-// var karma = require('karma');
 var coveralls = require('gulp-coveralls');
 var shell = require('gulp-shell');
 var argv = require('yargs').argv;
+var ngdocs = require('gulp-ngdocs');
 
 gulp.task('clean', function(){
     return del('dist/**/*', { force: true });
@@ -48,6 +48,27 @@ gulp.task('webpack', function(){
         }
     }))
     .pipe(gulp.dest('dist/'));
+});
+
+gulp.task('doc:single', function(){
+    gulp.src('src/main.js')
+    .pipe(ngdocs.process({
+        html5Mode: false,
+        startPage: '/api/NewtonAdapter'
+    }))
+    .pipe(gulp.dest('docs/temp'));
+});
+
+gulp.task('doc', ['doc:single'], function(){
+    if(argv.watch){
+        browsersync({
+            startPath: '/docs/temp',
+            server: {
+                baseDir: '.'
+            }
+        });
+        gulp.watch(['src/**/*.js'], ['doc:single', browsersync.reload]);
+    }
 });
 
 gulp.task('build', ['eslint', 'test', 'clean', 'webpack']);
