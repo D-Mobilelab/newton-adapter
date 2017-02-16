@@ -1,2 +1,4 @@
 - login msisdn(msisdn+pin for msisdn, else autologin) > login msisdn(msisdn+pin) e autologin(domain)
 - logout returns a promise
+- removed FB.logout from logout
+- setUserStateChangeListener in init fa logout e callback > chiamare direttamente setUserStateChangeListener(logout)

@@ -69,7 +69,6 @@ var NewtonAdapter = new function(){
     * </pre>
     */
     this.init = function(options){
-        // create promise
         return new Promise(function(resolve, reject){  
             // get logger
             if(options.logger){
@@ -154,26 +153,23 @@ var NewtonAdapter = new function(){
     * </pre>
     */
     this.login = function(options){
-        // create promise
         return new Promise(function(resolve, reject){
-            
-            // login Newton and trigger login
-            var loginNewton = function(){
-                try {
-                    // callback, resolve, trigger and log
-                    if(options.callback){ options.callback.call(); }
-                    resolve();
-                    logger.log('NewtonAdapter', 'Login', options);
-                    Bluebus.trigger('login');
-                } catch(err) {
-                    // reject and log
-                    reject();
-                    logger.error('NewtonAdapter', 'Login', err);
-                }
-            };
-
-            // wait init trigger
             Bluebus.bind('init', function(){
+
+                // login Newton and trigger login
+                var loginNewton = function(){
+                    try {
+                        // callback, resolve, trigger and log
+                        if(options.callback){ options.callback.call(); }
+                        resolve();
+                        logger.log('NewtonAdapter', 'Login', options);
+                        Bluebus.trigger('login');
+                    } catch(err) {
+                        // reject and log
+                        reject();
+                        logger.error('NewtonAdapter', 'Login', err);
+                    }
+                };
 
                 if(!options.logged || newtonInstance.isUserLogged()){                    
                     loginNewton();
@@ -286,10 +282,7 @@ var NewtonAdapter = new function(){
     * </pre>
     */
     this.logout = function(){
-        // create promise
         return new Promise(function(resolve, reject){
-            
-            // wait init trigger
             Bluebus.bind('init', function(){
                 try {
                     if(newtonInstance.isUserLogged()){                    
@@ -585,6 +578,77 @@ var NewtonAdapter = new function(){
         } else {
             return false;
         }
+    };
+
+    this.addIdentity = function(options){
+        return new Promise(function(resolve, reject){
+            Bluebus.bind('login', function(){
+
+                // identiry Newton and resolve
+                var identityNewton = function(){
+                    try {
+                        // callback, resolve, trigger and log
+                        if(options.callback){ options.callback.call(); }
+                        resolve();
+                        logger.log('NewtonAdapter', 'addIdentity', options);
+                    } catch(err) {
+                        // reject and log
+                        reject();
+                        logger.error('NewtonAdapter', 'addIdentity', err);
+                    }
+                };
+
+                var identityType = options.type ? options.type : 'oauth';
+                if(identityType === 'oauth'){
+                    if(options.provider && options.access_token){
+                        newtonInstance.getIdentityManager()
+                        .getIdentityBuilder()
+                        .setOAuthProvider(options.provider)
+                        .setAccessToken(options.access_token)
+                        .setOnFlowCompleteCallback(identityNewton)
+                        .getAddOAuthIdentityFlow()
+                        .startAddIdentityFlow(); 
+                    } else {
+                        reject();
+                        logger.error('NewtonAdapter', 'addIdentity', 'addIdentity requires provider and access_token');
+                    }
+                } else {
+                    reject();
+                    logger.error('NewtonAdapter', 'addIdentity', 'This type of add identity is not supported');
+                }
+            });
+        });
+    };
+
+    this.removeIdentity = function(options){
+        return new Promise(function(resolve, reject){
+            Bluebus.bind('login', function(){
+
+                if(newtonInstance.isUserLogged()){                    
+                    newtonInstance.getIdentityManager().getIdentities(function(err, identities){
+                        try {
+                            if(err){ 
+                                logger.error('NewtonAdapter', 'removeIdentity', err);
+                                reject();
+                            }
+                            logger.log('NewtonAdapter', 'removeIdentity', options, identities);
+                            for (var i = 0; i < identities.length; i++) {
+                                if (options.type == identities[i].getType()){
+                                    identities[i].delete(options.callback);
+                                }
+                            }
+                            resolve();
+                        } catch(error) {
+                            logger.error('NewtonAdapter', 'removeIdentity', err);
+                            reject();
+                        }
+                    });
+                } else {                    
+                    logger.warn('NewtonAdapter', 'User is unlogged, you can\'t remove identity');
+                    reject();
+                }
+            });
+        });
     };
 };
 
