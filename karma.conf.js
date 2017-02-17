@@ -12,7 +12,7 @@ module.exports = function(config) {
 
         browsers: ['PhantomJS'],
 
-        reporters: ['spec', 'coverage-istanbul'],
+        reporters: ['spec'],
 
         preprocessors: {
             'test/spec/*.js': ['webpack']

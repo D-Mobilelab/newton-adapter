@@ -24,6 +24,7 @@ gulp.task('test:single', shell.task(['./node_modules/karma/bin/karma start karma
 gulp.task('test', ['test:single'], function(){
     if(argv.watch){
         browsersync({
+            port: 3000,
             startPath: '/test/lcov-report',
             server: {
                 baseDir: '.'
@@ -62,6 +63,7 @@ gulp.task('doc:single', function(){
 gulp.task('doc', ['doc:single'], function(){
     if(argv.watch){
         browsersync({
+            port: 4000,
             startPath: '/docs/temp',
             server: {
                 baseDir: '.'
@@ -75,6 +77,7 @@ gulp.task('build', ['eslint', 'test', 'clean', 'webpack']);
 
 gulp.task('serve', ['build'], function(){
     browsersync({
+        port: 5000,
         startPath: '/examples/',
         server: {}
     });
