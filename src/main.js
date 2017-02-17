@@ -636,7 +636,7 @@ var NewtonAdapter = new function(){
     * @name setUserStateChangeListener
     * @methodOf NewtonAdapter
     *
-    * @description Listen user state change
+    * @description Execute callback when user state change
     * <br><b>Synchronous call, don't wait init</b>
     *
     * @param {function} callback method called when user state changes
@@ -651,6 +651,33 @@ var NewtonAdapter = new function(){
     this.setUserStateChangeListener = function(callback){
         if(newtonInstance && callback){
             newtonInstance.setUserStateChangeListener(callback);
+            return true;
+        } else {
+            return false;
+        }
+    };
+
+
+    /**
+    * @ngdoc function
+    * @name finalizeLoginFlow
+    * @methodOf NewtonAdapter
+    *
+    * @description Execute callback when finalize login flow
+    * <br><b>Synchronous call, don't wait init</b>
+    *
+    * @param {function} callback method called when finalize login flow
+    *
+    * @return {boolean} return true if init has been called before, false if init has not been called before or callback is undefined
+    *
+    * @example
+    * <pre>
+    * NewtonAdapter.finalizeLoginFlow(function(){ console.log('ok'); });
+    * </pre>
+    */
+    this.finalizeLoginFlow = function(callback){
+        if(newtonInstance && callback){
+            newtonInstance.finalizeLoginFlow(callback);
             return true;
         } else {
             return false;
@@ -761,6 +788,50 @@ var NewtonAdapter = new function(){
                     reject();
                     logger.error('NewtonAdapter', 'removeIdentity', 'removeIdentity requires type')
                 }                
+            });
+        });
+    };
+
+
+    /**
+    * @ngdoc function
+    * @name userDelete
+    * @methodOf NewtonAdapter
+    *
+    * @description Delete an user
+    * <br><b>This method is executed after login (if waitLogin:true) or after init (if waitLogin:false)</b>
+    *
+    * @return {Promise} promise that will be resolved when the userDelete has been completed, rejected if userDelete failed
+    *
+    * @example
+    * <pre>
+    *   NewtonAdapter.userDelete().then(function(){
+    *       console.log('userDelete success');
+    *   }).catch(function(){
+    *       console.log('userDelete failed');
+    *   });
+    * </pre>
+    */
+    this.userDelete = function(){
+        return new Promise(function(resolve, reject){
+            Bluebus.bind('login', function(){
+                newtonInstance.getIdentityManager().getIdentities(function(err, identities){
+                    if(err){ 
+                        reject();
+                        logger.error('NewtonAdapter', 'userDelete', err);
+                    } else {
+                        for (var i = 0; i < identities.length; i++) {
+                            if (identities[i].getType() === 'msisdn'){
+                                reject();
+                                logger.error('NewtonAdapter', 'userDelete', 'Error on userDelete: please use unsubscribe instead');
+                            }
+                        }
+                        newtonInstance.getIdentityManager().userDelete(function(){
+                            resolve();
+                            logger.log('NewtonAdapter', 'userDelete', identities);
+                        });
+                    }
+                });            
             });
         });
     };
