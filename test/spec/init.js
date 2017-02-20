@@ -14,6 +14,19 @@ describe('INIT', function(){
         NewtonAdapter.resetForTest();
     });
 
+    it('if Newton not exist, reject Promise', function(done){
+        var secretId = '<local_host>';
+        Newton = undefined;
+        NewtonAdapter.init({
+            secretId: secretId,
+            enable: true
+        }).then(function(){
+            done.fail();                  
+        }).catch(function(){
+            done(); 
+        });
+    });
+    
     it('call Newton.getSharedInstanceWithConfig with secretId', function(done){
         var secretId = '<local_host>';
         NewtonAdapter.init({
@@ -42,166 +55,122 @@ describe('INIT', function(){
         });
     });
 
-    it('with waitLogin: false, trackEvent doesn\'t wait login', function(done){
-        NewtonAdapter.init({
-            secretId: '<local_host>',
-            enable: true,
-            waitLogin: false
-        }).then(function(){
-            NewtonAdapter.trackEvent('Play').then(function(){
+    describe('with waitLogin: false', function(){
+        beforeEach(function(done){
+            NewtonAdapter.init({
+                secretId: '<local_host>',
+                enable: true,
+                waitLogin: false
+            }).then(function(){
+                done();
+            }).catch(function(){
+                done.fail();
+            });
+        });
+
+        it('trackEvent doesn\'t wait login', function(done){
+            NewtonAdapter.trackEvent({ name: 'Play' }).then(function(){
                 expect(NewtonMock.sendEvent).toHaveBeenCalled();
                 done();                        
             }).catch(function(reason){
                 done.fail(reason);
-            });                        
-        }).catch(function(reason){
-            done.fail(reason);
+            });
         });
-    });
 
-    it('with waitLogin: false, startHeartbeat doesn\'t wait login', function(done){
-        NewtonAdapter.init({
-            secretId: '<local_host>',
-            enable: true,
-            waitLogin: false
-        }).then(function(){
-            NewtonAdapter.startHeartbeat('Play').then(function(){
+        it('startHeartbeat doesn\'t wait login', function(done){
+            NewtonAdapter.startHeartbeat({ name: 'Play' }).then(function(){
                 expect(NewtonMock.timedEventStart).toHaveBeenCalled();
                 done();                        
             }).catch(function(reason){
                 done.fail(reason);
-            });                        
-        }).catch(function(reason){
-            done.fail(reason);
+            });
         });
-    });
 
-    it('with waitLogin: false, stopHeartbeat doesn\'t wait login', function(done){
-        NewtonAdapter.init({
-            secretId: '<local_host>',
-            enable: true,
-            waitLogin: false
-        }).then(function(){
-            NewtonAdapter.stopHeartbeat('Play').then(function(){
+        it('stopHeartbeat doesn\'t wait login', function(done){
+            NewtonAdapter.stopHeartbeat({ name: 'Play' }).then(function(){
                 expect(NewtonMock.timedEventStop).toHaveBeenCalled();
                 done();                        
             }).catch(function(reason){
                 done.fail(reason);
-            });                        
-        }).catch(function(reason){
-            done.fail(reason);
+            }); 
         });
     });
 
-    it('with waitLogin: true, trackEvent waits login', function(done){
-        NewtonAdapter.init({
-            secretId: '<local_host>',
-            enable: true,
-            waitLogin: true
-        }).then(function(){
-            NewtonAdapter.trackEvent('Play');
+    describe('with waitLogin: true', function(){
+        beforeEach(function(done){
+            NewtonAdapter.init({
+                secretId: '<local_host>',
+                enable: true,
+                waitLogin: true
+            }).then(function(){
+                done();
+            }).catch(function(){
+                done.fail();
+            });
+        });
+
+        it('trackEvent waits login', function(done){
+            NewtonAdapter.trackEvent({ name: 'Play' });
             NewtonAdapter.login({ logged: false }).then(function(){
                 expect(calls.indexOf('startLoginFlow')).toBeLessThan(calls.indexOf('sendEvent'));
                 done();                        
             }).catch(function(reason){
                 done.fail(reason);
-            });                     
-        }).catch(function(reason){
-            done.fail(reason);
+            }); 
         });
-    });
 
-    it('with waitLogin: true, startHeartbeat waits login', function(done){
-        NewtonAdapter.init({
-            secretId: '<local_host>',
-            enable: true,
-            waitLogin: true
-        }).then(function(){
-            NewtonAdapter.startHeartbeat('Play');
+        it('startHeartbeat waits login', function(done){
+            NewtonAdapter.startHeartbeat({ name: 'Play' });
             NewtonAdapter.login({ logged: false }).then(function(){
                 expect(calls.indexOf('startLoginFlow')).toBeLessThan(calls.indexOf('timedEventStart'));
                 done();                        
             }).catch(function(reason){
                 done.fail(reason);
-            });                
-        }).catch(function(reason){
-            done.fail(reason);
+            }); 
         });
-    });
 
-    it('with waitLogin: true, stopHeartbeat waits login', function(done){
-        NewtonAdapter.init({
-            secretId: '<local_host>',
-            enable: true,
-            waitLogin: true
-        }).then(function(){
-            NewtonAdapter.stopHeartbeat('Play');
+        it('stopHeartbeat waits login', function(done){
+            NewtonAdapter.stopHeartbeat({ name: 'Play' });
             NewtonAdapter.login({ logged: false }).then(function(){
                 expect(calls.indexOf('startLoginFlow')).toBeLessThan(calls.indexOf('timedEventStop'));
                 done();                        
             }).catch(function(reason){
                 done.fail(reason);
-            });            
-        }).catch(function(reason){
-            done.fail(reason);
+            });  
         });
     });
 
-    it('with enable: false, trackEvent doesn\'t run anything', function(done){
-        NewtonAdapter.init({
-            secretId: '<local_host>',
-            enable: false,
-            waitLogin: false
-        }).then(function(){
-            NewtonAdapter.trackEvent('Play');
+    describe('with enable: false', function(){
+        beforeEach(function(done){
+            NewtonAdapter.init({
+                secretId: '<local_host>',
+                enable: false,
+                waitLogin: false
+            }).then(function(){
+                done();
+            }).catch(function(){
+                done.fail();
+            });
+        });
+
+        it('don\'t call Newton.getSharedInstanceWithConfig', function(){
+            expect(Newton.getSharedInstanceWithConfig).not.toHaveBeenCalled();
+        });
+
+        it('trackEvent doesn\'t run anything', function(){
+            NewtonAdapter.trackEvent({ name: 'Play' });
             expect(NewtonMock.sendEvent).not.toHaveBeenCalled();
-            done();    
-        }).catch(function(reason){
-            done.fail(reason);
         });
-    });
 
-    it('with enable: false, startHeartbeat doesn\'t run anything', function(done){
-        NewtonAdapter.init({
-            secretId: '<local_host>',
-            enable: false,
-            waitLogin: false
-        }).then(function(){
-            NewtonAdapter.startHeartbeat('Play');
+        it('startHeartbeat doesn\'t run anything', function(){
+            NewtonAdapter.startHeartbeat({ name: 'Play' });
             expect(NewtonMock.timedEventStart).not.toHaveBeenCalled();
-            done();    
-        }).catch(function(reason){
-            done.fail(reason);
         });
-    });
 
-    it('with enable: false, stopHeartbeat doesn\'t run anything', function(done){
-        NewtonAdapter.init({
-            secretId: '<local_host>',
-            enable: false,
-            waitLogin: false
-        }).then(function(){
-            NewtonAdapter.stopHeartbeat('Play');
+        it('stopHeartbeat doesn\'t run anything', function(){
+            NewtonAdapter.stopHeartbeat({ name: 'Play' });
             expect(NewtonMock.timedEventStop).not.toHaveBeenCalled();
-            done();    
-        }).catch(function(reason){
-            done.fail(reason);
         });
-    });
-
-    xit('if Newton doesn\'t exist, init is rejected', function(done){
-        Newton = undefined;
-        NewtonAdapter.init({
-            secretId: '<local_host>',
-            enable: true,
-            waitLogin: false
-        }).then(function(){
-            done.fail(reason);
-        }).catch(function(reason){
-            expect(reason).toEqual(new Error('Newton not exist'));
-            done();
-        });
-        
     });
 
     it('Newton is executed after deviceready event is triggered', function(done){

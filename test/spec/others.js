@@ -110,4 +110,28 @@ describe('OTHERS', function(){
             expect(returnFlag).toBe(false);
         });
     });
+
+    describe('FINALIZELOGINFLOW', function(){
+        it('with init, return true and call finalizeLoginFlow', function(done){
+            var callback = function(){};
+            NewtonAdapter.init({
+                secretId: '<local_host>',
+                enable: true,
+                waitLogin: false
+            }).then(function(){
+                var result = NewtonAdapter.finalizeLoginFlow(callback);
+                expect(result).toBe(true);
+                expect(NewtonMock.finalizeLoginFlow).toHaveBeenCalledWith(callback);
+                done();
+            }).catch(function(reason){
+                done.fail(reason);
+            });   
+        }); 
+
+        it('without init, return false and don\'t call finalizeLoginFlow', function(){
+            var result = NewtonAdapter.finalizeLoginFlow();
+            expect(result).toBe(false);
+            expect(NewtonMock.finalizeLoginFlow).not.toHaveBeenCalled();
+        }); 
+    });
 });

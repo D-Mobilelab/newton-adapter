@@ -178,16 +178,15 @@ var NewtonAdapter = new function(){
         return new Promise(function(resolve, reject){
             Bluebus.bind('init', function(){
 
+                if(options.callback){
+                    logger.warn('NewtonAdapter', 'Login', 'Callback method for login is not supported, use promise-then');
+                }
+
                 var callCallback = function(){
-                    try {
-                        // trigger login
-                        resolve();
-                        logger.log('NewtonAdapter', 'Login', options);
-                        Bluebus.trigger('login');
-                    } catch(err) {
-                        reject();
-                        logger.error('NewtonAdapter', 'Login', err);
-                    }
+                    // trigger login
+                    resolve();
+                    logger.log('NewtonAdapter', 'Login', options);
+                    Bluebus.trigger('login');
                 };
 
                 if(!options.logged || newtonInstance.isUserLogged()){                    
@@ -306,20 +305,15 @@ var NewtonAdapter = new function(){
     * </pre>
     */
     this.logout = function(){
-        return new Promise(function(resolve, reject){
+        return new Promise(function(resolve){
             Bluebus.bind('init', function(){
-                try {
-                    if(newtonInstance.isUserLogged()){                    
-                        newtonInstance.userLogout();
-                        resolve();
-                        logger.log('NewtonAdapter', 'Login', options);
-                    } else {                    
-                        resolve();
-                        logger.warn('NewtonAdapter', 'User is already unlogged');
-                    }
-                } catch(err) {
-                    reject();
-                    logger.error('NewtonAdapter', 'Logout', err);
+                if(newtonInstance.isUserLogged()){                    
+                    newtonInstance.userLogout();
+                    resolve();
+                    logger.log('NewtonAdapter', 'Login');
+                } else {                    
+                    resolve();
+                    logger.warn('NewtonAdapter', 'User is already unlogged');
                 }
             });
         });
