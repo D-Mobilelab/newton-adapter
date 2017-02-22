@@ -780,7 +780,7 @@ var NewtonAdapter = new function(){
                     });
                 } else {
                     reject();
-                    logger.error('NewtonAdapter', 'removeIdentity', 'removeIdentity requires type')
+                    logger.error('NewtonAdapter', 'removeIdentity', 'removeIdentity requires type');
                 }                
             });
         });
