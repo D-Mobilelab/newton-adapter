@@ -1,6 +1,6 @@
 {
   "name": "newton-adapter",
-  "version": "1.7.0",
+  "version": "2.0.0",
   "description": "A light adapter for Newton library, for tracking and authentication",
   "keywords": [
     "newton",
@@ -15,18 +15,14 @@
   "contributors": [
     {
       "name": "Aurelio Merenda",
-      "email": "aurelio.merenda@buogiorno.com"
-    },
-    {
-      "name": "Fabio Fognani",
-      "email": "fabio.fognani@buongiorno.com"
+      "email": "aurelio.merenda@docomodigital.com"
     }
   ],
   "repository": {
     "type": "git",
     "url": "git://github.com/D-Mobilelab/newton-adapter.git"
   },
-  "main": "src/main.js",
+  "main": "dist/newton-adapter-2.js",
   "scripts": {},
   "dependencies": {
     "promise-polyfill": "^6.0.2"
@@ -60,10 +56,5 @@
   "engines": {
     "node": "0.10.25"
   },
-  "private": false,
-  "browserify": {
-    "src": "main.js",
-    "dist": "dist.js",
-    "global": "NewtonAdapter"
-  }
+  "private": false
 }
