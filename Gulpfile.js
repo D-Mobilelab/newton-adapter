@@ -7,6 +7,8 @@ var coveralls = require('gulp-coveralls');
 var shell = require('gulp-shell');
 var argv = require('yargs').argv;
 var ngdocs = require('gulp-ngdocs');
+var insert = require('gulp-insert');
+var config = require('./config.json');
 
 gulp.task('clean', function(){
     return del('dist/**/*', { force: true });
@@ -43,11 +45,12 @@ gulp.task('webpack', function(){
     return gulp.src('src/main.js')
     .pipe(webpack({
         output: {
-            filename: 'dist.js',
+            filename: 'newton-adapter-2.js',
             libraryTarget: 'umd',
             library: 'NewtonAdapter'
         }
     }))
+    .pipe(insert.append('\n\n/* Newton Adapter ' + config.version + ' */'))
     .pipe(gulp.dest('dist/'));
 });
 
@@ -73,13 +76,15 @@ gulp.task('doc', ['doc:single'], function(){
     }
 });
 
-gulp.task('build', ['eslint', 'test', 'clean', 'webpack']);
+gulp.task('build:single', ['eslint', 'test', 'clean', 'webpack']);
 
-gulp.task('serve', ['build'], function(){
-    browsersync({
-        port: 5000,
-        startPath: '/examples/',
-        server: {}
-    });
-    gulp.watch(['examples/**/*.js', 'src/**/*.js', 'test/**/*.test.js'], ['build', browsersync.reload]);
+gulp.task('build', ['build:single'], function(){
+    if(argv.watch){
+        browsersync({
+            port: 5000,
+            startPath: '/examples/',
+            server: {}
+        });
+        gulp.watch(['examples/**/*.js', 'src/**/*.js', 'test/**/*.test.js'], ['build:single', browsersync.reload]);
+    }
 });
