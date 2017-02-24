@@ -122,7 +122,7 @@ describe('LOGIN', function(){
         });        
     });
 
-    describe('logout', function(){
+    describe('LOGOUT', function(){
         it('as logged', function(done){
             NewtonAdapter.login({
                 logged: true,
@@ -149,5 +149,29 @@ describe('LOGIN', function(){
                 done.fail(reason);
             });
         });
+    });
+
+    it('RECOVER PASSWORD', function(done){
+        NewtonAdapter.login({
+            logged: true,
+            type: 'external',
+            userId: userId,
+            userProperties: userProperties
+        }).then(function(){
+            NewtonAdapter.recoverPassword({
+                msisdn: msisdn
+            }).then(function(){
+                expect(NewtonMock.getLoginBuilder).toHaveBeenCalled();   
+                expect(NewtonMock.setOnForgotFlowCallback).toHaveBeenCalled();   
+                expect(NewtonMock.setMSISDN).toHaveBeenCalledWith(msisdn);   
+                expect(NewtonMock.getMSISDNPINForgotFlow).toHaveBeenCalled();   
+                expect(NewtonMock.startForgotFlow).toHaveBeenCalled();   
+                done();
+            }).catch(function(reason){
+                done.fail(reason);
+            });
+        }).catch(function(reason){
+            done.fail(reason);
+        }); 
     });
 });

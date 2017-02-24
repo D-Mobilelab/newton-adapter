@@ -40,7 +40,6 @@ describe('VERSION 1', function(){
 
     it('init calls getSharedInstanceWithConfig only with secretId', function(){
         expect(Newton.getSharedInstanceWithConfig).toHaveBeenCalledWith(secretId);
-        expect(customLogger.warn).toHaveBeenCalledWith('NewtonAdapter', 'Newton v.1 not support properties on init method');
     });
 
     it('login returns an error if login type is external', function(done){
@@ -50,7 +49,6 @@ describe('VERSION 1', function(){
         }).then(function(){
             done.fail();
         }).catch(function(reason){
-            expect(customLogger.error).toHaveBeenCalledWith('NewtonAdapter', 'Login', 'Newton v.1 not support this type of login');
             done();
         });
     });
@@ -87,7 +85,6 @@ describe('VERSION 1', function(){
         }).then(function(){
             done.fail(reason);
         }).catch(function(reason){
-            expect(customLogger.error).toHaveBeenCalledWith('NewtonAdapter', 'rankContent', 'Newton v.1 not support rank content');
             done();
         });
     });
@@ -100,7 +97,6 @@ describe('VERSION 1', function(){
                 scope: 'social'
             }
         }).then(function(){
-            expect(customLogger.error).toHaveBeenCalledWith('NewtonAdapter', 'rankContent', 'Newton v.1 not support rank content');
             done();
         }).catch(function(reason){
             done.fail(reason);

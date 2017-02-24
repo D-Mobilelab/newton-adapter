@@ -12,6 +12,17 @@ var NewtonAdapter = new function(){
 
     var newtonversion, newtonInstance, logger, beforeInit;
 
+    var createSimpleObject = function(object){
+        try {
+            var newObject = object || {};
+            return Newton.SimpleObject.fromJSONObject(newObject);
+        } catch(err){
+            logger.warn('NewtonAdapter', 'Newton.SimpleObject.fromJSONObject is failed', err);
+            return Newton.SimpleObject.fromJSONObject({});
+        }
+        
+    };
+
     (beforeInit = function(){
         newtonversion = 2;
         newtonInstance = false;
@@ -24,17 +35,6 @@ var NewtonAdapter = new function(){
         }; 
         Bluebus.cleanAll();
     })();
-    
-    var createSimpleObject = function(object){
-        try {
-            var newObject = object || {};
-            return Newton.SimpleObject.fromJSONObject(newObject);
-        } catch(err){
-            logger.warn('NewtonAdapter', 'Newton.SimpleObject.fromJSONObject is failed', err);
-            return Newton.SimpleObject.fromJSONObject({});
-        }
-        
-    };
 
     // USE ONLY FOR TEST!
     this.resetForTest = function(){
@@ -57,7 +57,7 @@ var NewtonAdapter = new function(){
     * @param {Object} [options.logger=disabled logger] object containing the methods: debug, log, info, warn, error
     * @param {Object} [options.properties={}] custom data for Newton session (not supported for v1)
     *
-    * @return {Promise} promise that will be resolved when the init has been completed, rejected only if Newton doesn't exists
+    * @return {Promise} promise that will be resolved when the init has been completed, rejected if initialization is failed
     * 
     * @example
     * <pre>
@@ -71,10 +71,10 @@ var NewtonAdapter = new function(){
     *       properties: {
     *           hello: 'World'
     *       }
-    *   }).then(function(){
-    *       console.log('init success');
-    *   }).catch(function(){
-    *       console.log('init failed');
+    *   }).then(function(enabled){
+    *       console.log('init success', enabled);
+    *   }).catch(function(err){
+    *       console.log('init failed', err);
     *   });
     * </pre>
     */
@@ -90,8 +90,8 @@ var NewtonAdapter = new function(){
 
             // check if Newton exists
             if(!Newton){
-                reject();
-                logger.error('NewtonAdapter', 'Newton not exist');
+                reject('Newton not exist');
+                logger.error('NewtonAdapter', 'Init', 'Newton not exist');
             } else {
 
                 var initNewton = function(){
@@ -99,7 +99,7 @@ var NewtonAdapter = new function(){
                     if(newtonversion === 1){
                         newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId);
                         if(options.properties){
-                            logger.warn('NewtonAdapter', 'Newton v.1 not support properties on init method');
+                            logger.warn('NewtonAdapter', 'Init', 'Newton v.1 not support properties on init method');
                         }
                     } else {
                         newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId, createSimpleObject(options.properties));
@@ -118,7 +118,7 @@ var NewtonAdapter = new function(){
 
                 if(!options.enable){
                     resolve(false);
-                    logger.warn('NewtonAdapter', 'Newton not enabled');
+                    logger.warn('NewtonAdapter', 'Init', 'Newton not enabled');
                 } else {
                     if(options.waitDeviceReady){
                         document.addEventListener('deviceready', initNewton, false);
@@ -149,7 +149,7 @@ var NewtonAdapter = new function(){
     * @param {string} options.provider required for oauth login
     * @param {string} options.access_token required for oauth login
     *
-    * @return {Promise} promise that will be resolved when the login has been completed, rejected if login failed or if one or more required parameters are missing
+    * @return {Promise} promise that will be resolved when the login has been completed, rejected if login failed
     *
     * @example
     * <pre>
@@ -164,8 +164,8 @@ var NewtonAdapter = new function(){
     *       }
     *   }).then(function(){
     *       console.log('login success');
-    *   }).catch(function(){
-    *       console.log('login failed');
+    *   }).catch(function(err){
+    *       console.log('login failed', err);
     *   });
     *
     * // for unlogged users
@@ -182,11 +182,15 @@ var NewtonAdapter = new function(){
                     logger.warn('NewtonAdapter', 'Login', 'Callback method for login is not supported, use promise-then');
                 }
 
-                var callCallback = function(){
-                    // trigger login
-                    resolve();
-                    logger.log('NewtonAdapter', 'Login', options);
-                    Bluebus.trigger('login');
+                var callCallback = function(err){
+                    if(err){
+                        reject(err);
+                        logger.error('NewtonAdapter', 'Login', err);
+                    } else {
+                        resolve();
+                        logger.log('NewtonAdapter', 'Login', options);
+                        Bluebus.trigger('login');
+                    }
                 };
 
                 if(!options.logged || newtonInstance.isUserLogged()){                    
@@ -205,11 +209,11 @@ var NewtonAdapter = new function(){
                                 .getCustomFlow()
                                 .startLoginFlow();  
                             } else {
-                                reject();
+                                reject('Custom login requires userId');
                                 logger.error('NewtonAdapter', 'Login', 'Custom login requires userId');
                             }
                         } else {
-                            reject();                            
+                            reject('Newton v.1 not support this type of login');                            
                             logger.error('NewtonAdapter', 'Login', 'Newton v.1 not support this type of login');
                         }
 
@@ -224,7 +228,7 @@ var NewtonAdapter = new function(){
                                 .getCustomLoginFlow()
                                 .startLoginFlow();  
                             } else {
-                                reject();
+                                reject('Custom login requires userId');
                                 logger.error('NewtonAdapter', 'Login', 'Custom login requires userId');
                             }
                         } else if(loginType === 'external'){
@@ -236,7 +240,7 @@ var NewtonAdapter = new function(){
                                 .getExternalLoginFlow()
                                 .startLoginFlow();
                             } else {
-                                reject();
+                                reject('External login requires userId');
                                 logger.error('NewtonAdapter', 'Login', 'External login requires userId');
                             }
                         } else if(loginType === 'msisdn'){
@@ -248,7 +252,7 @@ var NewtonAdapter = new function(){
                                 .getMSISDNPINLoginFlow()
                                 .startLoginFlow();
                             } else {
-                                reject();
+                                reject('Msisdn login requires msisdn and pin');
                                 logger.error('NewtonAdapter', 'Login', 'Msisdn login requires msisdn and pin');
                             }
                         } else if(loginType === 'autologin'){
@@ -259,7 +263,7 @@ var NewtonAdapter = new function(){
                                 .getMSISDNURLoginFlow()
                                 .startLoginFlow();
                             } else {
-                                reject();
+                                reject('Autologin requires domain');
                                 logger.error('NewtonAdapter', 'Login', 'Autologin requires domain');
                             }
                         } else if(loginType === 'oauth'){
@@ -271,11 +275,11 @@ var NewtonAdapter = new function(){
                                 .getOAuthLoginFlow()
                                 .startLoginFlow();
                             } else {
-                                reject();
+                                reject('OAuth login requires provider and access_token');
                                 logger.error('NewtonAdapter', 'Login', 'OAuth login requires provider and access_token');
                             }
                         } else {
-                            reject();
+                            reject('This type of login is unknown');
                             logger.error('NewtonAdapter', 'Login', 'This type of login is unknown');
                         }
                     }
@@ -293,15 +297,13 @@ var NewtonAdapter = new function(){
     * @description Performs logout from Newton 
     * <br/><b>This method is executed after init</b>
     *
-    * @return {Promise} promise that will be resolved when the logout has been completed, rejected only if Newton logout failed
+    * @return {Promise} promise that will be resolved when the logout has been completed
     *
     * @example
     * <pre>
-    *   NewtonAdapter.logout().then(function(){
-    *       console.log('logout success');
-    *   }).catch(function(){
-    *       console.log('logout failed');
-    *   });
+    *   NewtonAdapter.logout().then(function(wasLogged){
+    *       console.log('logout success', wasLogged);
+    *   })
     * </pre>
     */
     this.logout = function(){
@@ -309,11 +311,11 @@ var NewtonAdapter = new function(){
             Bluebus.bind('init', function(){
                 if(newtonInstance.isUserLogged()){                    
                     newtonInstance.userLogout();
-                    resolve();
-                    logger.log('NewtonAdapter', 'Login');
+                    resolve(true);
+                    logger.log('NewtonAdapter', 'Logout');
                 } else {                    
-                    resolve();
-                    logger.warn('NewtonAdapter', 'User is already unlogged');
+                    resolve(false);
+                    logger.warn('NewtonAdapter', 'Logout', 'User is already unlogged');
                 }
             });
         });
@@ -334,7 +336,7 @@ var NewtonAdapter = new function(){
     * @param {string} options.scope type of action performed on the content
     * @param {number} [options.score=1] the score associated to the content
     *
-    * @return {Promise} promise that will be resolved when the rankContent has been completed, rejected for v1 or if one or more required parameters are missing
+    * @return {Promise} promise that will be resolved when the rankContent has been completed, rejected if failed
     *
     * @example
     * <pre>
@@ -344,8 +346,8 @@ var NewtonAdapter = new function(){
     *       score: 4
     *   }).then(function(){
     *       console.log('rankContent success');
-    *   }).catch(function(){
-    *       console.log('rankContent failed');
+    *   }).catch(function(err){
+    *       console.log('rankContent failed', err);
     *   });
     * </pre>
     */
@@ -354,7 +356,7 @@ var NewtonAdapter = new function(){
             Bluebus.bind('login', function(){
                 var score = options.score ? options.score : 1;
                 if(newtonversion === 1){
-                    reject();
+                    reject('Newton v.1 not support rank content');
                     logger.error('NewtonAdapter', 'rankContent', 'Newton v.1 not support rank content');
                 } else {
                     if(options.contentId && options.scope){
@@ -362,7 +364,7 @@ var NewtonAdapter = new function(){
                         resolve();
                         logger.log('NewtonAdapter', 'rankContent', options);
                     } else {
-                        reject();
+                        reject('rankContent requires scope and contentId');
                         logger.error('NewtonAdapter', 'rankContent', 'rankContent requires scope and contentId');
                     }
                 }
@@ -400,8 +402,8 @@ var NewtonAdapter = new function(){
     *       }
     *   }).then(function(){
     *       console.log('trackEvent success');
-    *   }).catch(function(){
-    *       console.log('trackEvent failed');
+    *   }).catch(function(err){
+    *       console.log('trackEvent failed', err);
     *   });
     * </pre>
     */
@@ -417,7 +419,7 @@ var NewtonAdapter = new function(){
                         NewtonAdapter.rankContent(options.rank);
                     }
                 } else {
-                    reject();
+                    reject('trackEvent requires name');
                     logger.error('NewtonAdapter', 'trackEvent', 'trackEvent requires name');
                 }
             });
@@ -437,7 +439,7 @@ var NewtonAdapter = new function(){
     * @param {Object} options.properties properties of the pageview
     * @param {string} [options.properties.url=window.location.href] url of pageview
     *
-    * @return {Promise} promise that will be resolved when the trackPageview has been completed, rejected if track failed
+    * @return {Promise} promise that will be resolved when the trackPageview has been completed, rejected if failed
     *
     * @example
     * <pre>
@@ -449,8 +451,8 @@ var NewtonAdapter = new function(){
     *       }
     *   }).then(function(){
     *       console.log('trackPageview success');
-    *   }).catch(function(){
-    *       console.log('trackPageview failed');
+    *   }).catch(function(err){
+    *       console.log('trackPageview failed', err);
     *   });
     * </pre>
     */
@@ -491,8 +493,8 @@ var NewtonAdapter = new function(){
     *       }
     *   }).then(function(){
     *       console.log('startHeartbeat success');
-    *   }).catch(function(){
-    *       console.log('startHeartbeat failed');
+    *   }).catch(function(err){
+    *       console.log('startHeartbeat failed', err);
     *   });
     * </pre>
     */
@@ -504,7 +506,7 @@ var NewtonAdapter = new function(){
                     resolve();
                     logger.log('NewtonAdapter', 'startHeartbeat', options);
                 } else {
-                    reject();
+                    reject('startHeartbeat requires name');
                     logger.error('NewtonAdapter', 'startHeartbeat', 'startHeartbeat requires name');
                 }                         
             });
@@ -536,8 +538,8 @@ var NewtonAdapter = new function(){
     *       }
     *   }).then(function(){
     *       console.log('stopHeartbeat success');
-    *   }).catch(function(){
-    *       console.log('stopHeartbeat failed');
+    *   }).catch(function(err){
+    *       console.log('stopHeartbeat failed', err);
     *   });
     * </pre>
     */
@@ -549,7 +551,7 @@ var NewtonAdapter = new function(){
                     resolve();
                     logger.log('NewtonAdapter', 'startHeartbeat', options);
                 } else {
-                    reject();
+                    reject('startHeartbeat requires name');
                     logger.error('NewtonAdapter', 'startHeartbeat', 'startHeartbeat requires name');
                 }                 
             });
@@ -688,7 +690,7 @@ var NewtonAdapter = new function(){
     * <br><b>This method is executed after login (if waitLogin:true) or after init (if waitLogin:false)</b>
     *
     * @param {Object} options configuration object
-    * @param {string} [options.type='auth'] type of identity to add (support only 'oauth' now)
+    * @param {string} [options.type='oauth'] type of identity to add (support only 'oauth' now)
     * @param {string} options.provider provider of identity to add
     * @param {string} options.access_token access token of identity to add
     *
@@ -702,8 +704,8 @@ var NewtonAdapter = new function(){
     *       access_token: '1234567890'
     *   }).then(function(){
     *       console.log('addIdentity success');
-    *   }).catch(function(){
-    *       console.log('addIdentity failed');
+    *   }).catch(function(err){
+    *       console.log('addIdentity failed', err);
     *   });
     * </pre>
     */
@@ -718,18 +720,23 @@ var NewtonAdapter = new function(){
                         .getIdentityBuilder()
                         .setOAuthProvider(options.provider)
                         .setAccessToken(options.access_token)
-                        .setOnFlowCompleteCallback(function(){
-                            resolve();
-                            logger.log('NewtonAdapter', 'addIdentity', options);
+                        .setOnFlowCompleteCallback(function(err){
+                            if(err){
+                                reject(err);
+                                logger.error('NewtonAdapter', 'addIdentity', err);
+                            } else {
+                                resolve();
+                                logger.log('NewtonAdapter', 'addIdentity', options);
+                            }
                         })
                         .getAddOAuthIdentityFlow()
                         .startAddIdentityFlow(); 
                     } else {
-                        reject();
+                        reject('addIdentity requires provider and access_token');
                         logger.error('NewtonAdapter', 'addIdentity', 'addIdentity requires provider and access_token');
                     }
                 } else {
-                    reject();
+                    reject('This type of add identity is not supported');
                     logger.error('NewtonAdapter', 'addIdentity', 'This type of add identity is not supported');
                 }
             });
@@ -755,8 +762,8 @@ var NewtonAdapter = new function(){
     *       type: 'oauth'
     *   }).then(function(){
     *       console.log('removeIdentity success');
-    *   }).catch(function(){
-    *       console.log('removeIdentity failed');
+    *   }).catch(function(err){
+    *       console.log('removeIdentity failed', err);
     *   });
     * </pre>
     */
@@ -766,7 +773,7 @@ var NewtonAdapter = new function(){
                 if(options.type){
                     newtonInstance.getIdentityManager().getIdentities(function(err, identities){
                         if(err){ 
-                            reject();
+                            reject(err);
                             logger.error('NewtonAdapter', 'removeIdentity', err);
                         } else {
                             for(var i = 0; i < identities.length; i++) {
@@ -779,7 +786,7 @@ var NewtonAdapter = new function(){
                         }
                     });
                 } else {
-                    reject();
+                    reject('removeIdentity requires type');
                     logger.error('NewtonAdapter', 'removeIdentity', 'removeIdentity requires type');
                 }                
             });
@@ -801,8 +808,8 @@ var NewtonAdapter = new function(){
     * <pre>
     *   NewtonAdapter.userDelete().then(function(){
     *       console.log('userDelete success');
-    *   }).catch(function(){
-    *       console.log('userDelete failed');
+    *   }).catch(function(err){
+    *       console.log('userDelete failed', err);
     *   });
     * </pre>
     */
@@ -811,12 +818,12 @@ var NewtonAdapter = new function(){
             Bluebus.bind('login', function(){
                 newtonInstance.getIdentityManager().getIdentities(function(err, identities){
                     if(err){ 
-                        reject();
+                        reject(err);
                         logger.error('NewtonAdapter', 'userDelete', err);
                     } else {
                         for (var i = 0; i < identities.length; i++) {
                             if (identities[i].getType() === 'msisdn'){
-                                reject();
+                                reject('Error on userDelete: please use unsubscribe instead');
                                 logger.error('NewtonAdapter', 'userDelete', 'Error on userDelete: please use unsubscribe instead');
                             }
                         }
@@ -826,6 +833,55 @@ var NewtonAdapter = new function(){
                         });
                     }
                 });            
+            });
+        });
+    };
+
+    /**
+    * @ngdoc function
+    * @name recoverPassword
+    * @methodOf NewtonAdapter
+    *
+    * @description Recover password of a user
+    * <br><b>This method is executed after login (if waitLogin:true) or after init (if waitLogin:false)</b>
+    *
+    * @param {Object} options configuration object
+    * @param {string} options.msisdn msisdn of the user
+    *
+    * @return {Promise} promise that will be resolved when the recoverPassword has been completed, rejected if failed
+    *
+    * @example
+    * <pre>
+    *   NewtonAdapter.recoverPassword({
+    *       msidsn: '+391234567890'
+    *   }).then(function(){
+    *       console.log('recoverPassword success');
+    *   }).catch(function(err){
+    *       console.log('recoverPassword failed', err);
+    *   });
+    * </pre>
+    */
+    this.recoverPassword = function(options){
+        return new Promise(function(resolve, reject){
+            Bluebus.bind('login', function(){
+                if(options.msisdn){
+                    newtonInstance.getLoginBuilder()
+                    .setOnForgotFlowCallback(function(err){
+                        if(err){
+                            reject(err);
+                            logger.error('NewtonAdapter', 'recoverPassword', err);
+                        } else {
+                            resolve();
+                            logger.log('NewtonAdapter', 'recoverPassword', options);
+                        }
+                    })
+                    .setMSISDN(options.msisdn)
+                    .getMSISDNPINForgotFlow()
+                    .startForgotFlow();
+                } else {
+                    reject('recoverPassword requires msisdn');
+                    logger.error('NewtonAdapter', 'recoverPassword', 'recoverPassword requires msisdn');
+                }
             });
         });
     };

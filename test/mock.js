@@ -40,7 +40,10 @@ var Mock = {
             getIdentityManager: function(){ Mock.calls.push('getIdentityManager'); return this; },
             getIdentityBuilder: function(){ Mock.calls.push('getIdentityBuilder'); return this; },
             getAddOAuthIdentityFlow: function(){ Mock.calls.push('getAddOAuthIdentityFlow'); return this; },
-            startAddIdentityFlow: function(){ Mock.calls.push('startAddIdentityFlow'); return this; }
+            startAddIdentityFlow: function(){ Mock.calls.push('startAddIdentityFlow'); return this; },
+            setOnForgotFlowCallback: function(callback){ Mock.calls.push('setOnForgotFlowCallback'); callback.call(); return this; },
+            getMSISDNPINForgotFlow: function(){ Mock.calls.push('getMSISDNPINForgotFlow'); return this; },
+            startForgotFlow: function(){ Mock.calls.push('startForgotFlow'); return this; }
         };
         Mock.Newton = {
             getSharedInstanceWithConfig: function(){ Mock.calls.push('getCustomFlow'); return Mock.NewtonMock; },
@@ -85,6 +88,9 @@ var Mock = {
         spyOn(Mock.NewtonMock, 'getIdentityBuilder').and.callThrough();
         spyOn(Mock.NewtonMock, 'getAddOAuthIdentityFlow').and.callThrough();
         spyOn(Mock.NewtonMock, 'startAddIdentityFlow').and.callThrough();
+        spyOn(Mock.NewtonMock, 'setOnForgotFlowCallback').and.callThrough();
+        spyOn(Mock.NewtonMock, 'getMSISDNPINForgotFlow').and.callThrough();
+        spyOn(Mock.NewtonMock, 'startForgotFlow').and.callThrough();
         
         spyOn(Mock.Newton, 'getSharedInstanceWithConfig').and.callThrough();
     }
