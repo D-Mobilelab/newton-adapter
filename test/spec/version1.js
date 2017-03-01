@@ -83,8 +83,8 @@ describe('VERSION 1', function(){
             contentId: '123456777',
             scope: 'social'
         }).then(function(){
-            done.fail(reason);
-        }).catch(function(reason){
+            done.fail();
+        }).catch(function(){
             done();
         });
     });

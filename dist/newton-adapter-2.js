@@ -107,13 +107,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    * @param {Object} options configuration object
 	    * @param {string} options.secretId secret id of the application
 	    * @param {boolean} [options.enable=false] enable calls to Newton library
-	    * @param {boolean} [options.waitLogin=false] tracking, heartbeats and other Newton calls wait login (both logged and unlogged users)
-	    * @param {boolean} [options.waitDeviceReady=false] wait deviceReady event to initialize Newton library (for hybrid environment)
+	    * @param {boolean} [options.waitLogin=false] all Newton calls wait login (logged and unlogged)
+	    * @param {boolean} [options.waitDeviceReady=false] wait deviceReady event to initialize Newton
 	    * @param {integer} [options.newtonversion=2] version of Newton (1 or 2)
-	    * @param {Object} [options.logger=disabled logger] object containing the methods: debug, log, info, warn, error
+	    * @param {Object} [options.logger=disabled logger] object with debug, log, info, warn, error
 	    * @param {Object} [options.properties={}] custom data for Newton session (not supported for v1)
 	    *
-	    * @return {Promise} promise that will be resolved when the init has been completed, rejected if initialization is failed
+	    * @return {Promise} promise will be resolved when init is completed, rejected if failed
 	    * 
 	    * @example
 	    * <pre>
@@ -196,7 +196,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    *
 	    * @param {Object} options configuration object
 	    * @param {boolean} [options.logged=false] new state of the user
-	    * @param {string} [options.type="custom"] type of Newton login: custom (v1 supports only this), external, msisdn, autologin, oauth
+	    * @param {string} [options.type="custom"] (custom, external, msisdn, autologin or oauth)
 	    * @param {string} options.userId required for custom and external login
 	    * @param {Object} [options.userProperties={}] available only for custom and external login
 	    * @param {string} options.pin required for msisdn login
@@ -205,7 +205,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    * @param {string} options.provider required for oauth login
 	    * @param {string} options.access_token required for oauth login
 	    *
-	    * @return {Promise} promise that will be resolved when the login has been completed, rejected if login failed
+	    * @return {Promise} promise will be resolved when login is completed, rejected if failed
 	    *
 	    * @example
 	    * <pre>
@@ -353,7 +353,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    * @description Performs logout from Newton 
 	    * <br/><b>This method is executed after init</b>
 	    *
-	    * @return {Promise} promise that will be resolved when the logout has been completed
+	    * @return {Promise} promise will be resolved when logout is completed, rejected if failed
 	    *
 	    * @example
 	    * <pre>
@@ -383,8 +383,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    * @name rankContent
 	    * @methodOf NewtonAdapter
 	    *
-	    * @description Performs Newton content ranking
-	    * <br><b>This method is executed after login (if waitLogin:true) or after init (if waitLogin:false)</b>
+	    * @description Performs Newton content ranking<br>
+	    * <b>This method is executed after login (waitLogin:true) or after init (false)</b>
 	    * <br><b>Newton version 1 don't support this feature</b>
 	    *
 	    * @param {Object} options configuration object
@@ -392,7 +392,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    * @param {string} options.scope type of action performed on the content
 	    * @param {number} [options.score=1] the score associated to the content
 	    *
-	    * @return {Promise} promise that will be resolved when the rankContent has been completed, rejected if failed
+	    * @return {Promise} promise will be resolved when ranking is completed, rejected if failed
 	    *
 	    * @example
 	    * <pre>
@@ -433,15 +433,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    * @name trackEvent
 	    * @methodOf NewtonAdapter
 	    *
-	    * @description Performs Newton track event
-	    * <br><b>This method is executed after login (if waitLogin:true) or after init (if waitLogin:false)</b>
+	    * @description Performs Newton track event<br>
+	    * <b>This method is executed after login (waitLogin:true) or after init (false)</b>
 	    *
 	    * @param {Object} options configuration object
 	    * @param {string} options.name name of the event to track
 	    * @param {object} [options.properties={}] custom data of the event
 	    * @param {object} [options.rank={}] rank content data
 	    *
-	    * @return {Promise} promise that will be resolved when the track event has been completed, rejected if failed
+	    * @return {Promise} promise will be resolved when tracking is completed, rejected if failed
 	    *
 	    * @example
 	    * <pre>
@@ -488,14 +488,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    * @name trackPageview
 	    * @methodOf NewtonAdapter
 	    *
-	    * @description Performs Newton pageview tracking 
-	    * <br><b>This method is executed after login (if waitLogin:true) or after init (if waitLogin:false)</b>
+	    * @description Performs Newton pageview tracking<br>
+	    * <b>This method is executed after login (waitLogin:true) or after init (false)</b>
 	    *
 	    * @param {Object} options configuration object
 	    * @param {Object} options.properties properties of the pageview
 	    * @param {string} [options.properties.url=window.location.href] url of pageview
 	    *
-	    * @return {Promise} promise that will be resolved when the trackPageview has been completed, rejected if failed
+	    * @return {Promise} promise will be resolved when tracking is completed, rejected if failed
 	    *
 	    * @example
 	    * <pre>
@@ -530,14 +530,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    * @name startHeartbeat
 	    * @methodOf NewtonAdapter
 	    *
-	    * @description Performs Newton start timed event
-	    * <br><b>This method is executed after login (if waitLogin:true) or after init (if waitLogin:false)</b>
+	    * @description Performs Newton start timed event<br>
+	    * <b>This method is executed after login (waitLogin:true) or after init (false)</b>
 	    *
 	    * @param {Object} options configuration object
 	    * @param {string} options.name name of the timed event
 	    * @param {Object} [options.properties={}] properties of the timed event
 	    *
-	    * @return {Promise} promise that will be resolved when the startHeartbeat has been completed, rejected if failed
+	    * @return {Promise} promise will be resolved when start is completed, rejected if failed
 	    *
 	    * @example
 	    * <pre>
@@ -575,14 +575,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    * @name stopHeartbeat
 	    * @methodOf NewtonAdapter
 	    *
-	    * @description Performs Newton stop timed event
-	    * <br><b>This method is executed after login (if waitLogin:true) or after init (if waitLogin:false)</b>
+	    * @description Performs Newton stop timed event<br>
+	    * <b>This method is executed after login (waitLogin:true) or after init (false)</b>
 	    *
 	    * @param {Object} options configuration object
 	    * @param {string} options.name name of the timed event
 	    * @param {Object} [options.properties={}] properties of the timed event
 	    *
-	    * @return {Promise} promise that will be resolved when the stopHeartbeat has been completed, rejected if failed
+	    * @return {Promise} promise will be resolved when stop is completed, rejected if failed
 	    *
 	    * @example
 	    * <pre>
@@ -742,15 +742,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    * @name addIdentity
 	    * @methodOf NewtonAdapter
 	    *
-	    * @description Add identity to an user
-	    * <br><b>This method is executed after login (if waitLogin:true) or after init (if waitLogin:false)</b>
+	    * @description Add identity to an user<br>
+	    * <b>This method is executed after login (waitLogin:true) or after init (false)</b>
 	    *
 	    * @param {Object} options configuration object
 	    * @param {string} [options.type='oauth'] type of identity to add (support only 'oauth' now)
 	    * @param {string} options.provider provider of identity to add
 	    * @param {string} options.access_token access token of identity to add
 	    *
-	    * @return {Promise} promise that will be resolved when the addIdentity has been completed, rejected if failed
+	    * @return {Promise} ppromise will be resolved when adding is completed, rejected if failed
 	    *
 	    * @example
 	    * <pre>
@@ -804,13 +804,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    * @name removeIdentity
 	    * @methodOf NewtonAdapter
 	    *
-	    * @description Remove identity from an user
-	    * <br><b>This method is executed after login (if waitLogin:true) or after init (if waitLogin:false)</b>
+	    * @description Remove identity from an user<br>
+	    * <b>This method is executed after login (waitLogin:true) or after init (false)</b>
 	    *
 	    * @param {Object} options configuration object
 	    * @param {string} options.type type of identity to remove
 	    *
-	    * @return {Promise} promise that will be resolved when the removeIdentity has been completed, rejected if removeIdentity failed
+	    * @return {Promise} promise will be resolved when removing is completed, rejected if failed
 	    *
 	    * @example
 	    * <pre>
@@ -827,18 +827,31 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return new Promise(function(resolve, reject){
 	            Bluebus.bind('login', function(){
 	                if(options.type){
-	                    newtonInstance.getIdentityManager().getIdentities(function(err, identities){
-	                        if(err){ 
-	                            reject(err);
-	                            logger.error('NewtonAdapter', 'removeIdentity', err);
+	                    newtonInstance.getIdentityManager().getIdentities(function(identError, identities){
+	                        if(identError){ 
+	                            reject(identError);
+	                            logger.error('NewtonAdapter', 'removeIdentity', 'getIdentities failed', identError);
 	                        } else {
-	                            for(var i = 0; i < identities.length; i++) {
-	                                if (options.type === identities[i].getType()){
-	                                    identities[i].delete();
+	                            logger.log('NewtonAdapter', 'removeIdentity', 'getIdentities success', options, identities);
+	                            if(identities.length < 2){
+	                                reject('it\'s not possible remove unique identity');
+	                                logger.error('NewtonAdapter', 'removeIdentity', 'it\'s not possible remove unique identity');
+	                            } else {
+	                                for(var i = 0, goFoward = true; i < identities.length && goFoward; i++){
+	                                    if (options.type === identities[i].getType()){
+	                                        goFoward = false;
+	                                        identities[i].delete(function(deleteError){
+	                                            if(deleteError){
+	                                                reject(deleteError);
+	                                                logger.error('NewtonAdapter', 'removeIdentity', 'delete failed', deleteError);
+	                                            } else {
+	                                                resolve();
+	                                                logger.log('NewtonAdapter', 'removeIdentity', 'delete success');
+	                                            }
+	                                        });
+	                                    }
 	                                }
 	                            }
-	                            resolve();
-	                            logger.log('NewtonAdapter', 'removeIdentity', options, identities);
 	                        }
 	                    });
 	                } else {
@@ -855,10 +868,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    * @name userDelete
 	    * @methodOf NewtonAdapter
 	    *
-	    * @description Delete an user
-	    * <br><b>This method is executed after login (if waitLogin:true) or after init (if waitLogin:false)</b>
+	    * @description Delete an user<br>
+	    * <b>This method is executed after login (waitLogin:true) or after init (false)</b>
 	    *
-	    * @return {Promise} promise that will be resolved when the userDelete has been completed, rejected if userDelete failed
+	    * @return {Promise} ppromise will be resolved when deleting is completed, rejected if failed
 	    *
 	    * @example
 	    * <pre>
@@ -872,20 +885,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.userDelete = function(){
 	        return new Promise(function(resolve, reject){
 	            Bluebus.bind('login', function(){
-	                newtonInstance.getIdentityManager().getIdentities(function(err, identities){
-	                    if(err){ 
-	                        reject(err);
-	                        logger.error('NewtonAdapter', 'userDelete', err);
+	                newtonInstance.getIdentityManager().getIdentities(function(identError, identities){
+	                    if(identError){ 
+	                        reject(identError);
+	                        logger.error('NewtonAdapter', 'userDelete', 'getIdentities failed', identError);
 	                    } else {
-	                        for (var i = 0; i < identities.length; i++) {
+	                        logger.log('NewtonAdapter', 'userDelete', 'getIdentities success', identities);
+	                        for(var i = 0, goFoward = true; i < identities.length && goFoward; i++){
 	                            if (identities[i].getType() === 'msisdn'){
+	                                goFoward = false;
 	                                reject('Error on userDelete: please use unsubscribe instead');
 	                                logger.error('NewtonAdapter', 'userDelete', 'Error on userDelete: please use unsubscribe instead');
 	                            }
 	                        }
-	                        newtonInstance.getIdentityManager().userDelete(function(){
-	                            resolve();
-	                            logger.log('NewtonAdapter', 'userDelete', identities);
+	                        newtonInstance.getIdentityManager().userDelete(function(deleteError){
+	                            if(deleteError){
+	                                reject(deleteError);
+	                                logger.error('NewtonAdapter', 'userDelete', 'delete', deleteError);
+	                            } else {
+	                                resolve();
+	                                logger.log('NewtonAdapter', 'userDelete', identities);
+	                            }
 	                        });
 	                    }
 	                });            
@@ -898,13 +918,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    * @name recoverPassword
 	    * @methodOf NewtonAdapter
 	    *
-	    * @description Recover password of a user
-	    * <br><b>This method is executed after login (if waitLogin:true) or after init (if waitLogin:false)</b>
+	    * @description Recover password of a user<br>
+	    * <b>This method is executed after login (waitLogin:true) or after init (false)</b>
 	    *
 	    * @param {Object} options configuration object
 	    * @param {string} options.msisdn msisdn of the user
 	    *
-	    * @return {Promise} promise that will be resolved when the recoverPassword has been completed, rejected if failed
+	    * @return {Promise} promise will be resolved when recovering is completed, rejected if failed
 	    *
 	    * @example
 	    * <pre>
