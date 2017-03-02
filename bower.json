@@ -12,7 +12,7 @@
     "**/*",
     "!dist/**/*",
     "!src/**/*",
-    "!CHANGELOG",
+    "!CHANGELOG.md",
     "!README.md",
     "!bower.json",
     "!package.json"

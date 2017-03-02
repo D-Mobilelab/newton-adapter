@@ -12,13 +12,13 @@
 ```
 npm install --save newton-adapter
 ```
-You can found the library ready for production on <i>node_modules/newton-adapter/dist/dist.js</i>
+You can found the library ready for production on <i>node_modules/newton-adapter/dist/newton-adapter-2.js</i>
 
 ### Bower
 ```
 bower install --save newton-adapter
 ```
-You can found the library ready for production on <i>bower_components/newton-adapter/dist/dist.js</i>
+You can found the library ready for production on <i>bower_components/newton-adapter/dist/newton-adapter-2.js</i>
 
 ## Documentation
 

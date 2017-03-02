@@ -76,7 +76,7 @@ gulp.task('doc', ['doc:single'], function(){
     }
 });
 
-gulp.task('build:single', ['eslint', 'test', 'doc', 'clean', 'webpack']);
+gulp.task('build:single', ['eslint', 'test:single', 'doc:single', 'clean', 'webpack']);
 
 gulp.task('build', ['build:single'], function(){
     if(argv.watch){
