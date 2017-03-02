@@ -1,3 +1,11 @@
+** 2.0.0 **
+- Replaced promise system with BlueBus library
+- Added new methods: recoverPassword, userDelete, addIdentity, removeIdentity, logout, setUserStateChangeListener, finalizeLoginFlow, getUserToken
+- Divided test on multiple files
+- Webpack build
+- Removed dependency from dml-js-boilerplate
+- Gulp build, not Grunt
+
 ** 1.7.0 **
 - Added waitDeviceReady parameter to init()
 - improved isUserLogged()
