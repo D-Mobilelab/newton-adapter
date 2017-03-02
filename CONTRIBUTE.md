@@ -57,7 +57,7 @@ To execute a GULP task
         gulp build --version=x.y.z
 
 - Replace version field on package.json
-- Add description of new version on CHANGELOG file
+- Add description of new version on CHANGELOG.md file
 - Commit and push on master branch
 - Create tag with version name with 
 
