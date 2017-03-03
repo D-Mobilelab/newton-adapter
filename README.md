@@ -12,18 +12,22 @@
 ```
 npm install --save newton-adapter
 ```
-You can found the library ready for production on <i>node_modules/newton-adapter/dist/dist.js</i>
+You can found the library ready for production on <i>node_modules/newton-adapter/dist/newton-adapter-2.js</i>
 
 ### Bower
 ```
 bower install --save newton-adapter
 ```
-You can found the library ready for production on <i>bower_components/newton-adapter/dist/dist.js</i>
+You can found the library ready for production on <i>bower_components/newton-adapter/dist/newton-adapter-2.js</i>
 
 ## Documentation
 
 To read documentation, go to:
 
-[http://d-mobilelab.github.io/newton-adapter/1.0.0](http://d-mobilelab.github.io/newton-adapter/1.0.0)
+[http://d-mobilelab.github.io/newton-adapter/2.0.0](http://d-mobilelab.github.io/newton-adapter/2.0.0)
 
-Replace <i>1.0.0</i> with the version of the documentation you want to read.
+Replace <i>2.0.0</i> with the version of the documentation you want to read.
+
+## Contribute
+
+To contribute to this library, read CONTRIBUTE.md
