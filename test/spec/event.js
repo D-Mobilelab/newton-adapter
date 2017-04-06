@@ -2,12 +2,11 @@
 /* eslint-env jasmine */
 var NewtonAdapter = require('../../src/main');
 var Mock = require('../mock');
-var calls, NewtonMock;
+var NewtonMock;
 
 describe('EVENT', function(){
     beforeEach(function(done){
         Mock.boostrap();
-        calls = Mock.calls;
         NewtonMock = Mock.NewtonMock;
         Newton = Mock.Newton;
 
