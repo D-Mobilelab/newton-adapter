@@ -905,6 +905,17 @@ var NewtonAdapter = new function(){
             });
         });
     };
+    
+    /**
+     * Register pushes (more than one)
+     * @param {Function}
+     * @returns {BooLean}
+     */
+    this.addPushListener = function(callback) {
+        if(!newtonInstance.on) { logger.warn('Can\'t register a push. Are you in hybrid env?'); return false; }
+        newtonInstance.on('notification', callback);
+        return true;
+    };
 };
 
 module.exports = NewtonAdapter;
