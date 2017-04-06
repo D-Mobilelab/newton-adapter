@@ -1,3 +1,5 @@
+/* eslint-env browser */
+/* global Newton */
 var Promise = require('promise-polyfill');
 var Bluebus = require('bluebus');
 
