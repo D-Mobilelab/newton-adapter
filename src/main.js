@@ -909,13 +909,30 @@ var NewtonAdapter = new function(){
     };
     
     /**
-     * Register pushes (more than one)
+     * Register pushes callback (more than one)
+     * call before NewtonAdapter.init
+     * @example
+     * NewtonAdapter.addPushListener(function(notification){
+     *  console.log(notification);
+     * });
+     * NewtonAdapter.init({...});
      * @param {Function}
      * @returns {BooLean}
      */
     this.addPushListener = function(callback) {
-        if(!newtonInstance.on) { logger.warn('Can\'t register a push. Are you in hybrid env?'); return false; }
-        newtonInstance.on('notification', callback);
+        if(!Newton.__EventEmitter__.on) { logger.warn('Can\'t register a push. Are you in hybrid env?'); return false; }
+        Newton.__EventEmitter__.on('notification', callback);
+        return true;
+    };
+
+    /**
+     * UnRegister pushe callback
+     * @param {Function}
+     * @returns {BooLean}
+     */
+    this.removePushListener = function(callback) {
+        if(!Newton.__EventEmitter__.off) { logger.warn('Can\'t register a push. Are you in hybrid env?'); return false; }
+        Newton.__EventEmitter__.off('notification', callback);
         return true;
     };
 };
