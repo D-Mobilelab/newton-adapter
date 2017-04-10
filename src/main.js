@@ -106,7 +106,9 @@ var NewtonAdapter = new function(){
                             logger.warn('NewtonAdapter', 'Init', 'Newton v.1 not support properties on init method');
                         }
                     } else {
-                        newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId, createSimpleObject(options.properties), options.pushCallback);
+                        var args = [options.secretId, createSimpleObject(options.properties)];
+                        if (options.pushCallback) { args.push(options.pushCallback); }
+                        newtonInstance = Newton.getSharedInstanceWithConfig.apply(null, args);
                     }
 
                     // trigger init
