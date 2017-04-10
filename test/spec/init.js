@@ -1,3 +1,5 @@
+/* global Newton Newton:true */
+/* eslint-env jasmine */
 var NewtonAdapter = require('../../src/main');
 var Mock = require('../mock');
 var calls, NewtonMock;
@@ -179,8 +181,23 @@ describe('INIT', function(){
             secretId: '<local_host>',
             enable: true,
             waitDeviceReady: true
-        }).then(function(){
+        }).then(function() {
             expect(Newton.getSharedInstanceWithConfig).toHaveBeenCalled();
+            done();
+        });
+        document.dispatchEvent(event);
+    });
+
+    it('Newton.getSharedInstanceWithConfig to be executed with pushCallback params', function(done){
+        function onPush(pushData) {}
+        var event = new CustomEvent('deviceready', { detail: Date.now() });
+        NewtonAdapter.init({
+            secretId: '<local_host>',
+            enable: true,
+            waitDeviceReady: true,
+            pushCallback: onPush
+        }).then(function() {
+            expect(Newton.getSharedInstanceWithConfig).toHaveBeenCalledWith('<local_host>', {}, onPush);
             done();
         });
         document.dispatchEvent(event);

@@ -1,6 +1,8 @@
+/* global Newton Newton:true */
+/* eslint-env jasmine */
 var NewtonAdapter = require('../../src/main');
 var Mock = require('../mock');
-var calls, NewtonMock;
+var NewtonMock;
 
 describe('LOGIN', function(){
     var userId = '111222333444';
@@ -14,8 +16,7 @@ describe('LOGIN', function(){
     var accessToken = '1234567890abcedf';  
     
     beforeEach(function(done){
-        Mock.boostrap();
-        calls = Mock.calls;
+        Mock.boostrap();        
         NewtonMock = Mock.NewtonMock;
         Newton = Mock.Newton;
 

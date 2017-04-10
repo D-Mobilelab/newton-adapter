@@ -5,7 +5,8 @@
   "keywords": [
     "newton",
     "tracking",
-    "authentication"
+    "authentication",
+    "push"
   ],
   "homepage": "https://github.com/D-Mobilelab/newton-adapter",
   "bugs": {
