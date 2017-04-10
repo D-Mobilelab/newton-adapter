@@ -54,6 +54,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/* eslint-env browser */
+	/* global Newton */
 	var Promise = __webpack_require__(1);
 	var Bluebus = __webpack_require__(5);
 
@@ -112,6 +114,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    * @param {integer} [options.newtonversion=2] version of Newton (1 or 2)
 	    * @param {Object} [options.logger=disabled logger] object with debug, log, info, warn, error
 	    * @param {Object} [options.properties={}] custom data for Newton session (not supported for v1)
+	    * @param {Function} [options.pushCallback=null] a function that will be called in hybrid init(wait for device ready must be true)
 	    *
 	    * @return {Promise} promise will be resolved when init is completed, rejected if failed
 	    * 
@@ -126,7 +129,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    *       logger: console,
 	    *       properties: {
 	    *           hello: 'World'
-	    *       }
+	    *       },
+	    *       pushCallback:function(pushData){}
 	    *   }).then(function(enabled){
 	    *       console.log('init success', enabled);
 	    *   }).catch(function(err){
@@ -158,7 +162,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	                            logger.warn('NewtonAdapter', 'Init', 'Newton v.1 not support properties on init method');
 	                        }
 	                    } else {
-	                        newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId, createSimpleObject(options.properties));
+	                        var args = [options.secretId, createSimpleObject(options.properties)];
+	                        if (options.pushCallback) { args.push(options.pushCallback); }
+	                        newtonInstance = Newton.getSharedInstanceWithConfig.apply(null, args);
 	                    }
 
 	                    // trigger init
@@ -1788,4 +1794,4 @@ return /******/ (function(modules) { // webpackBootstrap
 });
 ;
 
-/* Newton Adapter 2.0.0 */
+/* Newton Adapter 2.1.0 */
