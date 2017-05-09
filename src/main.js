@@ -146,7 +146,7 @@ var NewtonAdapter = new function(){
     *
     * @param {Object} options configuration object
     * @param {boolean} [options.logged=false] new state of the user
-    * @param {string} [options.type="custom"] (custom, external, msisdn, autologin or oauth)
+    * @param {string} [options.type="custom"] (custom, external, msisdn, autologin, generic or oauth)
     * @param {string} options.userId required for custom and external login
     * @param {Object} [options.userProperties={}] available only for custom and external login
     * @param {string} options.pin required for msisdn login
@@ -154,6 +154,8 @@ var NewtonAdapter = new function(){
     * @param {string} options.domain required for autologin login
     * @param {string} options.provider required for oauth login
     * @param {string} options.access_token required for oauth login
+    * @param {string} options.username required for generic login
+    * @param {string} options.password required for generic login
     *
     * @return {Promise} promise will be resolved when login is completed, rejected if failed
     *
@@ -264,14 +266,14 @@ var NewtonAdapter = new function(){
                         } else if(loginType === 'generic'){
                             if(options.username && options.password){
                                 newtonInstance.getLoginBuilder()
-                              .setOnFlowCompleteCallback(callCallback)
-                              .setUsername(options.username)
-                              .setPassword(options.password)
-                              .getGenericLoginFlow()
-                              .startLoginFlow();
+                                .setOnFlowCompleteCallback(callCallback)
+                                .setUsername(options.username)
+                                .setPassword(options.password)
+                                .getGenericLoginFlow()
+                                .startLoginFlow();
                             } else {
-                                reject('Email login requires email and password');
-                                logger.error('NewtonAdapter', 'Login', 'Email login requires email and password');
+                                reject('Generic login requires email and password');
+                                logger.error('NewtonAdapter', 'Login', 'Generic login requires email and password');
                             }
                         } else if(loginType === 'autologin'){
                             if(options.domain){
@@ -649,7 +651,8 @@ var NewtonAdapter = new function(){
     * @name getIdentities
     * @methodOf NewtonAdapter
     *
-    * @description Get identities from current user
+    * @description Get identities from current user<br/>
+    * <b>This method is executed after login (waitLogin:true) or after init (false)</b>
     *
     * @return {string} promise that will be resolved when the identities has been retrieved for the current user, rejected if failed
     *
@@ -659,7 +662,7 @@ var NewtonAdapter = new function(){
     * </pre>
     */
     this.getIdentities = function(){
-        return new Promise(function(resolve){
+        return new Promise(function(resolve, reject){
             Bluebus.bind('login', function(){
                 newtonInstance.getIdentityManager().getIdentities(function(err, identities){
                     if(err){
@@ -733,7 +736,7 @@ var NewtonAdapter = new function(){
     * @name confirmEmailAndLogin
     * @methodOf NewtonAdapter
     *
-    * @description confirm email flow and login to the service<br>
+    * @description Confirm email flow and login to the service
     *
     * @param {Object} options configuration object
     * @param {string} options.token token to confirm email
@@ -753,10 +756,8 @@ var NewtonAdapter = new function(){
     * </pre>
     */
     this.confirmEmailAndLogin = function(options){
-
         return new Promise(function(resolve, reject){
             Bluebus.bind('init', function(){
-
                 newtonInstance.getLoginBuilder().setOnFlowCompleteCallback(function(err) {
                     if(err){
                         reject(err);
@@ -766,9 +767,9 @@ var NewtonAdapter = new function(){
                         logger.log('NewtonAdapter', 'confirmEmailAndLogin', options);
                     }
                 })
-              .setEmailToken(options.token)
-              .getEmailConfirmFlow()
-              .startLoginFlow();
+                .setEmailToken(options.token)
+                .getEmailConfirmFlow()
+                .startLoginFlow();
             });
         });
     };
@@ -797,10 +798,8 @@ var NewtonAdapter = new function(){
     * </pre>
     */
     this.confirmEmail = function(options){
-
         return new Promise(function(resolve, reject){
             Bluebus.bind('init', function(){
-
                 newtonInstance.confirmEmail(options.token, function(err) {
                     if(err){
                         reject(err);
@@ -810,7 +809,6 @@ var NewtonAdapter = new function(){
                         logger.log('NewtonAdapter', 'confirmEmail', options);
                     }
                 });
-
             });
         });
     };
@@ -820,7 +818,7 @@ var NewtonAdapter = new function(){
     * @name resetPassword
     * @methodOf NewtonAdapter
     *
-    * @description reset password<br>
+    * @description Reset password
     *
     * @param {Object} options configuration object
     * @param {string} options.password new password
@@ -841,10 +839,9 @@ var NewtonAdapter = new function(){
     * </pre>
     */
     this.resetPassword = function(options){
-
         return new Promise(function(resolve, reject){
             Bluebus.bind('init', function(){
-                if(!!options.password && options.token){
+                if(options.token && !!options.password){
                     newtonInstance.resetPassword(options.token, options.password, function(err){
                         if(err){
                             reject(err);
@@ -858,7 +855,6 @@ var NewtonAdapter = new function(){
                     logger.error('NewtonAdapter', 'resetPassword', 'resetPassword requires password and token');
                     reject('resetPassword requires password and token');
                 }
-
             });
         });
     };
@@ -872,10 +868,13 @@ var NewtonAdapter = new function(){
     * <b>This method is executed after login (waitLogin:true) or after init (false)</b>
     *
     * @param {Object} options configuration object
-    * @param {string} [options.type='oauth'] type of identity to add (support only 'oauth' now)
-    * @param {string} options.provider provider of identity to add
-    * @param {string} options.access_token access token of identity to add
-    * @param {string} options.password password of identity to add
+    * @param {string} [options.type='oauth'] type of identity to add (oauth, email, generic)
+    * @param {string} options.provider provider of identity to add (oauth)
+    * @param {string} options.access_token access token of identity to add (oauth)
+    * @param {string} options.email email of identity to add (email)
+    * @param {string} options.password password of identity to add (email)
+    * @param {Object} [options.params={}] params of identity to add (email)
+    * @param {string} options.smsTemplate SMS template of identity to add (generic)
     *
     * @return {Promise} ppromise will be resolved when adding is completed, rejected if failed
     *
@@ -895,7 +894,6 @@ var NewtonAdapter = new function(){
     this.addIdentity = function(options){
         return new Promise(function(resolve, reject){
             Bluebus.bind('login', function(){
-
                 var identityType = options.type ? options.type : 'oauth';
                 if(identityType === 'oauth'){
                     if(options.provider && options.access_token){
@@ -906,20 +904,19 @@ var NewtonAdapter = new function(){
                         .setOnFlowCompleteCallback(function(err){
                             if(err){
                                 reject(err);
-                                logger.error('NewtonAdapter', 'addIdentity', 'oauth', err);
+                                logger.error('NewtonAdapter', 'addIdentity', 'Oauth', err);
                             } else {
                                 resolve();
-                                logger.log('NewtonAdapter', 'addIdentity', 'oauth', options);
+                                logger.log('NewtonAdapter', 'addIdentity', 'Oauth', options);
                             }
                         })
                         .getAddOAuthIdentityFlow()
                         .startAddIdentityFlow();
                     } else {
                         reject('addIdentity outh requires provider and access_token');
-                        logger.error('NewtonAdapter', 'addIdentity', 'oauth', 'addIdentity oauth requires provider and access_token');
+                        logger.error('NewtonAdapter', 'addIdentity', 'Oauth', 'addIdentity oauth requires provider and access_token');
                     }
                 } else if(identityType === 'email'){
-
                     if(options.email && options.password){
                         newtonInstance.getIdentityManager()
                         .getIdentityBuilder()
@@ -942,27 +939,25 @@ var NewtonAdapter = new function(){
                         logger.error('NewtonAdapter', 'addIdentity', 'Email', 'addIdentity email requires email and password');
                     }
                 } else if(identityType === 'generic'){
-
                     if(options.smsTemplate){
                         newtonInstance.getIdentityManager()
-                         .getIdentityBuilder()
-                         .setOnFlowCompleteCallback(function(err){
-                             if(err){
-                                 reject(err);
-                                 logger.error('NewtonAdapter', 'addIdentity', 'Generic', err);
-                             } else {
-                                 resolve();
-                                 logger.log('NewtonAdapter', 'addIdentity', 'Generic', options);
-                             }
-                         })
-                          .setSMSTemplate(options.smsTemplate)
-                          .getAddGenericIdentityFlow()
-                          .startAddIdentityFlow();
-                    } else{
+                        .getIdentityBuilder()
+                        .setOnFlowCompleteCallback(function(err){
+                            if(err){
+                                reject(err);
+                                logger.error('NewtonAdapter', 'addIdentity', 'Generic', err);
+                            } else {
+                                resolve();
+                                logger.log('NewtonAdapter', 'addIdentity', 'Generic', options);
+                            }
+                        })
+                        .setSMSTemplate(options.smsTemplate)
+                        .getAddGenericIdentityFlow()
+                        .startAddIdentityFlow();
+                    } else {
                         reject('addIdentity generic, requires smsTemplate');
                         logger.error('NewtonAdapter', 'addIdentity', 'Generic', 'addIdentity generic requires smsTemplate');
                     }
-
                 } else {
                     reject('This type of add identity is not supported');
                     logger.error('NewtonAdapter', 'addIdentity', 'This type of add identity is not supported');
@@ -1027,7 +1022,7 @@ var NewtonAdapter = new function(){
                             }
                         }
                     });
-                }else if(options.identity){
+                } else if(options.identity) {
                     options.identity.delete(function(deleteError){
                         if(deleteError){
                             reject(deleteError);
@@ -1123,25 +1118,21 @@ var NewtonAdapter = new function(){
     this.recoverPassword = function(options){
         return new Promise(function(resolve, reject){
             Bluebus.bind('init', function(){
-                // msisdn
                 if(options.msisdn){
-                    logger.log('NewtonAdapter', 'recoverPassword', 'recover msisdn pin flow');
                     newtonInstance.getLoginBuilder()
-                  .setOnForgotFlowCallback(function(err){
-                      if(err){
-                          reject(err);
-                          logger.error('NewtonAdapter', 'recoverPassword', err);
-                      } else {
-                          resolve();
-                          logger.log('NewtonAdapter', 'recoverPassword', options);
-                      }
-                  })
-                  .setMSISDN(options.msisdn)
-                  .getMSISDNPINForgotFlow()
-                  .startForgotFlow();
-                  // email
+                    .setOnForgotFlowCallback(function(err){
+                        if(err){
+                            reject(err);
+                            logger.error('NewtonAdapter', 'recoverPassword', err);
+                        } else {
+                            resolve();
+                            logger.log('NewtonAdapter', 'recoverPassword', options);
+                        }
+                    })
+                    .setMSISDN(options.msisdn)
+                    .getMSISDNPINForgotFlow()
+                    .startForgotFlow();
                 } else if(options.email){
-                    logger.log('NewtonAdapter', 'recoverPassword', 'recover email password flow');
                     newtonInstance.getLoginBuilder()
                     .setOnForgotFlowCallback(function(err){
                         if(err){
@@ -1152,9 +1143,9 @@ var NewtonAdapter = new function(){
                             logger.log('NewtonAdapter', 'emailRecoverPassword', options);
                         }
                     })
-                      .setEmail(options.email)
-                      .getEmailForgotFlow()
-                      .startForgotFlow();
+                    .setEmail(options.email)
+                    .getEmailForgotFlow()
+                    .startForgotFlow();
                 } else {
                     reject('recoverPassword requires msisdn or email');
                     logger.error('NewtonAdapter', 'recoverPassword', 'recoverPassword requires msisdn or email');
