@@ -1,3 +1,6 @@
+# 2.2.0
+- Add support for User 3.0
+
 # 2.1.0
 - Add support for push notification to init()
 
