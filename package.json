@@ -30,7 +30,7 @@
     "promise-polyfill": "^6.0.2"
   },
   "devDependencies": {
-    "browser-sync": "^2.18.7",
+    "browser-sync": "^2.18.12",
     "del": "^2.2.2",
     "eslint": "^3.13.0",
     "eslint-config-airbnb-base": "^11.0.1",
