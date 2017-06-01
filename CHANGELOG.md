@@ -1,3 +1,12 @@
+# 2.3.0
+- Add autologin() method
+
+# 2.2.0
+- Add support for User 3.0
+
+# 2.1.0
+- Add support for push notification to init()
+
 # 2.0.0
 - Replaced promise system with BlueBus library
 - Added new methods: recoverPassword, userDelete, addIdentity, removeIdentity, logout, setUserStateChangeListener, finalizeLoginFlow, getUserToken
