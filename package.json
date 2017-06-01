@@ -52,7 +52,7 @@
     "karma-phantomjs-launcher": "^1.0.2",
     "karma-spec-reporter": "0.0.31",
     "karma-webpack": "^2.0.2",
-    "webpack": "^2.2.1",
+    "webpack": "^2.6.1",
     "yargs": "^8.0.1"
   },
   "engines": {
