@@ -1,3 +1,6 @@
+# 2.3.0
+- Add autologin() method
+
 # 2.2.0
 - Add support for User 3.0
 
