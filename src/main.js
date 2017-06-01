@@ -741,7 +741,7 @@ var NewtonAdapter = new function(){
     * @param {Object} options configuration object
     * @param {string} options.waitingUrl url for waiting page
     * @param {string} options.subscribeUrl url for account page (redirect here if user isn't subscribed)
-    *    *
+    *
     * @example
     * <pre>
     *   NewtonAdapter.autoLogin({
@@ -753,16 +753,13 @@ var NewtonAdapter = new function(){
     this.autoLogin = function(options){
         var instance;
         if(options.waitingUrl){
-
             instance = newtonInstance.getLoginBuilder();
             if(options.subscribeUrl) {
                 instance.setSubscribeUrl(options.subscribeUrl);
             }
-
             instance.setWaitingUrl(options.waitingUrl)
             .getMSISDNURLoginFlow()
             .startLoginFlow();
-
         } else {
             logger.error('NewtonAdapter', 'autoLogin', 'autoLogin requires waiting url');
         }
