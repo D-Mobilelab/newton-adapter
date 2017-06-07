@@ -29,7 +29,7 @@ module.exports = function(config) {
             module: {
                 rules: [
                     {
-                        test: /main\.js$/,
+                        test: /\.js$/,
                         include: path.resolve('src/'),
                         loader: 'istanbul-instrumenter-loader'
                     }
