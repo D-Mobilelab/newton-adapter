@@ -55,7 +55,7 @@ gulp.task('webpack', function(){
 });
 
 gulp.task('doc:single', function(){
-    gulp.src('src/main.js')
+    gulp.src('src/**/*.js')
     .pipe(ngdocs.process({
         html5Mode: false,
         startPage: '/api/NewtonAdapter'
