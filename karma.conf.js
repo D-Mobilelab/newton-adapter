@@ -8,14 +8,14 @@ module.exports = function(config) {
 
         frameworks: ['jasmine'],
         
-        files: ['test/spec/*.js'],
+        files: ['test/spec/**/*.js'],
 
         browsers: ['PhantomJS'],
 
         reporters: ['spec', 'coverage-istanbul'],
 
         preprocessors: {
-            'test/spec/*.js': ['webpack']
+            'test/spec/**/*.js': ['webpack']
         },
 
         coverageIstanbulReporter: {

@@ -37,7 +37,7 @@ var Utility = require('../utility');
 module.exports = function(options){
     return new Promise(function(resolve, reject){
         Bluebus.bind('login', function(){
-            if(options.name){
+            if(options && options.name){
                 Global.newtonInstance.timedEventStart(options.name, Utility.createSimpleObject(options.properties));
                 resolve();
                 Global.logger.log('NewtonAdapter', 'startHeartbeat', options);
