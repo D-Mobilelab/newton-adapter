@@ -1,8 +1,8 @@
-var NewtonAdapter = require('../../../src/main');
-var Mock = require('../../mock');
+var NewtonAdapter = require('../../src/main');
+var Mock = require('../mock');
 var NewtonMock;
 
-describe('heartbeat/stopHeartbeat', function(){
+describe('heartbeat/startHeartbeat', function(){
     beforeEach(function(done){
         Mock.boostrap();        
         NewtonMock = Mock.NewtonMock;
@@ -23,37 +23,39 @@ describe('heartbeat/stopHeartbeat', function(){
         NewtonAdapter.resetForTest();
     });
 
-    it('call Newton.timedEventStop without anything', function(done){
-        NewtonAdapter.stopHeartbeat().then(function(){
+    it('call Newton.timedEventStart without anything', function(done){
+        NewtonAdapter.startHeartbeat().then(function(){
             done.fail();
         }).catch(function(){
             done();
         });
     });
 
-    it('call Newton.timedEventStop with event name', function(done){
+    it('call Newton.timedEventStart with event name', function(done){
         var eventName = 'Zoom-Nav';
-        NewtonAdapter.stopHeartbeat({
+        NewtonAdapter.startHeartbeat({
             name: eventName
         }).then(function(){
-            expect(NewtonMock.timedEventStop).toHaveBeenCalledWith(eventName, {});
+            expect(NewtonMock.timedEventStart).toHaveBeenCalledWith(eventName, {});
             done();
         }).catch(function(reason){
             done.fail(reason);
         });
     });
 
-    it('call Newton.timedEventStop with event name and properties', function(done){
+    it('call Newton.timedEventStart with event name and properties', function(done){
         var eventName = 'Zoom-Nav';
         var eventProperties = { content: 'Fruit Slicer' };
-        NewtonAdapter.stopHeartbeat({
+        NewtonAdapter.startHeartbeat({
             name: eventName,
             properties: eventProperties
         }).then(function(){
-            expect(NewtonMock.timedEventStop).toHaveBeenCalledWith(eventName, eventProperties);
+            expect(NewtonMock.timedEventStart).toHaveBeenCalledWith(eventName, eventProperties);
             done();
         }).catch(function(reason){
             done.fail(reason);
         });
     });
+
+    
 });

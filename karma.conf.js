@@ -8,21 +8,21 @@ module.exports = function(config) {
 
         frameworks: ['jasmine'],
         
-        files: ['test/spec/**/*.js'],
+        files: ['test/**/*.js'],
 
         browsers: ['PhantomJS'],
 
         reporters: ['spec', 'coverage-istanbul'],
 
         preprocessors: {
-            'test/spec/**/*.js': ['webpack']
+            'test/**/*.js': ['webpack']
         },
 
         coverageIstanbulReporter: {
             reports: ['text-summary', 'lcov'],
             fixWebpackSourcePaths: true,
             type: 'lcov',
-            dir: 'test/'
+            dir: 'test/report/'
         },
 
         webpack: {

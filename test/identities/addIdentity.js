@@ -1,10 +1,8 @@
-/* global Newton Newton:true */
-/* eslint-env jasmine */
 var NewtonAdapter = require('../../src/main');
 var Mock = require('../mock');
 var NewtonMock;
 
-describe('IDENTITY', function(){
+describe('identity/addIdentity', function(){
     beforeEach(function(done){
         Mock.boostrap();       
         NewtonMock = Mock.NewtonMock;
@@ -34,7 +32,7 @@ describe('IDENTITY', function(){
         NewtonAdapter.resetForTest();
     });
 
-    it('ADD IDENTITY', function(done){
+    it('call right methods of Newton', function(done){
         var provider = 'Facebook';
         var accessToken = '1234567890abcedf';
         NewtonAdapter.addIdentity({

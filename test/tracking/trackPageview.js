@@ -1,10 +1,8 @@
-/* global Newton Newton:true */
-/* eslint-env jasmine */
 var NewtonAdapter = require('../../src/main');
 var Mock = require('../mock');
 var NewtonMock;
 
-describe('PAGEVIEW', function(){
+describe('tracking/trackPageview', function(){
     beforeEach(function(done){
         Mock.boostrap();        
         NewtonMock = Mock.NewtonMock;

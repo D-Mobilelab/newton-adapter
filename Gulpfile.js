@@ -27,17 +27,17 @@ gulp.task('test', ['test:single'], function(){
     if(argv.watch){
         browsersync({
             port: 3000,
-            startPath: '/test/lcov-report',
+            startPath: '/test/report/lcov-report',
             server: {
                 baseDir: '.'
             }
         });
-        gulp.watch(['src/**/*.js', 'test/spec/*.js', 'karma.conf.js'], ['test:single', browsersync.reload]);
+        gulp.watch(['src/**/*.js', 'test/**/*.js', 'karma.conf.js', '!report/**/*.*'], ['test:single', browsersync.reload]);
     }
 });
 
 gulp.task('coveralls', function(){
-    gulp.src('test/lcov.info')
+    gulp.src('test/report/lcov.info')
     .pipe(coveralls());
 });
 

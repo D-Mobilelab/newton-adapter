@@ -1,8 +1,8 @@
-var NewtonAdapter = require('../../../src/main');
-var Mock = require('../../mock');
+var NewtonAdapter = require('../../src/main');
+var Mock = require('../mock');
 var NewtonMock;
 
-describe('heartbeat/startHeartbeat', function(){
+describe('heartbeat/stopHeartbeat', function(){
     beforeEach(function(done){
         Mock.boostrap();        
         NewtonMock = Mock.NewtonMock;
@@ -23,39 +23,37 @@ describe('heartbeat/startHeartbeat', function(){
         NewtonAdapter.resetForTest();
     });
 
-    it('call Newton.timedEventStart without anything', function(done){
-        NewtonAdapter.startHeartbeat().then(function(){
+    it('call Newton.timedEventStop without anything', function(done){
+        NewtonAdapter.stopHeartbeat().then(function(){
             done.fail();
         }).catch(function(){
             done();
         });
     });
 
-    it('call Newton.timedEventStart with event name', function(done){
+    it('call Newton.timedEventStop with event name', function(done){
         var eventName = 'Zoom-Nav';
-        NewtonAdapter.startHeartbeat({
+        NewtonAdapter.stopHeartbeat({
             name: eventName
         }).then(function(){
-            expect(NewtonMock.timedEventStart).toHaveBeenCalledWith(eventName, {});
+            expect(NewtonMock.timedEventStop).toHaveBeenCalledWith(eventName, {});
             done();
         }).catch(function(reason){
             done.fail(reason);
         });
     });
 
-    it('call Newton.timedEventStart with event name and properties', function(done){
+    it('call Newton.timedEventStop with event name and properties', function(done){
         var eventName = 'Zoom-Nav';
         var eventProperties = { content: 'Fruit Slicer' };
-        NewtonAdapter.startHeartbeat({
+        NewtonAdapter.stopHeartbeat({
             name: eventName,
             properties: eventProperties
         }).then(function(){
-            expect(NewtonMock.timedEventStart).toHaveBeenCalledWith(eventName, eventProperties);
+            expect(NewtonMock.timedEventStop).toHaveBeenCalledWith(eventName, eventProperties);
             done();
         }).catch(function(reason){
             done.fail(reason);
         });
     });
-
-    
 });
