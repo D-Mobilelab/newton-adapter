@@ -32,7 +32,7 @@ gulp.task('test', ['test:single'], function(){
                 baseDir: '.'
             }
         });
-        gulp.watch(['src/**/*.js', 'test/**/*.js', 'karma.conf.js', '!report/**/*.*'], ['test:single', browsersync.reload]);
+        gulp.watch(['src/**/*.js', 'karma.conf.js', '!report/**/*.*'], ['test:single', browsersync.reload]);
     }
 });
 
@@ -85,6 +85,6 @@ gulp.task('build', ['build:single'], function(){
             startPath: '/examples/',
             server: {}
         });
-        gulp.watch(['examples/**/*.js', 'src/**/*.js', 'test/**/*.test.js'], ['build:single', browsersync.reload]);
+        gulp.watch(['examples/**/*.js', 'src/**/*.js'], ['build:single', browsersync.reload]);
     }
 });

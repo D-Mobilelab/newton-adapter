@@ -8,14 +8,14 @@ module.exports = function(config) {
 
         frameworks: ['jasmine'],
         
-        files: ['test/**/*.js'],
+        files: ['src/**/*.test.js'],
 
         browsers: ['PhantomJS'],
 
         reporters: ['spec', 'coverage-istanbul'],
 
         preprocessors: {
-            'test/**/*.js': ['webpack']
+            'src/**/*.test.js': ['webpack']
         },
 
         coverageIstanbulReporter: {
@@ -31,6 +31,7 @@ module.exports = function(config) {
                     {
                         test: /\.js$/,
                         include: path.resolve('src/'),
+                        exclude: /\.test\.js$/,
                         loader: 'istanbul-instrumenter-loader'
                     }
                 ]

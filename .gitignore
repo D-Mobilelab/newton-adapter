@@ -1,6 +1,6 @@
 bower_components/
 npm-debug.log
 node_modules/
-test/lcov*
+test/report/
 docs/temp/
 .DS_*
