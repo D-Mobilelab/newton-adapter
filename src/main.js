@@ -10,9 +10,14 @@ var Global = require('./global');
 * @description
 * Adapter for Newton sdk to be used in B! web applications
 */
-var NewtonAdapter = new function(){
+module.exports = new function(){
 
     // USE ONLY FOR TEST!
+    /**
+     * TODO: if(process.env.NODE_ENV === 'test') {
+     *  
+     * }
+     */
     this.resetForTest = function(){
         Global.cleanAll();
         Bluebus.cleanAll();
@@ -23,7 +28,7 @@ var NewtonAdapter = new function(){
 
     this.getIdentities = require('./identities/getIdentities');   
     this.addIdentity = require('./identities/addIdentity');   
-    this.removeIdentity = require('./identities/removeIdentity');
+    this.removeIdentity = require('./identities/removeIdentity')({ Bluebus: Bluebus, Global: Global });
 
     this.init = require('./initialization/init');
     this.isInitialized = require('./initialization/isInitialized');
@@ -46,5 +51,3 @@ var NewtonAdapter = new function(){
     this.resetPassword = require('./user/resetPassword');
     this.userDelete = require('./user/userDelete');    
 };
-
-module.exports = NewtonAdapter;

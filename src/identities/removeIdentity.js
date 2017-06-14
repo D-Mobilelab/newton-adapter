@@ -1,9 +1,6 @@
 /* eslint-env browser */
 /* global Newton */
 var Promise = require('promise-polyfill');
-var Bluebus = require('bluebus');
-var Global = require('../global');
-
 /**
 * @ngdoc function
 * @name removeIdentity
@@ -29,51 +26,53 @@ var Global = require('../global');
 *   });
 * </pre>
 */
-module.exports = function(options){
-    return new Promise(function(resolve, reject){
-        Bluebus.bind('login', function(){
-            if(options.type){
-                Global.newtonInstance.getIdentityManager().getIdentities(function(identError, identities){
-                    if(identError){
-                        reject(identError);
-                        Global.logger.error('NewtonAdapter', 'removeIdentity', 'getIdentities failed', identError);
-                    } else {
-                        Global.logger.log('NewtonAdapter', 'removeIdentity', 'getIdentities success', options, identities);
-                        if(identities.length < 2){
-                            reject('it\'s not possible remove unique identity');
-                            Global.logger.error('NewtonAdapter', 'removeIdentity', 'it\'s not possible remove unique identity');
-                        } else {
-                            for(var i = 0, goFoward = true; i < identities.length && goFoward; i++){
-                                if (options.type === identities[i].getType()){
-                                    goFoward = false;
-                                    identities[i].delete(function(deleteError){
-                                        if(deleteError){
-                                            reject(deleteError);
-                                            Global.logger.error('NewtonAdapter', 'removeIdentity', 'delete failed', deleteError);
-                                        } else {
-                                            resolve();
-                                            Global.logger.log('NewtonAdapter', 'removeIdentity', 'delete success');
+module.exports = function(deps){
+    return function(options){
+            return new Promise(function(resolve, reject){
+                deps.Bluebus.bind('login', function(){
+                    if(options.type){
+                        deps.Global.newtonInstance.getIdentityManager().getIdentities(function(identError, identities){
+                            if(identError){
+                                reject(identError);
+                                deps.Global.logger.error('NewtonAdapter', 'removeIdentity', 'getIdentities failed', identError);
+                            } else {
+                                deps.Global.logger.log('NewtonAdapter', 'removeIdentity', 'getIdentities success', options, identities);
+                                if(identities.length < 2){
+                                    reject('it\'s not possible remove unique identity');
+                                    deps.Global.logger.error('NewtonAdapter', 'removeIdentity', 'it\'s not possible remove unique identity');
+                                } else {
+                                    for(var i = 0; i < identities.length; i++) {
+                                        if (options.type === identities[i].getType()){                                        
+                                            identities[i].delete(function(deleteError){
+                                                if(deleteError){
+                                                    reject(deleteError);
+                                                    deps.Global.logger.error('NewtonAdapter', 'removeIdentity', 'delete failed', deleteError);
+                                                } else {
+                                                    resolve(true);
+                                                    deps.Global.logger.log('NewtonAdapter', 'removeIdentity', 'delete success');
+                                                }
+                                            });
+                                            break;
                                         }
-                                    });
+                                    }
                                 }
                             }
-                        }
-                    }
-                });
-            } else if(options.identity) {
-                options.identity.delete(function(deleteError){
-                    if(deleteError){
-                        reject(deleteError);
-                        Global.logger.error('NewtonAdapter', 'removeIdentity', 'delete failed', deleteError);
+                        });
+                    } else if(options.identity) {
+                        options.identity.delete(function(deleteError){
+                            if(deleteError){
+                                reject(deleteError);
+                                deps.Global.logger.error('NewtonAdapter', 'removeIdentity', 'delete failed', deleteError);
+                            } else {
+                                resolve();
+                                deps.Global.logger.log('NewtonAdapter', 'removeIdentity', 'delete success');
+                            }
+                        });
                     } else {
-                        resolve();
-                        Global.logger.log('NewtonAdapter', 'removeIdentity', 'delete success');
+                        reject('removeIdentity requires type or identity object');
+                        deps.Global.logger.error('NewtonAdapter', 'removeIdentity', 'removeIdentity requires type or identity object');
                     }
                 });
-            } else {
-                reject('removeIdentity requires type or identity object');
-                Global.logger.error('NewtonAdapter', 'removeIdentity', 'removeIdentity requires type or identity object');
-            }
-        });
-    });
+            });
+    }
 };

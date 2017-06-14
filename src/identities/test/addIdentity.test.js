@@ -13,19 +13,15 @@ describe('identity/addIdentity', function(){
             enable: true,
             waitLogin: false
         }).then(function(){
-            NewtonAdapter.login({
+            return NewtonAdapter.login({
                 logged: true,
                 type: 'custom',
                 userId: 'userId',
                 userProperties: { id: 'id' }
-            }).then(function(){
-                done();
-            }).catch(function(reason){
-                done.fail(reason);
             });
-        }).catch(function(reason){
-            done.fail(reason);
-        });
+        }).then(function(){
+            done();
+        }).catch(done.fail);
     });
 
     afterEach(function(){
@@ -47,8 +43,6 @@ describe('identity/addIdentity', function(){
             expect(NewtonMock.getAddOAuthIdentityFlow).toHaveBeenCalled();
             expect(NewtonMock.startAddIdentityFlow).toHaveBeenCalled();
             done();
-        }).catch(function(reason){
-            done.fail(reason);
-        });
+        }).catch(done.fail);
     });
 });
