@@ -100,4 +100,30 @@ describe('identity/removeIdentity', function() {
             
         Bluebus.trigger('login');
     });
+
+    it('should reject if not match', function(done) {
+        
+        /** mock delete identity method */
+        var identity = new Identity('oauth');
+        identity.delete = function(fn){
+            fn(new Error('Error while deleting'));
+        }
+
+        newtonMockInstance.getIdentities = function(fn) {
+            fn(null, [new Identity('oauth'), new Identity('msisdn')]);
+        };
+
+        removeIdentity({ type: 'not_exists' })
+            .then(function(result) {
+                done.fail(result);
+            }).catch(function(err) {
+                expect(err).toBeDefined();
+                expect(err.code).toEqual(404);
+                expect(err.name).toEqual('NotFound');
+                expect(err.message).toEqual('no identities for not_exists');
+                done();
+            });
+            
+        Bluebus.trigger('login');
+    });
 });
