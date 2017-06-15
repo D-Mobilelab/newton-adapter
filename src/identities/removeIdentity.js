@@ -55,7 +55,7 @@ module.exports = function(deps){
                                         break;
                                     }
                                 }
-                                    /** If we're here there was no match */
+                                /** If we're here there was no match */
                                 var err = new Error('no identities for ' + options.type);
                                 err.code = 404;
                                 err.name = 'NotFound';
@@ -65,11 +65,11 @@ module.exports = function(deps){
                     });
                 } else if(options.identity) {
                     options.identity.delete(function(deleteError){
-                        if(deleteError){
+                        if(deleteError) {
                             reject(deleteError);
                             deps.Global.logger.error('NewtonAdapter', 'removeIdentity', 'delete failed', deleteError);
                         } else {
-                            resolve();
+                            resolve(true);
                             deps.Global.logger.log('NewtonAdapter', 'removeIdentity', 'delete success');
                         }
                     });

@@ -126,4 +126,43 @@ describe('identity/removeIdentity', function() {
             
         Bluebus.trigger('login');
     });
+
+    it('should remove identity if an identity object is passed', function(done) {
+        
+        var identityOauth = new Identity('oauth');
+        var identityMsisdn = new Identity('msisdn');       
+
+        newtonMockInstance.getIdentities = function(fn) {
+            fn(null, [identityOauth, identityMsisdn]);
+        };
+
+        removeIdentity({ identity: identityOauth })
+            .then(function(result) {
+                expect(result).toEqual(true);
+                done();
+            }).catch(function(err) {                
+                done();
+            });
+            
+        Bluebus.trigger('login');
+    });
+
+    it('should reject if an error occur', function(done) {
+        
+        var identityOauth = new Identity('oauth');
+        var identityMsisdn = new Identity('msisdn');       
+        identityOauth.delete = function(fn){ fn(new Error("error removing id")) };
+
+        newtonMockInstance.getIdentities = function(fn) {
+            fn(null, [identityOauth, identityMsisdn]);
+        };
+
+        removeIdentity({ identity: identityOauth })
+            .then(done.fail).catch(function(err) {
+                expect(err.message).toEqual('error removing id')
+                done();
+            });
+            
+        Bluebus.trigger('login');
+    });
 });
