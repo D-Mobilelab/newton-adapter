@@ -46,7 +46,7 @@ module.exports = {
             return obj;
         }
     },
-    _reset:function() {
+    _reset: function() {
         calls = [];
         logged = false;
     },
