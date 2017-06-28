@@ -8,29 +8,30 @@ module.exports = function(config) {
 
         frameworks: ['jasmine'],
         
-        files: ['test/spec/*.js'],
+        files: ['src/**/*.test.js'],
 
         browsers: ['PhantomJS'],
 
         reporters: ['spec', 'coverage-istanbul'],
 
         preprocessors: {
-            'test/spec/*.js': ['webpack']
+            'src/**/*.test.js': ['webpack']
         },
 
         coverageIstanbulReporter: {
             reports: ['text-summary', 'lcov'],
             fixWebpackSourcePaths: true,
             type: 'lcov',
-            dir: 'test/'
+            dir: 'test/report/'
         },
 
         webpack: {
             module: {
                 rules: [
                     {
-                        test: /main\.js$/,
+                        test: /\.js$/,
                         include: path.resolve('src/'),
+                        exclude: /\.test\.js$/,
                         loader: 'istanbul-instrumenter-loader'
                     }
                 ]

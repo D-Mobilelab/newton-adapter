@@ -27,17 +27,17 @@ gulp.task('test', ['test:single'], function(){
     if(argv.watch){
         browsersync({
             port: 3000,
-            startPath: '/test/lcov-report',
+            startPath: '/test/report/lcov-report',
             server: {
                 baseDir: '.'
             }
         });
-        gulp.watch(['src/**/*.js', 'test/spec/*.js', 'karma.conf.js'], ['test:single', browsersync.reload]);
+        gulp.watch(['src/**/*.js', 'karma.conf.js', '!report/**/*.*'], ['test:single', browsersync.reload]);
     }
 });
 
 gulp.task('coveralls', function(){
-    gulp.src('test/lcov.info')
+    gulp.src('test/report/lcov.info')
     .pipe(coveralls());
 });
 
@@ -55,7 +55,7 @@ gulp.task('webpack', function(){
 });
 
 gulp.task('doc:single', function(){
-    gulp.src('src/main.js')
+    gulp.src('src/**/*.js')
     .pipe(ngdocs.process({
         html5Mode: false,
         startPage: '/api/NewtonAdapter'
@@ -85,6 +85,6 @@ gulp.task('build', ['build:single'], function(){
             startPath: '/examples/',
             server: {}
         });
-        gulp.watch(['examples/**/*.js', 'src/**/*.js', 'test/**/*.test.js'], ['build:single', browsersync.reload]);
+        gulp.watch(['examples/**/*.js', 'src/**/*.js'], ['build:single', browsersync.reload]);
     }
 });

@@ -58,6 +58,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* global Newton */
 	var Promise = __webpack_require__(1);
 	var Bluebus = __webpack_require__(5);
+	var Global = __webpack_require__(6);
+	var Utility = __webpack_require__(7);
 
 	/**
 	* @ngdoc object
@@ -68,35 +70,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	*/
 	var NewtonAdapter = new function(){
 
-	    var newtonversion, newtonInstance, logger, beforeInit;
-
-	    var createSimpleObject = function(object){
-	        try {
-	            var newObject = object || {};
-	            return Newton.SimpleObject.fromJSONObject(newObject);
-	        } catch(err){
-	            logger.warn('NewtonAdapter', 'Newton.SimpleObject.fromJSONObject is failed', err);
-	            return Newton.SimpleObject.fromJSONObject({});
-	        }
-
-	    };
-
-	    (beforeInit = function(){
-	        newtonversion = 2;
-	        newtonInstance = false;
-	        logger = {
-	            debug: function(){},
-	            log: function(){},
-	            info: function(){},
-	            warn: function(){},
-	            error: function(){}
-	        };
-	        Bluebus.cleanAll();
-	    })();
-
 	    // USE ONLY FOR TEST!
 	    this.resetForTest = function(){
-	        beforeInit();
+	        Global.cleanAll();
+	        Bluebus.cleanAll();
 	    };
 
 	    /**
@@ -142,34 +119,34 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return new Promise(function(resolve, reject){
 	            // get logger and newtonversion
 	            if(options.logger){
-	                logger = options.logger;
+	                Global.logger = options.logger;
 	            }
 	            if(options.newtonversion){
-	                newtonversion = options.newtonversion;
+	                Global.newtonversion = options.newtonversion;
 	            }
 
 	            // check if Newton exists
 	            if(!Newton){
 	                reject('Newton not exist');
-	                logger.error('NewtonAdapter', 'Init', 'Newton not exist');
+	                Global.logger.error('NewtonAdapter', 'Init', 'Newton not exist');
 	            } else {
 
 	                var initNewton = function(){
 	                    // init Newton
-	                    if(newtonversion === 1){
-	                        newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId);
+	                    if(Global.newtonversion === 1){
+	                        Global.newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId);
 	                        if(options.properties){
-	                            logger.warn('NewtonAdapter', 'Init', 'Newton v.1 not support properties on init method');
+	                            Global.logger.warn('NewtonAdapter', 'Init', 'Newton v.1 not support properties on init method');
 	                        }
 	                    } else {
-	                        var args = [options.secretId, createSimpleObject(options.properties)];
+	                        var args = [options.secretId, Utility.createSimpleObject(options.properties)];
 	                        if (options.pushCallback) { args.push(options.pushCallback); }
-	                        newtonInstance = Newton.getSharedInstanceWithConfig.apply(null, args);
+	                        Global.newtonInstance = Newton.getSharedInstanceWithConfig.apply(null, args);
 	                    }
 
 	                    // trigger init
 	                    resolve(true);
-	                    logger.log('NewtonAdapter', 'Init', options);
+	                    Global.logger.log('NewtonAdapter', 'Init', options);
 	                    Bluebus.trigger('init');
 
 	                    // trigger login, if waitLogin is false
@@ -180,7 +157,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	                if(!options.enable){
 	                    resolve(false);
-	                    logger.warn('NewtonAdapter', 'Init', 'Newton not enabled');
+	                    Global.logger.warn('NewtonAdapter', 'Init', 'Newton not enabled');
 	                } else {
 	                    if(options.waitDeviceReady){
 	                        document.addEventListener('deviceready', initNewton, false);
@@ -243,73 +220,73 @@ return /******/ (function(modules) { // webpackBootstrap
 	            Bluebus.bind('init', function(){
 
 	                if(options.callback){
-	                    logger.warn('NewtonAdapter', 'Login', 'Callback method for login is not supported, use promise-then');
+	                    Global.logger.warn('NewtonAdapter', 'Login', 'Callback method for login is not supported, use promise-then');
 	                }
 
 	                var callCallback = function(err){
 	                    if(err){
 	                        reject(err);
-	                        logger.error('NewtonAdapter', 'Login', err);
+	                        Global.logger.error('NewtonAdapter', 'Login', err);
 	                    } else {
 	                        resolve();
-	                        logger.log('NewtonAdapter', 'Login', options);
+	                        Global.logger.log('NewtonAdapter', 'Login', options);
 	                        Bluebus.trigger('login');
 	                    }
 	                };
 
-	                if(!options.logged || newtonInstance.isUserLogged()){
+	                if(!options.logged || Global.newtonInstance.isUserLogged()){
 	                    callCallback();
 	                } else {
 	                    var loginType = options.type ? options.type : 'custom';
 
 	                    // newton version 1
-	                    if(newtonversion === 1){
+	                    if(Global.newtonversion === 1){
 	                        if(loginType === 'custom'){
 	                            if(options.userId){
-	                                newtonInstance.getLoginBuilder()
-	                                .setLoginData(createSimpleObject(options.userProperties))
+	                                Global.newtonInstance.getLoginBuilder()
+	                                .setLoginData(Utility.createSimpleObject(options.userProperties))
 	                                .setCallback(callCallback)
 	                                .setCustomID(options.userId)
 	                                .getCustomFlow()
 	                                .startLoginFlow();
 	                            } else {
 	                                reject('Custom login requires userId');
-	                                logger.error('NewtonAdapter', 'Login', 'Custom login requires userId');
+	                                Global.logger.error('NewtonAdapter', 'Login', 'Custom login requires userId');
 	                            }
 	                        } else {
 	                            reject('Newton v.1 not support this type of login');
-	                            logger.error('NewtonAdapter', 'Login', 'Newton v.1 not support this type of login');
+	                            Global.logger.error('NewtonAdapter', 'Login', 'Newton v.1 not support this type of login');
 	                        }
 
 	                    // newton version 2
 	                    } else {
 	                        if(loginType === 'custom'){
 	                            if(options.userId){
-	                                newtonInstance.getLoginBuilder()
-	                                .setCustomData(createSimpleObject(options.userProperties))
+	                                Global.newtonInstance.getLoginBuilder()
+	                                .setCustomData(Utility.createSimpleObject(options.userProperties))
 	                                .setOnFlowCompleteCallback(callCallback)
 	                                .setCustomID(options.userId)
 	                                .getCustomLoginFlow()
 	                                .startLoginFlow();
 	                            } else {
 	                                reject('Custom login requires userId');
-	                                logger.error('NewtonAdapter', 'Login', 'Custom login requires userId');
+	                                Global.logger.error('NewtonAdapter', 'Login', 'Custom login requires userId');
 	                            }
 	                        } else if(loginType === 'external'){
 	                            if(options.userId){
-	                                newtonInstance.getLoginBuilder()
-	                                .setCustomData(createSimpleObject(options.userProperties))
+	                                Global.newtonInstance.getLoginBuilder()
+	                                .setCustomData(Utility.createSimpleObject(options.userProperties))
 	                                .setOnFlowCompleteCallback(callCallback)
 	                                .setExternalID(options.userId)
 	                                .getExternalLoginFlow()
 	                                .startLoginFlow();
 	                            } else {
 	                                reject('External login requires userId');
-	                                logger.error('NewtonAdapter', 'Login', 'External login requires userId');
+	                                Global.logger.error('NewtonAdapter', 'Login', 'External login requires userId');
 	                            }
 	                        } else if(loginType === 'msisdn'){
 	                            if(options.msisdn && options.pin){
-	                                newtonInstance.getLoginBuilder()
+	                                Global.newtonInstance.getLoginBuilder()
 	                                .setOnFlowCompleteCallback(callCallback)
 	                                .setMSISDN(options.msisdn)
 	                                .setPIN(options.pin)
@@ -317,11 +294,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	                                .startLoginFlow();
 	                            } else {
 	                                reject('Msisdn login requires msisdn and pin');
-	                                logger.error('NewtonAdapter', 'Login', 'Msisdn login requires msisdn and pin');
+	                                Global.logger.error('NewtonAdapter', 'Login', 'Msisdn login requires msisdn and pin');
 	                            }
 	                        } else if(loginType === 'generic'){
 	                            if(options.username && options.password){
-	                                newtonInstance.getLoginBuilder()
+	                                Global.newtonInstance.getLoginBuilder()
 	                                .setOnFlowCompleteCallback(callCallback)
 	                                .setUsername(options.username)
 	                                .setPassword(options.password)
@@ -329,22 +306,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	                                .startLoginFlow();
 	                            } else {
 	                                reject('Generic login requires email and password');
-	                                logger.error('NewtonAdapter', 'Login', 'Generic login requires email and password');
+	                                Global.logger.error('NewtonAdapter', 'Login', 'Generic login requires email and password');
 	                            }
 	                        } else if(loginType === 'autologin'){
 	                            if(options.domain){
-	                                newtonInstance.getLoginBuilder()
+	                                Global.newtonInstance.getLoginBuilder()
 	                                .setOnFlowCompleteCallback(callCallback)
 	                                .__setDomain(options.domain)
 	                                .getMSISDNURLoginFlow()
 	                                .startLoginFlow();
 	                            } else {
 	                                reject('Autologin requires domain');
-	                                logger.error('NewtonAdapter', 'Login', 'Autologin requires domain');
+	                                Global.logger.error('NewtonAdapter', 'Login', 'Autologin requires domain');
 	                            }
 	                        } else if(loginType === 'oauth'){
 	                            if(options.provider && options.access_token){
-	                                newtonInstance.getLoginBuilder()
+	                                Global.newtonInstance.getLoginBuilder()
 	                                .setOAuthProvider(options.provider)
 	                                .setAccessToken(options.access_token)
 	                                .setOnFlowCompleteCallback(callCallback)
@@ -352,11 +329,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	                                .startLoginFlow();
 	                            } else {
 	                                reject('OAuth login requires provider and access_token');
-	                                logger.error('NewtonAdapter', 'Login', 'OAuth login requires provider and access_token');
+	                                Global.logger.error('NewtonAdapter', 'Login', 'OAuth login requires provider and access_token');
 	                            }
 	                        } else {
 	                            reject('This type of login is unknown');
-	                            logger.error('NewtonAdapter', 'Login', 'This type of login is unknown');
+	                            Global.logger.error('NewtonAdapter', 'Login', 'This type of login is unknown');
 	                        }
 	                    }
 	                }
@@ -385,13 +362,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.logout = function(){
 	        return new Promise(function(resolve){
 	            Bluebus.bind('init', function(){
-	                if(newtonInstance.isUserLogged()){
-	                    newtonInstance.userLogout();
+	                if(Global.newtonInstance.isUserLogged()){
+	                    Global.newtonInstance.userLogout();
 	                    resolve(true);
-	                    logger.log('NewtonAdapter', 'Logout');
+	                    Global.logger.log('NewtonAdapter', 'Logout');
 	                } else {
 	                    resolve(false);
-	                    logger.warn('NewtonAdapter', 'Logout', 'User is already unlogged');
+	                    Global.logger.warn('NewtonAdapter', 'Logout', 'User is already unlogged');
 	                }
 	            });
 	        });
@@ -431,17 +408,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return new Promise(function(resolve, reject){
 	            Bluebus.bind('login', function(){
 	                var score = options.score ? options.score : 1;
-	                if(newtonversion === 1){
+	                if(Global.newtonversion === 1){
 	                    reject('Newton v.1 not support rank content');
-	                    logger.error('NewtonAdapter', 'rankContent', 'Newton v.1 not support rank content');
+	                    Global.logger.error('NewtonAdapter', 'rankContent', 'Newton v.1 not support rank content');
 	                } else {
 	                    if(options.contentId && options.scope){
-	                        newtonInstance.rankContent(options.contentId, options.scope, score);
+	                        Global.newtonInstance.rankContent(options.contentId, options.scope, score);
 	                        resolve();
-	                        logger.log('NewtonAdapter', 'rankContent', options);
+	                        Global.logger.log('NewtonAdapter', 'rankContent', options);
 	                    } else {
 	                        reject('rankContent requires scope and contentId');
-	                        logger.error('NewtonAdapter', 'rankContent', 'rankContent requires scope and contentId');
+	                        Global.logger.error('NewtonAdapter', 'rankContent', 'rankContent requires scope and contentId');
 	                    }
 	                }
 	            });
@@ -487,16 +464,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return new Promise(function(resolve, reject){
 	            Bluebus.bind('login', function(){
 	                if(options.name){
-	                    newtonInstance.sendEvent(options.name, createSimpleObject(options.properties));
+	                    Global.newtonInstance.sendEvent(options.name, Utility.createSimpleObject(options.properties));
 	                    resolve();
-	                    logger.log('NewtonAdapter', 'trackEvent', options);
+	                    Global.logger.log('NewtonAdapter', 'trackEvent', options);
 
 	                    if(options.rank){
 	                        NewtonAdapter.rankContent(options.rank);
 	                    }
 	                } else {
 	                    reject('trackEvent requires name');
-	                    logger.error('NewtonAdapter', 'trackEvent', 'trackEvent requires name');
+	                    Global.logger.error('NewtonAdapter', 'trackEvent', 'trackEvent requires name');
 	                }
 	            });
 	        });
@@ -578,12 +555,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return new Promise(function(resolve, reject){
 	            Bluebus.bind('login', function(){
 	                if(options.name){
-	                    newtonInstance.timedEventStart(options.name, createSimpleObject(options.properties));
+	                    Global.newtonInstance.timedEventStart(options.name, Utility.createSimpleObject(options.properties));
 	                    resolve();
-	                    logger.log('NewtonAdapter', 'startHeartbeat', options);
+	                    Global.logger.log('NewtonAdapter', 'startHeartbeat', options);
 	                } else {
 	                    reject('startHeartbeat requires name');
-	                    logger.error('NewtonAdapter', 'startHeartbeat', 'startHeartbeat requires name');
+	                    Global.logger.error('NewtonAdapter', 'startHeartbeat', 'startHeartbeat requires name');
 	                }
 	            });
 	        });
@@ -623,12 +600,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return new Promise(function(resolve, reject){
 	            Bluebus.bind('login', function(){
 	                if(options.name){
-	                    newtonInstance.timedEventStop(options.name, createSimpleObject(options.properties));
+	                    Global.newtonInstance.timedEventStop(options.name, Utility.createSimpleObject(options.properties));
 	                    resolve();
-	                    logger.log('NewtonAdapter', 'startHeartbeat', options);
+	                    Global.logger.log('NewtonAdapter', 'startHeartbeat', options);
 	                } else {
 	                    reject('startHeartbeat requires name');
-	                    logger.error('NewtonAdapter', 'startHeartbeat', 'startHeartbeat requires name');
+	                    Global.logger.error('NewtonAdapter', 'startHeartbeat', 'startHeartbeat requires name');
 	                }
 	            });
 	        });
@@ -651,8 +628,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    * </pre>
 	    */
 	    this.isUserLogged = function(){
-	        if(newtonInstance){
-	            return newtonInstance.isUserLogged();
+	        if(Global.newtonInstance){
+	            return Global.newtonInstance.isUserLogged();
 	        } else {
 	            return false;
 	        }
@@ -695,8 +672,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    * </pre>
 	    */
 	    this.getUserToken = function(){
-	        if(newtonInstance){
-	            return newtonInstance.getUserToken();
+	        if(Global.newtonInstance){
+	            return Global.newtonInstance.getUserToken();
 	        } else {
 	            return false;
 	        }
@@ -720,13 +697,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.getIdentities = function(){
 	        return new Promise(function(resolve, reject){
 	            Bluebus.bind('login', function(){
-	                newtonInstance.getIdentityManager().getIdentities(function(err, identities){
+	                Global.newtonInstance.getIdentityManager().getIdentities(function(err, identities){
 	                    if(err){
 	                        reject(err);
-	                        logger.error('NewtonAdapter', 'getIdentities', err);
+	                        Global.logger.error('NewtonAdapter', 'getIdentities', err);
 	                    } else {
 	                        resolve(identities);
-	                        logger.log('NewtonAdapter', 'getIdentities', identities);
+	                        Global.logger.log('NewtonAdapter', 'getIdentities', identities);
 	                    }
 	                });
 	            });
@@ -752,8 +729,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    * </pre>
 	    */
 	    this.setUserStateChangeListener = function(callback){
-	        if(newtonInstance && callback){
-	            newtonInstance.setUserStateChangeListener(callback);
+	        if(Global.newtonInstance && callback){
+	            Global.newtonInstance.setUserStateChangeListener(callback);
 	            return true;
 	        } else {
 	            return false;
@@ -779,8 +756,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    * </pre>
 	    */
 	    this.finalizeLoginFlow = function(callback){
-	        if(newtonInstance && callback){
-	            newtonInstance.finalizeLoginFlow(callback);
+	        if(Global.newtonInstance && callback){
+	            Global.newtonInstance.finalizeLoginFlow(callback);
 	            return true;
 	        } else {
 	            return false;
@@ -809,7 +786,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.autoLogin = function(options){
 	        var instance;
 	        if(options.waitingUrl){
-	            instance = newtonInstance.getLoginBuilder();
+	            instance = Global.newtonInstance.getLoginBuilder();
 	            if(options.subscribeUrl) {
 	                instance.setSubscribeUrl(options.subscribeUrl);
 	            }
@@ -817,7 +794,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            .getMSISDNURLoginFlow()
 	            .startLoginFlow();
 	        } else {
-	            logger.error('NewtonAdapter', 'autoLogin', 'autoLogin requires waiting url');
+	            Global.logger.error('NewtonAdapter', 'autoLogin', 'autoLogin requires waiting url');
 	        }
 	    };
 
@@ -848,13 +825,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.confirmEmailAndLogin = function(options){
 	        return new Promise(function(resolve, reject){
 	            Bluebus.bind('init', function(){
-	                newtonInstance.getLoginBuilder().setOnFlowCompleteCallback(function(err) {
+	                Global.newtonInstance.getLoginBuilder().setOnFlowCompleteCallback(function(err) {
 	                    if(err){
 	                        reject(err);
-	                        logger.error('NewtonAdapter', 'confirmEmailAndLogin', err);
+	                        Global.logger.error('NewtonAdapter', 'confirmEmailAndLogin', err);
 	                    } else {
 	                        resolve();
-	                        logger.log('NewtonAdapter', 'confirmEmailAndLogin', options);
+	                        Global.logger.log('NewtonAdapter', 'confirmEmailAndLogin', options);
 	                    }
 	                })
 	                .setEmailToken(options.token)
@@ -890,13 +867,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.confirmEmail = function(options){
 	        return new Promise(function(resolve, reject){
 	            Bluebus.bind('init', function(){
-	                newtonInstance.confirmEmail(options.token, function(err) {
+	                Global.newtonInstance.confirmEmail(options.token, function(err) {
 	                    if(err){
 	                        reject(err);
-	                        logger.error('NewtonAdapter', 'confirmEmail', err);
+	                        Global.logger.error('NewtonAdapter', 'confirmEmail', err);
 	                    } else {
 	                        resolve();
-	                        logger.log('NewtonAdapter', 'confirmEmail', options);
+	                        Global.logger.log('NewtonAdapter', 'confirmEmail', options);
 	                    }
 	                });
 	            });
@@ -932,17 +909,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return new Promise(function(resolve, reject){
 	            Bluebus.bind('init', function(){
 	                if(options.token && !!options.password){
-	                    newtonInstance.resetPassword(options.token, options.password, function(err){
+	                    Global.newtonInstance.resetPassword(options.token, options.password, function(err){
 	                        if(err){
 	                            reject(err);
-	                            logger.error('NewtonAdapter', 'resetPassword', err);
+	                            Global.logger.error('NewtonAdapter', 'resetPassword', err);
 	                        } else {
 	                            resolve();
-	                            logger.log('NewtonAdapter', 'resetPassword', options);
+	                            Global.logger.log('NewtonAdapter', 'resetPassword', options);
 	                        }
 	                    });
 	                } else {
-	                    logger.error('NewtonAdapter', 'resetPassword', 'resetPassword requires password and token');
+	                    Global.logger.error('NewtonAdapter', 'resetPassword', 'resetPassword requires password and token');
 	                    reject('resetPassword requires password and token');
 	                }
 	            });
@@ -987,58 +964,58 @@ return /******/ (function(modules) { // webpackBootstrap
 	                var identityType = options.type ? options.type : 'oauth';
 	                if(identityType === 'oauth'){
 	                    if(options.provider && options.access_token){
-	                        newtonInstance.getIdentityManager()
+	                        Global.newtonInstance.getIdentityManager()
 	                        .getIdentityBuilder()
 	                        .setOAuthProvider(options.provider)
 	                        .setAccessToken(options.access_token)
 	                        .setOnFlowCompleteCallback(function(err){
 	                            if(err){
 	                                reject(err);
-	                                logger.error('NewtonAdapter', 'addIdentity', 'Oauth', err);
+	                                Global.logger.error('NewtonAdapter', 'addIdentity', 'Oauth', err);
 	                            } else {
 	                                resolve();
-	                                logger.log('NewtonAdapter', 'addIdentity', 'Oauth', options);
+	                                Global.logger.log('NewtonAdapter', 'addIdentity', 'Oauth', options);
 	                            }
 	                        })
 	                        .getAddOAuthIdentityFlow()
 	                        .startAddIdentityFlow();
 	                    } else {
 	                        reject('addIdentity outh requires provider and access_token');
-	                        logger.error('NewtonAdapter', 'addIdentity', 'Oauth', 'addIdentity oauth requires provider and access_token');
+	                        Global.logger.error('NewtonAdapter', 'addIdentity', 'Oauth', 'addIdentity oauth requires provider and access_token');
 	                    }
 	                } else if(identityType === 'email'){
 	                    if(options.email && options.password){
-	                        newtonInstance.getIdentityManager()
+	                        Global.newtonInstance.getIdentityManager()
 	                        .getIdentityBuilder()
 	                        .setEmail(options.email)
 	                        .setPassword(options.password)
-	                        .setProductEmailParams(createSimpleObject(options.params))
+	                        .setProductEmailParams(Utility.createSimpleObject(options.params))
 	                        .setOnFlowCompleteCallback(function(err){
 	                            if(err){
 	                                reject(err);
-	                                logger.error('NewtonAdapter', 'addIdentity', 'Email', err);
+	                                Global.logger.error('NewtonAdapter', 'addIdentity', 'Email', err);
 	                            } else {
 	                                resolve();
-	                                logger.log('NewtonAdapter', 'addIdentity', 'Email', options);
+	                                Global.logger.log('NewtonAdapter', 'addIdentity', 'Email', options);
 	                            }
 	                        })
 	                        .getAddEmailIdentityFlow()
 	                        .startAddIdentityFlow();
 	                    } else {
 	                        reject('addIdentity email, requires email and password');
-	                        logger.error('NewtonAdapter', 'addIdentity', 'Email', 'addIdentity email requires email and password');
+	                        Global.logger.error('NewtonAdapter', 'addIdentity', 'Email', 'addIdentity email requires email and password');
 	                    }
 	                } else if(identityType === 'generic'){
 	                    if(options.smsTemplate){
-	                        newtonInstance.getIdentityManager()
+	                        Global.newtonInstance.getIdentityManager()
 	                        .getIdentityBuilder()
 	                        .setOnFlowCompleteCallback(function(err){
 	                            if(err){
 	                                reject(err);
-	                                logger.error('NewtonAdapter', 'addIdentity', 'Generic', err);
+	                                Global.logger.error('NewtonAdapter', 'addIdentity', 'Generic', err);
 	                            } else {
 	                                resolve();
-	                                logger.log('NewtonAdapter', 'addIdentity', 'Generic', options);
+	                                Global.logger.log('NewtonAdapter', 'addIdentity', 'Generic', options);
 	                            }
 	                        })
 	                        .setSMSTemplate(options.smsTemplate)
@@ -1046,11 +1023,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        .startAddIdentityFlow();
 	                    } else {
 	                        reject('addIdentity generic, requires smsTemplate');
-	                        logger.error('NewtonAdapter', 'addIdentity', 'Generic', 'addIdentity generic requires smsTemplate');
+	                        Global.logger.error('NewtonAdapter', 'addIdentity', 'Generic', 'addIdentity generic requires smsTemplate');
 	                    }
 	                } else {
 	                    reject('This type of add identity is not supported');
-	                    logger.error('NewtonAdapter', 'addIdentity', 'This type of add identity is not supported');
+	                    Global.logger.error('NewtonAdapter', 'addIdentity', 'This type of add identity is not supported');
 	                }
 	            });
 	        });
@@ -1085,15 +1062,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return new Promise(function(resolve, reject){
 	            Bluebus.bind('login', function(){
 	                if(options.type){
-	                    newtonInstance.getIdentityManager().getIdentities(function(identError, identities){
+	                    Global.newtonInstance.getIdentityManager().getIdentities(function(identError, identities){
 	                        if(identError){
 	                            reject(identError);
-	                            logger.error('NewtonAdapter', 'removeIdentity', 'getIdentities failed', identError);
+	                            Global.logger.error('NewtonAdapter', 'removeIdentity', 'getIdentities failed', identError);
 	                        } else {
-	                            logger.log('NewtonAdapter', 'removeIdentity', 'getIdentities success', options, identities);
+	                            Global.logger.log('NewtonAdapter', 'removeIdentity', 'getIdentities success', options, identities);
 	                            if(identities.length < 2){
 	                                reject('it\'s not possible remove unique identity');
-	                                logger.error('NewtonAdapter', 'removeIdentity', 'it\'s not possible remove unique identity');
+	                                Global.logger.error('NewtonAdapter', 'removeIdentity', 'it\'s not possible remove unique identity');
 	                            } else {
 	                                for(var i = 0, goFoward = true; i < identities.length && goFoward; i++){
 	                                    if (options.type === identities[i].getType()){
@@ -1101,10 +1078,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                                        identities[i].delete(function(deleteError){
 	                                            if(deleteError){
 	                                                reject(deleteError);
-	                                                logger.error('NewtonAdapter', 'removeIdentity', 'delete failed', deleteError);
+	                                                Global.logger.error('NewtonAdapter', 'removeIdentity', 'delete failed', deleteError);
 	                                            } else {
 	                                                resolve();
-	                                                logger.log('NewtonAdapter', 'removeIdentity', 'delete success');
+	                                                Global.logger.log('NewtonAdapter', 'removeIdentity', 'delete success');
 	                                            }
 	                                        });
 	                                    }
@@ -1116,15 +1093,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    options.identity.delete(function(deleteError){
 	                        if(deleteError){
 	                            reject(deleteError);
-	                            logger.error('NewtonAdapter', 'removeIdentity', 'delete failed', deleteError);
+	                            Global.logger.error('NewtonAdapter', 'removeIdentity', 'delete failed', deleteError);
 	                        } else {
 	                            resolve();
-	                            logger.log('NewtonAdapter', 'removeIdentity', 'delete success');
+	                            Global.logger.log('NewtonAdapter', 'removeIdentity', 'delete success');
 	                        }
 	                    });
 	                } else {
 	                    reject('removeIdentity requires type or identity object');
-	                    logger.error('NewtonAdapter', 'removeIdentity', 'removeIdentity requires type or identity object');
+	                    Global.logger.error('NewtonAdapter', 'removeIdentity', 'removeIdentity requires type or identity object');
 	                }
 	            });
 	        });
@@ -1153,26 +1130,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.userDelete = function(){
 	        return new Promise(function(resolve, reject){
 	            Bluebus.bind('login', function(){
-	                newtonInstance.getIdentityManager().getIdentities(function(identError, identities){
+	                Global.newtonInstance.getIdentityManager().getIdentities(function(identError, identities){
 	                    if(identError){
 	                        reject(identError);
-	                        logger.error('NewtonAdapter', 'userDelete', 'getIdentities failed', identError);
+	                        Global.logger.error('NewtonAdapter', 'userDelete', 'getIdentities failed', identError);
 	                    } else {
-	                        logger.log('NewtonAdapter', 'userDelete', 'getIdentities success', identities);
+	                        Global.logger.log('NewtonAdapter', 'userDelete', 'getIdentities success', identities);
 	                        for(var i = 0, goFoward = true; i < identities.length && goFoward; i++){
 	                            if (identities[i].getType() === 'msisdn'){
 	                                goFoward = false;
 	                                reject('Error on userDelete: please use unsubscribe instead');
-	                                logger.error('NewtonAdapter', 'userDelete', 'Error on userDelete: please use unsubscribe instead');
+	                                Global.logger.error('NewtonAdapter', 'userDelete', 'Error on userDelete: please use unsubscribe instead');
 	                            }
 	                        }
-	                        newtonInstance.getIdentityManager().userDelete(function(deleteError){
+	                        Global.newtonInstance.getIdentityManager().userDelete(function(deleteError){
 	                            if(deleteError){
 	                                reject(deleteError);
-	                                logger.error('NewtonAdapter', 'userDelete', 'delete', deleteError);
+	                                Global.logger.error('NewtonAdapter', 'userDelete', 'delete', deleteError);
 	                            } else {
 	                                resolve();
-	                                logger.log('NewtonAdapter', 'userDelete', identities);
+	                                Global.logger.log('NewtonAdapter', 'userDelete', identities);
 	                            }
 	                        });
 	                    }
@@ -1209,28 +1186,28 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return new Promise(function(resolve, reject){
 	            Bluebus.bind('init', function(){
 	                if(options.msisdn){
-	                    newtonInstance.getLoginBuilder()
+	                    Global.newtonInstance.getLoginBuilder()
 	                    .setOnForgotFlowCallback(function(err){
 	                        if(err){
 	                            reject(err);
-	                            logger.error('NewtonAdapter', 'recoverPassword', err);
+	                            Global.logger.error('NewtonAdapter', 'recoverPassword', err);
 	                        } else {
 	                            resolve();
-	                            logger.log('NewtonAdapter', 'recoverPassword', options);
+	                            Global.logger.log('NewtonAdapter', 'recoverPassword', options);
 	                        }
 	                    })
 	                    .setMSISDN(options.msisdn)
 	                    .getMSISDNPINForgotFlow()
 	                    .startForgotFlow();
 	                } else if(options.email){
-	                    newtonInstance.getLoginBuilder()
+	                    Global.newtonInstance.getLoginBuilder()
 	                    .setOnForgotFlowCallback(function(err){
 	                        if(err){
 	                            reject(err);
-	                            logger.error('NewtonAdapter', 'emailRecoverPassword', err);
+	                            Global.logger.error('NewtonAdapter', 'emailRecoverPassword', err);
 	                        } else {
 	                            resolve();
-	                            logger.log('NewtonAdapter', 'emailRecoverPassword', options);
+	                            Global.logger.log('NewtonAdapter', 'emailRecoverPassword', options);
 	                        }
 	                    })
 	                    .setEmail(options.email)
@@ -1238,7 +1215,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    .startForgotFlow();
 	                } else {
 	                    reject('recoverPassword requires msisdn or email');
-	                    logger.error('NewtonAdapter', 'recoverPassword', 'recoverPassword requires msisdn or email');
+	                    Global.logger.error('NewtonAdapter', 'recoverPassword', 'recoverPassword requires msisdn or email');
 	                }
 	            });
 	        });
@@ -2065,9 +2042,57 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	/* Bluebus 1.1.0 */
 
+/***/ },
+/* 6 */
+/***/ function(module, exports) {
+
+	var Global = {
+	    newtonversion: 2,
+	    newtonInstance: false,
+	    logger: {
+	        debug: function(){},
+	        log: function(){},
+	        info: function(){},
+	        warn: function(){},
+	        error: function(){}
+	    },
+
+	    cleanAll: function(){
+	        this.newtonversion = 2;
+	        this.newtonInstance = false;
+	        this.logger = {
+	            debug: function(){},
+	            log: function(){},
+	            info: function(){},
+	            warn: function(){},
+	            error: function(){}
+	        };
+	    }
+	};
+
+	module.exports = Global;
+
+/***/ },
+/* 7 */
+/***/ function(module, exports) {
+
+	var Utility = {
+	    createSimpleObject: function(object){
+	        try {
+	            var newObject = object || {};
+	            return Newton.SimpleObject.fromJSONObject(newObject);
+	        } catch(err){
+	            Global.logger.warn('NewtonAdapter', 'Newton.SimpleObject.fromJSONObject is failed', err);
+	            return Newton.SimpleObject.fromJSONObject({});
+	        }
+	    }
+	};
+
+	module.exports = Utility;
+
 /***/ }
 /******/ ])
 });
 ;
 
-/* Newton Adapter 2.3.0 */
+/* Newton Adapter temp */

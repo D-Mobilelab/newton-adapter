@@ -1,10 +1,8 @@
-/* global Newton Newton:true */
-/* eslint-env jasmine */
-var NewtonAdapter = require('../../src/main');
-var Mock = require('../mock');
+var NewtonAdapter = require('../../main');
+var Mock = require('../../../test/mock');
 var calls, NewtonMock;
 
-describe('INIT', function(){
+describe('initialization/init', function(){
     beforeEach(function(){
         Mock.boostrap();
         calls = Mock.calls;
@@ -55,6 +53,34 @@ describe('INIT', function(){
         }).catch(function(reason){
             done.fail(reason);
         });
+    });
+
+    it('version 1', function(done){
+        var secretId = '<local_host>';        
+        var customLogger = { 
+            debug: function(){},
+            log: function(){},
+            info: function(){},
+            warn: function(){},
+            error: function(){}
+        };
+        spyOn(customLogger, 'warn');
+        spyOn(customLogger, 'error');
+
+        NewtonAdapter.init({
+            secretId: secretId,
+            enable: true,
+            waitLogin: false,
+            logger: customLogger,
+            properties: { bridgeId: '123123123' },
+            newtonversion: 1
+        }).then(function(){
+            done();
+        }).catch(function(reason){
+            done.fail(reason);
+        });
+
+        expect(Newton.getSharedInstanceWithConfig).toHaveBeenCalledWith(secretId);
     });
 
     describe('with waitLogin: false', function(){

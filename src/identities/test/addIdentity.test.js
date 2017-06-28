@@ -1,10 +1,8 @@
-/* global Newton Newton:true */
-/* eslint-env jasmine */
-var NewtonAdapter = require('../../src/main');
-var Mock = require('../mock');
+var NewtonAdapter = require('../../main');
+var Mock = require('../../../test/mock');
 var NewtonMock;
 
-describe('IDENTITY', function(){
+describe('identity/addIdentity', function(){
     beforeEach(function(done){
         Mock.boostrap();       
         NewtonMock = Mock.NewtonMock;
@@ -15,26 +13,22 @@ describe('IDENTITY', function(){
             enable: true,
             waitLogin: false
         }).then(function(){
-            NewtonAdapter.login({
+            return NewtonAdapter.login({
                 logged: true,
                 type: 'custom',
                 userId: 'userId',
                 userProperties: { id: 'id' }
-            }).then(function(){
-                done();
-            }).catch(function(reason){
-                done.fail(reason);
             });
-        }).catch(function(reason){
-            done.fail(reason);
-        });
+        }).then(function(){
+            done();
+        }).catch(done.fail);
     });
 
     afterEach(function(){
         NewtonAdapter.resetForTest();
     });
 
-    it('ADD IDENTITY', function(done){
+    it('call right methods of Newton', function(done){
         var provider = 'Facebook';
         var accessToken = '1234567890abcedf';
         NewtonAdapter.addIdentity({
@@ -49,8 +43,6 @@ describe('IDENTITY', function(){
             expect(NewtonMock.getAddOAuthIdentityFlow).toHaveBeenCalled();
             expect(NewtonMock.startAddIdentityFlow).toHaveBeenCalled();
             done();
-        }).catch(function(reason){
-            done.fail(reason);
-        });
+        }).catch(done.fail);
     });
 });
