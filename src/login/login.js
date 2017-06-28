@@ -22,7 +22,8 @@ var Utility = require('../utility');
 * @param {string} options.provider required for oauth login
 * @param {string} options.access_token required for oauth login
 * @param {string} options.username required for generic login
-* @param {string} options.password required for generic login
+* @param {string} options.email required for email login
+* @param {string} options.password required for generic and email login
 *
 * @return {Promise} promise will be resolved when login is completed, rejected if failed
 *
@@ -131,6 +132,18 @@ module.exports = function(options){
                             reject('Msisdn login requires msisdn and pin');
                             Global.logger.error('NewtonAdapter', 'Login', 'Msisdn login requires msisdn and pin');
                         }
+                    } else if(loginType === 'email'){
+                        if(options.email && options.password){
+                            Global.newtonInstance.getLoginBuilder()
+                            .setOnFlowCompleteCallback(callCallback)
+                            .setEmail(options.email)
+                            .setPassword(options.password)
+                            .getEmailLoginFlow()
+                            .startLoginFlow();
+                        } else {
+                            reject('Email login requires email and password');
+                            Global.logger.error('NewtonAdapter', 'Login', 'Email login requires email and password');
+                        }
                     } else if(loginType === 'generic'){
                         if(options.username && options.password){
                             Global.newtonInstance.getLoginBuilder()
@@ -140,8 +153,8 @@ module.exports = function(options){
                             .getGenericLoginFlow()
                             .startLoginFlow();
                         } else {
-                            reject('Generic login requires email and password');
-                            Global.logger.error('NewtonAdapter', 'Login', 'Generic login requires email and password');
+                            reject('Generic login requires username and password');
+                            Global.logger.error('NewtonAdapter', 'Login', 'Generic login requires username and password');
                         }
                     } else if(loginType === 'autologin'){
                         if(options.domain){
