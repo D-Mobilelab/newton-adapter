@@ -1,3 +1,9 @@
+# 2.4.0
+- From unique main.js to separeted methods and files
+- Add login method with "email"
+- Test coverage increased
+- Various bug fixes
+
 # 2.3.0
 - Add autologin() method
 

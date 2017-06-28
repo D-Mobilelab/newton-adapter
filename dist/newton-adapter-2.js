@@ -52,14 +52,12 @@ return /******/ (function(modules) { // webpackBootstrap
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
 	/* global Newton */
-	var Promise = __webpack_require__(1);
-	var Bluebus = __webpack_require__(5);
-	var Global = __webpack_require__(6);
-	var Utility = __webpack_require__(7);
+	var Bluebus = __webpack_require__(1);
+	var Global = __webpack_require__(2);
 
 	/**
 	* @ngdoc object
@@ -68,1166 +66,276 @@ return /******/ (function(modules) { // webpackBootstrap
 	* @description
 	* Adapter for Newton sdk to be used in B! web applications
 	*/
-	var NewtonAdapter = new function(){
+	module.exports = new function(){
 
 	    // USE ONLY FOR TEST!
+	    /**
+	     * TODO: if(process.env.NODE_ENV === 'test') {
+	     *  
+	     * }
+	     */
 	    this.resetForTest = function(){
 	        Global.cleanAll();
 	        Bluebus.cleanAll();
 	    };
 
-	    /**
-	    * @ngdoc function
-	    * @name init
-	    * @methodOf NewtonAdapter
-	    *
-	    * @description Initializes Newton sdk and sets up internal configuration.
-	    *
-	    * @param {Object} options configuration object
-	    * @param {string} options.secretId secret id of the application
-	    * @param {boolean} [options.enable=false] enable calls to Newton library
-	    * @param {boolean} [options.waitLogin=false] all Newton calls wait login (logged and unlogged)
-	    * @param {boolean} [options.waitDeviceReady=false] wait deviceReady event to initialize Newton
-	    * @param {integer} [options.newtonversion=2] version of Newton (1 or 2)
-	    * @param {Object} [options.logger=disabled logger] object with debug, log, info, warn, error
-	    * @param {Object} [options.properties={}] custom data for Newton session (not supported for v1)
-	    * @param {Function} [options.pushCallback=null] a function that will be called in hybrid init(wait for device ready must be true)
-	    *
-	    * @return {Promise} promise will be resolved when init is completed, rejected if failed
-	    *
-	    * @example
-	    * <pre>
-	    *   NewtonAdapter.init({
-	    *       secretId: '123456789',
-	    *       enable: true,
-	    *       waitLogin: true,
-	    *       waitDeviceReady: false,
-	    *       newtonversion: 2,
-	    *       logger: console,
-	    *       properties: {
-	    *           hello: 'World'
-	    *       },
-	    *       pushCallback:function(pushData){}
-	    *   }).then(function(enabled){
-	    *       console.log('init success', enabled);
-	    *   }).catch(function(err){
-	    *       console.log('init failed', err);
-	    *   });
-	    * </pre>
-	    */
-	    this.init = function(options){
-	        return new Promise(function(resolve, reject){
-	            // get logger and newtonversion
-	            if(options.logger){
-	                Global.logger = options.logger;
-	            }
-	            if(options.newtonversion){
-	                Global.newtonversion = options.newtonversion;
-	            }
+	    this.startHeartbeat = __webpack_require__(3);
+	    this.stopHeartbeat = __webpack_require__(9);
 
-	            // check if Newton exists
-	            if(!Newton){
-	                reject('Newton not exist');
-	                Global.logger.error('NewtonAdapter', 'Init', 'Newton not exist');
-	            } else {
+	    this.getIdentities = __webpack_require__(10);   
+	    this.addIdentity = __webpack_require__(11);   
+	    this.removeIdentity = __webpack_require__(12)({ Bluebus: Bluebus, Global: Global });
 
-	                var initNewton = function(){
-	                    // init Newton
-	                    if(Global.newtonversion === 1){
-	                        Global.newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId);
-	                        if(options.properties){
-	                            Global.logger.warn('NewtonAdapter', 'Init', 'Newton v.1 not support properties on init method');
-	                        }
-	                    } else {
-	                        var args = [options.secretId, Utility.createSimpleObject(options.properties)];
-	                        if (options.pushCallback) { args.push(options.pushCallback); }
-	                        Global.newtonInstance = Newton.getSharedInstanceWithConfig.apply(null, args);
-	                    }
+	    this.init = __webpack_require__(13);
+	    this.isInitialized = __webpack_require__(14);
 
-	                    // trigger init
-	                    resolve(true);
-	                    Global.logger.log('NewtonAdapter', 'Init', options);
-	                    Bluebus.trigger('init');
+	    this.autoLogin = __webpack_require__(15);
+	    this.finalizeLoginFlow = __webpack_require__(16);
+	    this.isUserLogged = __webpack_require__(17);
+	    this.login = __webpack_require__(18);
+	    this.logout = __webpack_require__(19);
+	    this.setUserStateChangeListener = __webpack_require__(20);
 
-	                    // trigger login, if waitLogin is false
-	                    if(!options.waitLogin){
-	                        Bluebus.trigger('login');
-	                    }
-	                };
+	    this.rankContent = __webpack_require__(21);
+	    this.trackEvent = __webpack_require__(22);
+	    this.trackPageview = __webpack_require__(23);
 
-	                if(!options.enable){
-	                    resolve(false);
-	                    Global.logger.warn('NewtonAdapter', 'Init', 'Newton not enabled');
-	                } else {
-	                    if(options.waitDeviceReady){
-	                        document.addEventListener('deviceready', initNewton, false);
-	                    } else {
-	                        initNewton();
-	                    }
-	                }
-	            }
-	        });
-	    };
-
-
-	    /**
-	    * @ngdoc function
-	    * @name login
-	    * @methodOf NewtonAdapter
-	    *
-	    * @description Performs Newton login
-	    *
-	    * @param {Object} options configuration object
-	    * @param {boolean} [options.logged=false] new state of the user
-	    * @param {string} [options.type="custom"] (custom, external, msisdn, autologin, generic or oauth)
-	    * @param {string} options.userId required for custom and external login
-	    * @param {Object} [options.userProperties={}] available only for custom and external login
-	    * @param {string} options.pin required for msisdn login
-	    * @param {string} options.msisdn required for msisdn login
-	    * @param {string} options.domain required for autologin login
-	    * @param {string} options.provider required for oauth login
-	    * @param {string} options.access_token required for oauth login
-	    * @param {string} options.username required for generic login
-	    * @param {string} options.password required for generic login
-	    *
-	    * @return {Promise} promise will be resolved when login is completed, rejected if failed
-	    *
-	    * @example
-	    * <pre>
-	    * // for logged users
-	    *   NewtonAdapter.login({
-	    *       logged: true,
-	    *       type: 'external',
-	    *       userId: '123456789',
-	    *       userProperties: {
-	    *           msisdn: '+39123456789',
-	    *           type: 'freemium'
-	    *       }
-	    *   }).then(function(){
-	    *       console.log('login success');
-	    *   }).catch(function(err){
-	    *       console.log('login failed', err);
-	    *   });
-	    *
-	    * // for unlogged users
-	    * NewtonAdapter.login({
-	    *       logged: false
-	    * });
-	    * </pre>
-	    */
-	    this.login = function(options){
-	        return new Promise(function(resolve, reject){
-	            Bluebus.bind('init', function(){
-
-	                if(options.callback){
-	                    Global.logger.warn('NewtonAdapter', 'Login', 'Callback method for login is not supported, use promise-then');
-	                }
-
-	                var callCallback = function(err){
-	                    if(err){
-	                        reject(err);
-	                        Global.logger.error('NewtonAdapter', 'Login', err);
-	                    } else {
-	                        resolve();
-	                        Global.logger.log('NewtonAdapter', 'Login', options);
-	                        Bluebus.trigger('login');
-	                    }
-	                };
-
-	                if(!options.logged || Global.newtonInstance.isUserLogged()){
-	                    callCallback();
-	                } else {
-	                    var loginType = options.type ? options.type : 'custom';
-
-	                    // newton version 1
-	                    if(Global.newtonversion === 1){
-	                        if(loginType === 'custom'){
-	                            if(options.userId){
-	                                Global.newtonInstance.getLoginBuilder()
-	                                .setLoginData(Utility.createSimpleObject(options.userProperties))
-	                                .setCallback(callCallback)
-	                                .setCustomID(options.userId)
-	                                .getCustomFlow()
-	                                .startLoginFlow();
-	                            } else {
-	                                reject('Custom login requires userId');
-	                                Global.logger.error('NewtonAdapter', 'Login', 'Custom login requires userId');
-	                            }
-	                        } else {
-	                            reject('Newton v.1 not support this type of login');
-	                            Global.logger.error('NewtonAdapter', 'Login', 'Newton v.1 not support this type of login');
-	                        }
-
-	                    // newton version 2
-	                    } else {
-	                        if(loginType === 'custom'){
-	                            if(options.userId){
-	                                Global.newtonInstance.getLoginBuilder()
-	                                .setCustomData(Utility.createSimpleObject(options.userProperties))
-	                                .setOnFlowCompleteCallback(callCallback)
-	                                .setCustomID(options.userId)
-	                                .getCustomLoginFlow()
-	                                .startLoginFlow();
-	                            } else {
-	                                reject('Custom login requires userId');
-	                                Global.logger.error('NewtonAdapter', 'Login', 'Custom login requires userId');
-	                            }
-	                        } else if(loginType === 'external'){
-	                            if(options.userId){
-	                                Global.newtonInstance.getLoginBuilder()
-	                                .setCustomData(Utility.createSimpleObject(options.userProperties))
-	                                .setOnFlowCompleteCallback(callCallback)
-	                                .setExternalID(options.userId)
-	                                .getExternalLoginFlow()
-	                                .startLoginFlow();
-	                            } else {
-	                                reject('External login requires userId');
-	                                Global.logger.error('NewtonAdapter', 'Login', 'External login requires userId');
-	                            }
-	                        } else if(loginType === 'msisdn'){
-	                            if(options.msisdn && options.pin){
-	                                Global.newtonInstance.getLoginBuilder()
-	                                .setOnFlowCompleteCallback(callCallback)
-	                                .setMSISDN(options.msisdn)
-	                                .setPIN(options.pin)
-	                                .getMSISDNPINLoginFlow()
-	                                .startLoginFlow();
-	                            } else {
-	                                reject('Msisdn login requires msisdn and pin');
-	                                Global.logger.error('NewtonAdapter', 'Login', 'Msisdn login requires msisdn and pin');
-	                            }
-	                        } else if(loginType === 'generic'){
-	                            if(options.username && options.password){
-	                                Global.newtonInstance.getLoginBuilder()
-	                                .setOnFlowCompleteCallback(callCallback)
-	                                .setUsername(options.username)
-	                                .setPassword(options.password)
-	                                .getGenericLoginFlow()
-	                                .startLoginFlow();
-	                            } else {
-	                                reject('Generic login requires email and password');
-	                                Global.logger.error('NewtonAdapter', 'Login', 'Generic login requires email and password');
-	                            }
-	                        } else if(loginType === 'autologin'){
-	                            if(options.domain){
-	                                Global.newtonInstance.getLoginBuilder()
-	                                .setOnFlowCompleteCallback(callCallback)
-	                                .__setDomain(options.domain)
-	                                .getMSISDNURLoginFlow()
-	                                .startLoginFlow();
-	                            } else {
-	                                reject('Autologin requires domain');
-	                                Global.logger.error('NewtonAdapter', 'Login', 'Autologin requires domain');
-	                            }
-	                        } else if(loginType === 'oauth'){
-	                            if(options.provider && options.access_token){
-	                                Global.newtonInstance.getLoginBuilder()
-	                                .setOAuthProvider(options.provider)
-	                                .setAccessToken(options.access_token)
-	                                .setOnFlowCompleteCallback(callCallback)
-	                                .getOAuthLoginFlow()
-	                                .startLoginFlow();
-	                            } else {
-	                                reject('OAuth login requires provider and access_token');
-	                                Global.logger.error('NewtonAdapter', 'Login', 'OAuth login requires provider and access_token');
-	                            }
-	                        } else {
-	                            reject('This type of login is unknown');
-	                            Global.logger.error('NewtonAdapter', 'Login', 'This type of login is unknown');
-	                        }
-	                    }
-	                }
-	            });
-	        });
-	    };
-
-
-	    /**
-	    * @ngdoc function
-	    * @name logout
-	    * @methodOf NewtonAdapter
-	    *
-	    * @description Performs logout from Newton
-	    * <br/><b>This method is executed after init</b>
-	    *
-	    * @return {Promise} promise will be resolved when logout is completed, rejected if failed
-	    *
-	    * @example
-	    * <pre>
-	    *   NewtonAdapter.logout().then(function(wasLogged){
-	    *       console.log('logout success', wasLogged);
-	    *   })
-	    * </pre>
-	    */
-	    this.logout = function(){
-	        return new Promise(function(resolve){
-	            Bluebus.bind('init', function(){
-	                if(Global.newtonInstance.isUserLogged()){
-	                    Global.newtonInstance.userLogout();
-	                    resolve(true);
-	                    Global.logger.log('NewtonAdapter', 'Logout');
-	                } else {
-	                    resolve(false);
-	                    Global.logger.warn('NewtonAdapter', 'Logout', 'User is already unlogged');
-	                }
-	            });
-	        });
-	    };
-
-
-	    /**
-	    * @ngdoc function
-	    * @name rankContent
-	    * @methodOf NewtonAdapter
-	    *
-	    * @description Performs Newton content ranking<br>
-	    * <b>This method is executed after login (waitLogin:true) or after init (false)</b>
-	    * <br><b>Newton version 1 don't support this feature</b>
-	    *
-	    * @param {Object} options configuration object
-	    * @param {string} options.contentId unique identifier of the content
-	    * @param {string} options.scope type of action performed on the content
-	    * @param {number} [options.score=1] the score associated to the content
-	    *
-	    * @return {Promise} promise will be resolved when ranking is completed, rejected if failed
-	    *
-	    * @example
-	    * <pre>
-	    *   NewtonAdapter.rankContent({
-	    *       contentId: '123456777',
-	    *       scope: 'social',
-	    *       score: 4
-	    *   }).then(function(){
-	    *       console.log('rankContent success');
-	    *   }).catch(function(err){
-	    *       console.log('rankContent failed', err);
-	    *   });
-	    * </pre>
-	    */
-	    this.rankContent = function(options){
-	        return new Promise(function(resolve, reject){
-	            Bluebus.bind('login', function(){
-	                var score = options.score ? options.score : 1;
-	                if(Global.newtonversion === 1){
-	                    reject('Newton v.1 not support rank content');
-	                    Global.logger.error('NewtonAdapter', 'rankContent', 'Newton v.1 not support rank content');
-	                } else {
-	                    if(options.contentId && options.scope){
-	                        Global.newtonInstance.rankContent(options.contentId, options.scope, score);
-	                        resolve();
-	                        Global.logger.log('NewtonAdapter', 'rankContent', options);
-	                    } else {
-	                        reject('rankContent requires scope and contentId');
-	                        Global.logger.error('NewtonAdapter', 'rankContent', 'rankContent requires scope and contentId');
-	                    }
-	                }
-	            });
-	        });
-	    };
-
-	    /**
-	    * @ngdoc function
-	    * @name trackEvent
-	    * @methodOf NewtonAdapter
-	    *
-	    * @description Performs Newton track event<br>
-	    * <b>This method is executed after login (waitLogin:true) or after init (false)</b>
-	    *
-	    * @param {Object} options configuration object
-	    * @param {string} options.name name of the event to track
-	    * @param {object} [options.properties={}] custom data of the event
-	    * @param {object} [options.rank={}] rank content data
-	    *
-	    * @return {Promise} promise will be resolved when tracking is completed, rejected if failed
-	    *
-	    * @example
-	    * <pre>
-	    *   NewtonAdapter.trackEvent({
-	    *       name: 'Play',
-	    *       properties: {
-	    *           category: 'Game',
-	    *           content: 'Fruit Slicer'
-	    *       },
-	    *       rank: {
-	    *           contentId: '123456777',
-	    *           scope: 'social',
-	    *           score: 4
-	    *       }
-	    *   }).then(function(){
-	    *       console.log('trackEvent success');
-	    *   }).catch(function(err){
-	    *       console.log('trackEvent failed', err);
-	    *   });
-	    * </pre>
-	    */
-	    this.trackEvent = function(options){
-	        return new Promise(function(resolve, reject){
-	            Bluebus.bind('login', function(){
-	                if(options.name){
-	                    Global.newtonInstance.sendEvent(options.name, Utility.createSimpleObject(options.properties));
-	                    resolve();
-	                    Global.logger.log('NewtonAdapter', 'trackEvent', options);
-
-	                    if(options.rank){
-	                        NewtonAdapter.rankContent(options.rank);
-	                    }
-	                } else {
-	                    reject('trackEvent requires name');
-	                    Global.logger.error('NewtonAdapter', 'trackEvent', 'trackEvent requires name');
-	                }
-	            });
-	        });
-	    };
-
-
-	    /**
-	    * @ngdoc function
-	    * @name trackPageview
-	    * @methodOf NewtonAdapter
-	    *
-	    * @description Performs Newton pageview tracking<br>
-	    * <b>This method is executed after login (waitLogin:true) or after init (false)</b>
-	    *
-	    * @param {Object} options configuration object
-	    * @param {Object} options.properties properties of the pageview
-	    * @param {string} [options.properties.url=window.location.href] url of pageview
-	    *
-	    * @return {Promise} promise will be resolved when tracking is completed, rejected if failed
-	    *
-	    * @example
-	    * <pre>
-	    *   NewtonAdapter.trackPageview({
-	    *       properties: {
-	    *           url: 'http://www.google.it',
-	    *           title: 'Game',
-	    *           hello: 'World'
-	    *       }
-	    *   }).then(function(){
-	    *       console.log('trackPageview success');
-	    *   }).catch(function(err){
-	    *       console.log('trackPageview failed', err);
-	    *   });
-	    * </pre>
-	    */
-	    this.trackPageview = function(options){
-	        var eventParams = options || {};
-	        eventParams.name = 'pageview';
-	        if(!eventParams.properties){
-	            eventParams.properties = {};
-	        }
-	        if(!eventParams.properties.url){
-	            eventParams.properties.url = window.location.href;
-	        }
-	        return NewtonAdapter.trackEvent(eventParams);
-	    };
-
-
-	    /**
-	    * @ngdoc function
-	    * @name startHeartbeat
-	    * @methodOf NewtonAdapter
-	    *
-	    * @description Performs Newton start timed event<br>
-	    * <b>This method is executed after login (waitLogin:true) or after init (false)</b>
-	    *
-	    * @param {Object} options configuration object
-	    * @param {string} options.name name of the timed event
-	    * @param {Object} [options.properties={}] properties of the timed event
-	    *
-	    * @return {Promise} promise will be resolved when start is completed, rejected if failed
-	    *
-	    * @example
-	    * <pre>
-	    *   NewtonAdapter.startHeartbeat({
-	    *       name: 'Playing',
-	    *       properties: {
-	    *           category: 'Game',
-	    *           content: 'Fruit Slicer'
-	    *       }
-	    *   }).then(function(){
-	    *       console.log('startHeartbeat success');
-	    *   }).catch(function(err){
-	    *       console.log('startHeartbeat failed', err);
-	    *   });
-	    * </pre>
-	    */
-	    this.startHeartbeat = function(options){
-	        return new Promise(function(resolve, reject){
-	            Bluebus.bind('login', function(){
-	                if(options.name){
-	                    Global.newtonInstance.timedEventStart(options.name, Utility.createSimpleObject(options.properties));
-	                    resolve();
-	                    Global.logger.log('NewtonAdapter', 'startHeartbeat', options);
-	                } else {
-	                    reject('startHeartbeat requires name');
-	                    Global.logger.error('NewtonAdapter', 'startHeartbeat', 'startHeartbeat requires name');
-	                }
-	            });
-	        });
-	    };
-
-
-	    /**
-	    * @ngdoc function
-	    * @name stopHeartbeat
-	    * @methodOf NewtonAdapter
-	    *
-	    * @description Performs Newton stop timed event<br>
-	    * <b>This method is executed after login (waitLogin:true) or after init (false)</b>
-	    *
-	    * @param {Object} options configuration object
-	    * @param {string} options.name name of the timed event
-	    * @param {Object} [options.properties={}] properties of the timed event
-	    *
-	    * @return {Promise} promise will be resolved when stop is completed, rejected if failed
-	    *
-	    * @example
-	    * <pre>
-	    *   NewtonAdapter.stopHeartbeat({
-	    *       name: 'Playing',
-	    *       properties: {
-	    *           category: 'Game',
-	    *           content: 'Fruit Slicer'
-	    *       }
-	    *   }).then(function(){
-	    *       console.log('stopHeartbeat success');
-	    *   }).catch(function(err){
-	    *       console.log('stopHeartbeat failed', err);
-	    *   });
-	    * </pre>
-	    */
-	    this.stopHeartbeat = function(options){
-	        return new Promise(function(resolve, reject){
-	            Bluebus.bind('login', function(){
-	                if(options.name){
-	                    Global.newtonInstance.timedEventStop(options.name, Utility.createSimpleObject(options.properties));
-	                    resolve();
-	                    Global.logger.log('NewtonAdapter', 'startHeartbeat', options);
-	                } else {
-	                    reject('startHeartbeat requires name');
-	                    Global.logger.error('NewtonAdapter', 'startHeartbeat', 'startHeartbeat requires name');
-	                }
-	            });
-	        });
-	    };
-
-
-	    /**
-	    * @ngdoc function
-	    * @name isUserLogged
-	    * @methodOf NewtonAdapter
-	    *
-	    * @description Check if the user is already logged on Newton.
-	    * <br><b>Synchronous call, don't wait init</b>
-	    *
-	    * @return {boolean} true if the user is already logged, false if user is unlogged or init has not been called before
-	    *
-	    * @example
-	    * <pre>
-	    * NewtonAdapter.isUserLogged();
-	    * </pre>
-	    */
-	    this.isUserLogged = function(){
-	        if(Global.newtonInstance){
-	            return Global.newtonInstance.isUserLogged();
-	        } else {
-	            return false;
-	        }
-	    };
-
-
-	    /**
-	    * @ngdoc function
-	    * @name isInitialized
-	    * @methodOf NewtonAdapter
-	    *
-	    * @description Check if NewtonAdapter is initialized.
-	    * <br><b>Synchronous call, don't wait init</b>
-	    *
-	    * @return {boolean} true if init has been called, else false
-	    *
-	    * @example
-	    * <pre>
-	    * NewtonAdapter.isInitialized();
-	    * </pre>
-	    */
-	    this.isInitialized = function(){
-	        return Bluebus.isTriggered('init');
-	    };
-
-
-	    /**
-	    * @ngdoc function
-	    * @name getUserToken
-	    * @methodOf NewtonAdapter
-	    *
-	    * @description Get Newton user token
-	    * <br><b>Synchronous call, don't wait init</b>
-	    *
-	    * @return {string} Newton user token or false if init has not been called before
-	    *
-	    * @example
-	    * <pre>
-	    * NewtonAdapter.getUserToken();
-	    * </pre>
-	    */
-	    this.getUserToken = function(){
-	        if(Global.newtonInstance){
-	            return Global.newtonInstance.getUserToken();
-	        } else {
-	            return false;
-	        }
-	    };
-
-	    /**
-	    * @ngdoc function
-	    * @name getIdentities
-	    * @methodOf NewtonAdapter
-	    *
-	    * @description Get identities from current user<br/>
-	    * <b>This method is executed after login (waitLogin:true) or after init (false)</b>
-	    *
-	    * @return {string} promise that will be resolved when the identities has been retrieved for the current user, rejected if failed
-	    *
-	    * @example
-	    * <pre>
-	    * NewtonAdapter.getIdentities();
-	    * </pre>
-	    */
-	    this.getIdentities = function(){
-	        return new Promise(function(resolve, reject){
-	            Bluebus.bind('login', function(){
-	                Global.newtonInstance.getIdentityManager().getIdentities(function(err, identities){
-	                    if(err){
-	                        reject(err);
-	                        Global.logger.error('NewtonAdapter', 'getIdentities', err);
-	                    } else {
-	                        resolve(identities);
-	                        Global.logger.log('NewtonAdapter', 'getIdentities', identities);
-	                    }
-	                });
-	            });
-	        });
-	    };
-
-
-	    /**
-	    * @ngdoc function
-	    * @name setUserStateChangeListener
-	    * @methodOf NewtonAdapter
-	    *
-	    * @description Execute callback when user state change
-	    * <br><b>Synchronous call, don't wait init</b>
-	    *
-	    * @param {function} callback method called when user state changes
-	    *
-	    * @return {boolean} return true if init has been called before, false if init has not been called before or callback is undefined
-	    *
-	    * @example
-	    * <pre>
-	    * NewtonAdapter.setUserStateChangeListener(function(state){ console.log(state); });
-	    * </pre>
-	    */
-	    this.setUserStateChangeListener = function(callback){
-	        if(Global.newtonInstance && callback){
-	            Global.newtonInstance.setUserStateChangeListener(callback);
-	            return true;
-	        } else {
-	            return false;
-	        }
-	    };
-
-
-	    /**
-	    * @ngdoc function
-	    * @name finalizeLoginFlow
-	    * @methodOf NewtonAdapter
-	    *
-	    * @description Execute callback when finalize login flow
-	    * <br><b>Synchronous call, don't wait init</b>
-	    *
-	    * @param {function} callback method called when finalize login flow
-	    *
-	    * @return {boolean} return true if init has been called before, false if init has not been called before or callback is undefined
-	    *
-	    * @example
-	    * <pre>
-	    * NewtonAdapter.finalizeLoginFlow(function(){ console.log('ok'); });
-	    * </pre>
-	    */
-	    this.finalizeLoginFlow = function(callback){
-	        if(Global.newtonInstance && callback){
-	            Global.newtonInstance.finalizeLoginFlow(callback);
-	            return true;
-	        } else {
-	            return false;
-	        }
-	    };
-
-	    /**
-	    * @ngdoc function
-	    * @name autoLogin
-	    * @methodOf NewtonAdapter
-	    *
-	    * @description start autoLogin flow
-	    *
-	    * @param {Object} options configuration object
-	    * @param {string} options.waitingUrl url for waiting page
-	    * @param {string} options.subscribeUrl url for account page (redirect here if user isn't subscribed)
-	    *
-	    * @example
-	    * <pre>
-	    *   NewtonAdapter.autoLogin({
-	    *     "waitingUrl":"http://www.domain.com/#!/waiting",
-	          "subscribeUrl":"http://www.domain.com/#!/settings"
-	    *   });
-	    * </pre>
-	    */
-	    this.autoLogin = function(options){
-	        var instance;
-	        if(options.waitingUrl){
-	            instance = Global.newtonInstance.getLoginBuilder();
-	            if(options.subscribeUrl) {
-	                instance.setSubscribeUrl(options.subscribeUrl);
-	            }
-	            instance.setWaitingUrl(options.waitingUrl)
-	            .getMSISDNURLoginFlow()
-	            .startLoginFlow();
-	        } else {
-	            Global.logger.error('NewtonAdapter', 'autoLogin', 'autoLogin requires waiting url');
-	        }
-	    };
-
-	    /**
-	    * @ngdoc function
-	    * @name confirmEmailAndLogin
-	    * @methodOf NewtonAdapter
-	    *
-	    * @description Confirm email flow and login to the service
-	    *
-	    * @param {Object} options configuration object
-	    * @param {string} options.token token to confirm email
-	    * @param {Object} [options.properties={}] properties of the timed event
-	    *
-	    * @return {Promise} promise will be resolved when stop is completed, rejected if failed
-	    *
-	    * @example
-	    * <pre>
-	    *   NewtonAdapter.confirmEmailAndLogin({
-	    *       token: '123456'
-	    *   }).then(function(){
-	    *       console.log('confirmEmailAndLogin success');
-	    *   }).catch(function(err){
-	    *       console.log('confirmEmailAndLogin failed', err);
-	    *   });
-	    * </pre>
-	    */
-	    this.confirmEmailAndLogin = function(options){
-	        return new Promise(function(resolve, reject){
-	            Bluebus.bind('init', function(){
-	                Global.newtonInstance.getLoginBuilder().setOnFlowCompleteCallback(function(err) {
-	                    if(err){
-	                        reject(err);
-	                        Global.logger.error('NewtonAdapter', 'confirmEmailAndLogin', err);
-	                    } else {
-	                        resolve();
-	                        Global.logger.log('NewtonAdapter', 'confirmEmailAndLogin', options);
-	                    }
-	                })
-	                .setEmailToken(options.token)
-	                .getEmailConfirmFlow()
-	                .startLoginFlow();
-	            });
-	        });
-	    };
-
-	    /**
-	    * @ngdoc function
-	    * @name confirmEmail
-	    * @methodOf NewtonAdapter
-	    *
-	    * @description Confirm email identity without logging user
-	    *
-	    * @param {Object} options configuration object
-	    * @param {string} [options.token] token to confirm email
-	    *
-	    * @return {Promise} promise that will be resolved when the confirmEmail has been completed, rejected if failed
-	    *
-	    * @example
-	    * <pre>
-	    *   NewtonAdapter.confirmEmail({
-	    *       token: 'nets:ff6ad467df62a58324b9:ifortune'
-	    *   }).then(function(){
-	    *       console.log('confirmEmail success');
-	    *   }).catch(function(err){
-	    *       console.log('confirmEmail failed', err);
-	    *   });
-	    * </pre>
-	    */
-	    this.confirmEmail = function(options){
-	        return new Promise(function(resolve, reject){
-	            Bluebus.bind('init', function(){
-	                Global.newtonInstance.confirmEmail(options.token, function(err) {
-	                    if(err){
-	                        reject(err);
-	                        Global.logger.error('NewtonAdapter', 'confirmEmail', err);
-	                    } else {
-	                        resolve();
-	                        Global.logger.log('NewtonAdapter', 'confirmEmail', options);
-	                    }
-	                });
-	            });
-	        });
-	    };
-
-	    /**
-	    * @ngdoc function
-	    * @name resetPassword
-	    * @methodOf NewtonAdapter
-	    *
-	    * @description Reset password
-	    *
-	    * @param {Object} options configuration object
-	    * @param {string} options.password new password
-	    * @param {string} options.token access token
-	    *
-	    * @return {Promise} promise will be resolved when password is updated, rejected if failed
-	    *
-	    * @example
-	    * <pre>
-	    *   NewtonAdapter.resetPassword({
-	    *       password: 'NEWPASSWORD',
-	    *       token: '1234567890'
-	    *   }).then(function(){
-	    *       console.log('resetPassword success');
-	    *   }).catch(function(err){
-	    *       console.log('resetPassword failed', err);
-	    *   });
-	    * </pre>
-	    */
-	    this.resetPassword = function(options){
-	        return new Promise(function(resolve, reject){
-	            Bluebus.bind('init', function(){
-	                if(options.token && !!options.password){
-	                    Global.newtonInstance.resetPassword(options.token, options.password, function(err){
-	                        if(err){
-	                            reject(err);
-	                            Global.logger.error('NewtonAdapter', 'resetPassword', err);
-	                        } else {
-	                            resolve();
-	                            Global.logger.log('NewtonAdapter', 'resetPassword', options);
-	                        }
-	                    });
-	                } else {
-	                    Global.logger.error('NewtonAdapter', 'resetPassword', 'resetPassword requires password and token');
-	                    reject('resetPassword requires password and token');
-	                }
-	            });
-	        });
-	    };
-
-	    /**
-	    * @ngdoc function
-	    * @name addIdentity
-	    * @methodOf NewtonAdapter
-	    *
-	    * @description Add identity to an user<br>
-	    * <b>This method is executed after login (waitLogin:true) or after init (false)</b>
-	    *
-	    * @param {Object} options configuration object
-	    * @param {string} [options.type='oauth'] type of identity to add (oauth, email, generic)
-	    * @param {string} options.provider provider of identity to add (oauth)
-	    * @param {string} options.access_token access token of identity to add (oauth)
-	    * @param {string} options.email email of identity to add (email)
-	    * @param {string} options.password password of identity to add (email)
-	    * @param {Object} [options.params={}] params of identity to add (email)
-	    * @param {string} options.smsTemplate SMS template of identity to add (generic)
-	    *
-	    * @return {Promise} ppromise will be resolved when adding is completed, rejected if failed
-	    *
-	    * @example
-	    * <pre>
-	    *   NewtonAdapter.addIdentity({
-	    *       type: 'oauth',
-	    *       provider: 'Facebook',
-	    *       access_token: '1234567890'
-	    *   }).then(function(){
-	    *       console.log('addIdentity success');
-	    *   }).catch(function(err){
-	    *       console.log('addIdentity failed', err);
-	    *   });
-	    * </pre>
-	    */
-	    this.addIdentity = function(options){
-	        return new Promise(function(resolve, reject){
-	            Bluebus.bind('login', function(){
-	                var identityType = options.type ? options.type : 'oauth';
-	                if(identityType === 'oauth'){
-	                    if(options.provider && options.access_token){
-	                        Global.newtonInstance.getIdentityManager()
-	                        .getIdentityBuilder()
-	                        .setOAuthProvider(options.provider)
-	                        .setAccessToken(options.access_token)
-	                        .setOnFlowCompleteCallback(function(err){
-	                            if(err){
-	                                reject(err);
-	                                Global.logger.error('NewtonAdapter', 'addIdentity', 'Oauth', err);
-	                            } else {
-	                                resolve();
-	                                Global.logger.log('NewtonAdapter', 'addIdentity', 'Oauth', options);
-	                            }
-	                        })
-	                        .getAddOAuthIdentityFlow()
-	                        .startAddIdentityFlow();
-	                    } else {
-	                        reject('addIdentity outh requires provider and access_token');
-	                        Global.logger.error('NewtonAdapter', 'addIdentity', 'Oauth', 'addIdentity oauth requires provider and access_token');
-	                    }
-	                } else if(identityType === 'email'){
-	                    if(options.email && options.password){
-	                        Global.newtonInstance.getIdentityManager()
-	                        .getIdentityBuilder()
-	                        .setEmail(options.email)
-	                        .setPassword(options.password)
-	                        .setProductEmailParams(Utility.createSimpleObject(options.params))
-	                        .setOnFlowCompleteCallback(function(err){
-	                            if(err){
-	                                reject(err);
-	                                Global.logger.error('NewtonAdapter', 'addIdentity', 'Email', err);
-	                            } else {
-	                                resolve();
-	                                Global.logger.log('NewtonAdapter', 'addIdentity', 'Email', options);
-	                            }
-	                        })
-	                        .getAddEmailIdentityFlow()
-	                        .startAddIdentityFlow();
-	                    } else {
-	                        reject('addIdentity email, requires email and password');
-	                        Global.logger.error('NewtonAdapter', 'addIdentity', 'Email', 'addIdentity email requires email and password');
-	                    }
-	                } else if(identityType === 'generic'){
-	                    if(options.smsTemplate){
-	                        Global.newtonInstance.getIdentityManager()
-	                        .getIdentityBuilder()
-	                        .setOnFlowCompleteCallback(function(err){
-	                            if(err){
-	                                reject(err);
-	                                Global.logger.error('NewtonAdapter', 'addIdentity', 'Generic', err);
-	                            } else {
-	                                resolve();
-	                                Global.logger.log('NewtonAdapter', 'addIdentity', 'Generic', options);
-	                            }
-	                        })
-	                        .setSMSTemplate(options.smsTemplate)
-	                        .getAddGenericIdentityFlow()
-	                        .startAddIdentityFlow();
-	                    } else {
-	                        reject('addIdentity generic, requires smsTemplate');
-	                        Global.logger.error('NewtonAdapter', 'addIdentity', 'Generic', 'addIdentity generic requires smsTemplate');
-	                    }
-	                } else {
-	                    reject('This type of add identity is not supported');
-	                    Global.logger.error('NewtonAdapter', 'addIdentity', 'This type of add identity is not supported');
-	                }
-	            });
-	        });
-	    };
-
-	    /**
-	    * @ngdoc function
-	    * @name removeIdentity
-	    * @methodOf NewtonAdapter
-	    *
-	    * @description Remove identity from an user<br>
-	    * <b>This method is executed after login (waitLogin:true) or after init (false)</b>
-	    *
-	    * @param {Object} options configuration object
-	    * @param {string} options.type type of identity to remove
-	    * @param {string} options.identity identity instance to remove
-	    *
-	    * @return {Promise} promise will be resolved when removing is completed, rejected if failed
-	    *
-	    * @example
-	    * <pre>
-	    *   NewtonAdapter.removeIdentity({
-	    *       type: 'oauth'
-	    *   }).then(function(){
-	    *       console.log('removeIdentity success');
-	    *   }).catch(function(err){
-	    *       console.log('removeIdentity failed', err);
-	    *   });
-	    * </pre>
-	    */
-	    this.removeIdentity = function(options){
-	        return new Promise(function(resolve, reject){
-	            Bluebus.bind('login', function(){
-	                if(options.type){
-	                    Global.newtonInstance.getIdentityManager().getIdentities(function(identError, identities){
-	                        if(identError){
-	                            reject(identError);
-	                            Global.logger.error('NewtonAdapter', 'removeIdentity', 'getIdentities failed', identError);
-	                        } else {
-	                            Global.logger.log('NewtonAdapter', 'removeIdentity', 'getIdentities success', options, identities);
-	                            if(identities.length < 2){
-	                                reject('it\'s not possible remove unique identity');
-	                                Global.logger.error('NewtonAdapter', 'removeIdentity', 'it\'s not possible remove unique identity');
-	                            } else {
-	                                for(var i = 0, goFoward = true; i < identities.length && goFoward; i++){
-	                                    if (options.type === identities[i].getType()){
-	                                        goFoward = false;
-	                                        identities[i].delete(function(deleteError){
-	                                            if(deleteError){
-	                                                reject(deleteError);
-	                                                Global.logger.error('NewtonAdapter', 'removeIdentity', 'delete failed', deleteError);
-	                                            } else {
-	                                                resolve();
-	                                                Global.logger.log('NewtonAdapter', 'removeIdentity', 'delete success');
-	                                            }
-	                                        });
-	                                    }
-	                                }
-	                            }
-	                        }
-	                    });
-	                } else if(options.identity) {
-	                    options.identity.delete(function(deleteError){
-	                        if(deleteError){
-	                            reject(deleteError);
-	                            Global.logger.error('NewtonAdapter', 'removeIdentity', 'delete failed', deleteError);
-	                        } else {
-	                            resolve();
-	                            Global.logger.log('NewtonAdapter', 'removeIdentity', 'delete success');
-	                        }
-	                    });
-	                } else {
-	                    reject('removeIdentity requires type or identity object');
-	                    Global.logger.error('NewtonAdapter', 'removeIdentity', 'removeIdentity requires type or identity object');
-	                }
-	            });
-	        });
-	    };
-
-
-	    /**
-	    * @ngdoc function
-	    * @name userDelete
-	    * @methodOf NewtonAdapter
-	    *
-	    * @description Delete an user<br>
-	    * <b>This method is executed after login (waitLogin:true) or after init (false)</b>
-	    *
-	    * @return {Promise} ppromise will be resolved when deleting is completed, rejected if failed
-	    *
-	    * @example
-	    * <pre>
-	    *   NewtonAdapter.userDelete().then(function(){
-	    *       console.log('userDelete success');
-	    *   }).catch(function(err){
-	    *       console.log('userDelete failed', err);
-	    *   });
-	    * </pre>
-	    */
-	    this.userDelete = function(){
-	        return new Promise(function(resolve, reject){
-	            Bluebus.bind('login', function(){
-	                Global.newtonInstance.getIdentityManager().getIdentities(function(identError, identities){
-	                    if(identError){
-	                        reject(identError);
-	                        Global.logger.error('NewtonAdapter', 'userDelete', 'getIdentities failed', identError);
-	                    } else {
-	                        Global.logger.log('NewtonAdapter', 'userDelete', 'getIdentities success', identities);
-	                        for(var i = 0, goFoward = true; i < identities.length && goFoward; i++){
-	                            if (identities[i].getType() === 'msisdn'){
-	                                goFoward = false;
-	                                reject('Error on userDelete: please use unsubscribe instead');
-	                                Global.logger.error('NewtonAdapter', 'userDelete', 'Error on userDelete: please use unsubscribe instead');
-	                            }
-	                        }
-	                        Global.newtonInstance.getIdentityManager().userDelete(function(deleteError){
-	                            if(deleteError){
-	                                reject(deleteError);
-	                                Global.logger.error('NewtonAdapter', 'userDelete', 'delete', deleteError);
-	                            } else {
-	                                resolve();
-	                                Global.logger.log('NewtonAdapter', 'userDelete', identities);
-	                            }
-	                        });
-	                    }
-	                });
-	            });
-	        });
-	    };
-
-	    /**
-	    * @ngdoc function
-	    * @name recoverPassword
-	    * @methodOf NewtonAdapter
-	    *
-	    * @description Recover password of a user<br>
-	    *
-	    * @param {Object} options configuration object
-	    * @param {string} options.msisdn msisdn of the user
-	    * @param {string} options.email email of the user
-	    *
-	    * @return {Promise} promise will be resolved when recovering is completed, rejected if failed
-	    *
-	    * @example
-	    * <pre>
-	    *   NewtonAdapter.recoverPassword({
-	    *       msidsn: '+391234567890'
-	    *   }).then(function(){
-	    *       console.log('recoverPassword success');
-	    *   }).catch(function(err){
-	    *       console.log('recoverPassword failed', err);
-	    *   });
-	    * </pre>
-	    */
-	    this.recoverPassword = function(options){
-	        return new Promise(function(resolve, reject){
-	            Bluebus.bind('init', function(){
-	                if(options.msisdn){
-	                    Global.newtonInstance.getLoginBuilder()
-	                    .setOnForgotFlowCallback(function(err){
-	                        if(err){
-	                            reject(err);
-	                            Global.logger.error('NewtonAdapter', 'recoverPassword', err);
-	                        } else {
-	                            resolve();
-	                            Global.logger.log('NewtonAdapter', 'recoverPassword', options);
-	                        }
-	                    })
-	                    .setMSISDN(options.msisdn)
-	                    .getMSISDNPINForgotFlow()
-	                    .startForgotFlow();
-	                } else if(options.email){
-	                    Global.newtonInstance.getLoginBuilder()
-	                    .setOnForgotFlowCallback(function(err){
-	                        if(err){
-	                            reject(err);
-	                            Global.logger.error('NewtonAdapter', 'emailRecoverPassword', err);
-	                        } else {
-	                            resolve();
-	                            Global.logger.log('NewtonAdapter', 'emailRecoverPassword', options);
-	                        }
-	                    })
-	                    .setEmail(options.email)
-	                    .getEmailForgotFlow()
-	                    .startForgotFlow();
-	                } else {
-	                    reject('recoverPassword requires msisdn or email');
-	                    Global.logger.error('NewtonAdapter', 'recoverPassword', 'recoverPassword requires msisdn or email');
-	                }
-	            });
-	        });
-	    };
+	    this.confirmEmail = __webpack_require__(24);
+	    this.confirmEmailAndLogin = __webpack_require__(25);
+	    this.getUserToken = __webpack_require__(26);
+	    this.recoverPassword = __webpack_require__(27);
+	    this.resetPassword = __webpack_require__(28);
+	    this.userDelete = __webpack_require__(29);    
 	};
 
-	module.exports = NewtonAdapter;
 
-
-/***/ },
+/***/ }),
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
+
+	(function webpackUniversalModuleDefinition(root, factory) {
+		if(true)
+			module.exports = factory();
+		else if(typeof define === 'function' && define.amd)
+			define([], factory);
+		else if(typeof exports === 'object')
+			exports["Bluebus"] = factory();
+		else
+			root["Bluebus"] = factory();
+	})(this, function() {
+	return /******/ (function(modules) { // webpackBootstrap
+	/******/ 	// The module cache
+	/******/ 	var installedModules = {};
+
+	/******/ 	// The require function
+	/******/ 	function __webpack_require__(moduleId) {
+
+	/******/ 		// Check if module is in cache
+	/******/ 		if(installedModules[moduleId])
+	/******/ 			return installedModules[moduleId].exports;
+
+	/******/ 		// Create a new module (and put it into the cache)
+	/******/ 		var module = installedModules[moduleId] = {
+	/******/ 			exports: {},
+	/******/ 			id: moduleId,
+	/******/ 			loaded: false
+	/******/ 		};
+
+	/******/ 		// Execute the module function
+	/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+
+	/******/ 		// Flag the module as loaded
+	/******/ 		module.loaded = true;
+
+	/******/ 		// Return the exports of the module
+	/******/ 		return module.exports;
+	/******/ 	}
+
+
+	/******/ 	// expose the modules object (__webpack_modules__)
+	/******/ 	__webpack_require__.m = modules;
+
+	/******/ 	// expose the module cache
+	/******/ 	__webpack_require__.c = installedModules;
+
+	/******/ 	// __webpack_public_path__
+	/******/ 	__webpack_require__.p = "";
+
+	/******/ 	// Load entry module and return exports
+	/******/ 	return __webpack_require__(0);
+	/******/ })
+	/************************************************************************/
+	/******/ ([
+	/* 0 */
+	/***/ function(module, exports) {
+
+		module.exports = {
+
+		    /*
+		    events: {
+		        eventName: {
+		            triggered: true/false
+		            parameters: lastTriggeredParameters,
+		            stack: [
+		                bindedFunction1, bindedFunction2 ...
+		            ]
+		        }
+		    }
+		    */
+
+		    events: {},
+
+		    bind: function(key, callback){
+		        var event = this.events[key];
+		        if(event){
+		            if(event.triggered){
+		                callback.call(this, event.parameters);
+		            } else {
+		                event.stack.push(callback);
+		            }
+		        } else {
+		            this.events[key] = {
+		                triggered: false,
+		                parameters: undefined,
+		                stack: [callback]
+		            };
+		        }
+		    },
+
+		    trigger: function(key, parameters){       
+		        var event = this.events[key];
+		        if(event){
+		            if(!event.triggered){
+		                for(var i = 0; i < event.stack.length; i++){
+		                    event.stack[i].call(this, parameters);
+		                }
+		            }
+		        }
+		        this.events[key] = {
+		            triggered: true,
+		            parameters: parameters,
+		            stack: []
+		        };
+		    },
+
+		    isTriggered: function(key){
+		        var event = this.events[key];
+		        if(event){
+		            return event.triggered;
+		        } else {
+		            return false;
+		        }
+		    },
+
+		    clean: function(key){
+		        this.events[key] = {
+		            triggered: false,
+		            parameters: undefined,
+		            stack: []
+		        };
+		    },
+
+		    cleanAll: function(){
+		        this.events = {};
+		    }
+
+		};
+
+	/***/ }
+	/******/ ])
+	});
+	;
+
+	/* Bluebus 1.1.0 */
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports) {
+
+	var Global = {
+	    newtonversion: 2,
+	    newtonInstance: false,
+	    logger: {
+	        debug: function(){},
+	        log: function(){},
+	        info: function(){},
+	        warn: function(){},
+	        error: function(){}
+	    },
+
+	    cleanAll: function(){
+	        this.newtonversion = 2;
+	        this.newtonInstance = false;
+	        this.logger = {
+	            debug: function(){},
+	            log: function(){},
+	            info: function(){},
+	            warn: function(){},
+	            error: function(){}
+	        };
+	    }
+	};
+
+	module.exports = Global;
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* global Newton */
+	var Promise = __webpack_require__(4);
+	var Bluebus = __webpack_require__(1);
+	var Global = __webpack_require__(2);
+	var Utility = __webpack_require__(8);
+
+	/**
+	* @ngdoc function
+	* @name startHeartbeat
+	* @methodOf NewtonAdapter
+	*
+	* @description Performs Newton start timed event<br>
+	* <b>This method is executed after login (waitLogin:true) or after init (false)</b>
+	*
+	* @param {Object} options configuration object
+	* @param {string} options.name name of the timed event
+	* @param {Object} [options.properties={}] properties of the timed event
+	*
+	* @return {Promise} promise will be resolved when start is completed, rejected if failed
+	*
+	* @example
+	* <pre>
+	*   NewtonAdapter.startHeartbeat({
+	*       name: 'Playing',
+	*       properties: {
+	*           category: 'Game',
+	*           content: 'Fruit Slicer'
+	*       }
+	*   }).then(function(){
+	*       console.log('startHeartbeat success');
+	*   }).catch(function(err){
+	*       console.log('startHeartbeat failed', err);
+	*   });
+	* </pre>
+	*/
+
+	module.exports = function(options){
+	    return new Promise(function(resolve, reject){
+	        Bluebus.bind('login', function(){
+	            if(options && options.name){
+	                Global.newtonInstance.timedEventStart(options.name, Utility.createSimpleObject(options.properties));
+	                resolve();
+	                Global.logger.log('NewtonAdapter', 'startHeartbeat', options);
+	            } else {
+	                reject('startHeartbeat requires name');
+	                Global.logger.error('NewtonAdapter', 'startHeartbeat', 'startHeartbeat requires name');
+	            }
+	        });
+	    });
+	};
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(setImmediate) {(function (root) {
 
@@ -1463,11 +571,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	})(this);
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2).setImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5).setImmediate))
 
-/***/ },
-/* 2 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
 
 	var apply = Function.prototype.apply;
 
@@ -1519,14 +627,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	// setimmediate attaches itself to the global object
-	__webpack_require__(3);
+	__webpack_require__(6);
 	exports.setImmediate = setImmediate;
 	exports.clearImmediate = clearImmediate;
 
 
-/***/ },
-/* 3 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global, process) {(function (global, undefined) {
 	    "use strict";
@@ -1715,11 +823,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    attachTo.clearImmediate = clearImmediate;
 	}(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(4)))
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(7)))
 
-/***/ },
-/* 4 */
-/***/ function(module, exports) {
+/***/ }),
+/* 7 */
+/***/ (function(module, exports) {
 
 	// shim for using process in browser
 	var process = module.exports = {};
@@ -1891,6 +999,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	process.removeListener = noop;
 	process.removeAllListeners = noop;
 	process.emit = noop;
+	process.prependListener = noop;
+	process.prependOnceListener = noop;
+
+	process.listeners = function (name) { return [] }
 
 	process.binding = function (name) {
 	    throw new Error('process.binding is not supported');
@@ -1903,178 +1015,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	process.umask = function() { return 0; };
 
 
-/***/ },
-/* 5 */
-/***/ function(module, exports, __webpack_require__) {
-
-	(function webpackUniversalModuleDefinition(root, factory) {
-		if(true)
-			module.exports = factory();
-		else if(typeof define === 'function' && define.amd)
-			define([], factory);
-		else if(typeof exports === 'object')
-			exports["Bluebus"] = factory();
-		else
-			root["Bluebus"] = factory();
-	})(this, function() {
-	return /******/ (function(modules) { // webpackBootstrap
-	/******/ 	// The module cache
-	/******/ 	var installedModules = {};
-
-	/******/ 	// The require function
-	/******/ 	function __webpack_require__(moduleId) {
-
-	/******/ 		// Check if module is in cache
-	/******/ 		if(installedModules[moduleId])
-	/******/ 			return installedModules[moduleId].exports;
-
-	/******/ 		// Create a new module (and put it into the cache)
-	/******/ 		var module = installedModules[moduleId] = {
-	/******/ 			exports: {},
-	/******/ 			id: moduleId,
-	/******/ 			loaded: false
-	/******/ 		};
-
-	/******/ 		// Execute the module function
-	/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-
-	/******/ 		// Flag the module as loaded
-	/******/ 		module.loaded = true;
-
-	/******/ 		// Return the exports of the module
-	/******/ 		return module.exports;
-	/******/ 	}
-
-
-	/******/ 	// expose the modules object (__webpack_modules__)
-	/******/ 	__webpack_require__.m = modules;
-
-	/******/ 	// expose the module cache
-	/******/ 	__webpack_require__.c = installedModules;
-
-	/******/ 	// __webpack_public_path__
-	/******/ 	__webpack_require__.p = "";
-
-	/******/ 	// Load entry module and return exports
-	/******/ 	return __webpack_require__(0);
-	/******/ })
-	/************************************************************************/
-	/******/ ([
-	/* 0 */
-	/***/ function(module, exports) {
-
-		module.exports = {
-
-		    /*
-		    events: {
-		        eventName: {
-		            triggered: true/false
-		            parameters: lastTriggeredParameters,
-		            stack: [
-		                bindedFunction1, bindedFunction2 ...
-		            ]
-		        }
-		    }
-		    */
-
-		    events: {},
-
-		    bind: function(key, callback){
-		        var event = this.events[key];
-		        if(event){
-		            if(event.triggered){
-		                callback.call(this, event.parameters);
-		            } else {
-		                event.stack.push(callback);
-		            }
-		        } else {
-		            this.events[key] = {
-		                triggered: false,
-		                parameters: undefined,
-		                stack: [callback]
-		            };
-		        }
-		    },
-
-		    trigger: function(key, parameters){       
-		        var event = this.events[key];
-		        if(event){
-		            if(!event.triggered){
-		                for(var i = 0; i < event.stack.length; i++){
-		                    event.stack[i].call(this, parameters);
-		                }
-		            }
-		        }
-		        this.events[key] = {
-		            triggered: true,
-		            parameters: parameters,
-		            stack: []
-		        };
-		    },
-
-		    isTriggered: function(key){
-		        var event = this.events[key];
-		        if(event){
-		            return event.triggered;
-		        } else {
-		            return false;
-		        }
-		    },
-
-		    clean: function(key){
-		        this.events[key] = {
-		            triggered: false,
-		            parameters: undefined,
-		            stack: []
-		        };
-		    },
-
-		    cleanAll: function(){
-		        this.events = {};
-		    }
-
-		};
-
-	/***/ }
-	/******/ ])
-	});
-	;
-
-	/* Bluebus 1.1.0 */
-
-/***/ },
-/* 6 */
-/***/ function(module, exports) {
-
-	var Global = {
-	    newtonversion: 2,
-	    newtonInstance: false,
-	    logger: {
-	        debug: function(){},
-	        log: function(){},
-	        info: function(){},
-	        warn: function(){},
-	        error: function(){}
-	    },
-
-	    cleanAll: function(){
-	        this.newtonversion = 2;
-	        this.newtonInstance = false;
-	        this.logger = {
-	            debug: function(){},
-	            log: function(){},
-	            info: function(){},
-	            warn: function(){},
-	            error: function(){}
-	        };
-	    }
-	};
-
-	module.exports = Global;
-
-/***/ },
-/* 7 */
-/***/ function(module, exports) {
+/***/ }),
+/* 8 */
+/***/ (function(module, exports) {
 
 	var Utility = {
 	    createSimpleObject: function(object){
@@ -2090,9 +1033,1317 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	module.exports = Utility;
 
-/***/ }
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* global Newton */
+	var Promise = __webpack_require__(4);
+	var Bluebus = __webpack_require__(1);
+	var Global = __webpack_require__(2);
+	var Utility = __webpack_require__(8);
+
+	/**
+	* @ngdoc function
+	* @name stopHeartbeat
+	* @methodOf NewtonAdapter
+	*
+	* @description Performs Newton stop timed event<br>
+	* <b>This method is executed after login (waitLogin:true) or after init (false)</b>
+	*
+	* @param {Object} options configuration object
+	* @param {string} options.name name of the timed event
+	* @param {Object} [options.properties={}] properties of the timed event
+	*
+	* @return {Promise} promise will be resolved when stop is completed, rejected if failed
+	*
+	* @example
+	* <pre>
+	*   NewtonAdapter.stopHeartbeat({
+	*       name: 'Playing',
+	*       properties: {
+	*           category: 'Game',
+	*           content: 'Fruit Slicer'
+	*       }
+	*   }).then(function(){
+	*       console.log('stopHeartbeat success');
+	*   }).catch(function(err){
+	*       console.log('stopHeartbeat failed', err);
+	*   });
+	* </pre>
+	*/
+	module.exports = function(options){
+	    return new Promise(function(resolve, reject){
+	        Bluebus.bind('login', function(){
+	            if(options && options.name){
+	                Global.newtonInstance.timedEventStop(options.name, Utility.createSimpleObject(options.properties));
+	                resolve();
+	                Global.logger.log('NewtonAdapter', 'startHeartbeat', options);
+	            } else {
+	                reject('startHeartbeat requires name');
+	                Global.logger.error('NewtonAdapter', 'startHeartbeat', 'startHeartbeat requires name');
+	            }
+	        });
+	    });
+	};
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* global Newton */
+	var Promise = __webpack_require__(4);
+	var Bluebus = __webpack_require__(1);
+	var Global = __webpack_require__(2);
+
+	/**
+	* @ngdoc function
+	* @name getIdentities
+	* @methodOf NewtonAdapter
+	*
+	* @description Get identities from current user<br/>
+	* <b>This method is executed after login (waitLogin:true) or after init (false)</b>
+	*
+	* @return {string} promise that will be resolved when the identities has been retrieved for the current user, rejected if failed
+	*
+	* @example
+	* <pre>
+	* NewtonAdapter.getIdentities();
+	* </pre>
+	*/
+
+	module.exports = function(){
+	    return new Promise(function(resolve, reject){
+	        Bluebus.bind('login', function(){
+	            Global.newtonInstance.getIdentityManager().getIdentities(function(err, identities){
+	                if(err){
+	                    reject(err);
+	                    Global.logger.error('NewtonAdapter', 'getIdentities', err);
+	                } else {
+	                    resolve(identities);
+	                    Global.logger.log('NewtonAdapter', 'getIdentities', identities);
+	                }
+	            });
+	        });
+	    });
+	};
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* global Newton */
+	var Promise = __webpack_require__(4);
+	var Bluebus = __webpack_require__(1);
+	var Global = __webpack_require__(2);
+	var Utility = __webpack_require__(8);
+
+	/**
+	* @ngdoc function
+	* @name addIdentity
+	* @methodOf NewtonAdapter
+	*
+	* @description Add identity to an user<br>
+	* <b>This method is executed after login (waitLogin:true) or after init (false)</b>
+	*
+	* @param {Object} options configuration object
+	* @param {string} [options.type='oauth'] type of identity to add (oauth, email, generic)
+	* @param {string} options.provider provider of identity to add (oauth)
+	* @param {string} options.access_token access token of identity to add (oauth)
+	* @param {string} options.email email of identity to add (email)
+	* @param {string} options.password password of identity to add (email)
+	* @param {Object} [options.params={}] params of identity to add (email)
+	* @param {string} options.smsTemplate SMS template of identity to add (generic)
+	*
+	* @return {Promise} ppromise will be resolved when adding is completed, rejected if failed
+	*
+	* @example
+	* <pre>
+	*   NewtonAdapter.addIdentity({
+	*       type: 'oauth',
+	*       provider: 'Facebook',
+	*       access_token: '1234567890'
+	*   }).then(function(){
+	*       console.log('addIdentity success');
+	*   }).catch(function(err){
+	*       console.log('addIdentity failed', err);
+	*   });
+	* </pre>
+	*/
+
+	module.exports = function(options){
+	    return new Promise(function(resolve, reject){
+	        Bluebus.bind('login', function(){
+	            var identityType = options.type ? options.type : 'oauth';
+	            if(identityType === 'oauth'){
+	                if(options.provider && options.access_token){
+	                    Global.newtonInstance.getIdentityManager()
+	                    .getIdentityBuilder()
+	                    .setOAuthProvider(options.provider)
+	                    .setAccessToken(options.access_token)
+	                    .setOnFlowCompleteCallback(function(err){
+	                        if(err){
+	                            reject(err);
+	                            Global.logger.error('NewtonAdapter', 'addIdentity', 'Oauth', err);
+	                        } else {
+	                            resolve();
+	                            Global.logger.log('NewtonAdapter', 'addIdentity', 'Oauth', options);
+	                        }
+	                    })
+	                    .getAddOAuthIdentityFlow()
+	                    .startAddIdentityFlow();
+	                } else {
+	                    reject('addIdentity outh requires provider and access_token');
+	                    Global.logger.error('NewtonAdapter', 'addIdentity', 'Oauth', 'addIdentity oauth requires provider and access_token');
+	                }
+	            } else if(identityType === 'email'){
+	                if(options.email && options.password){
+	                    Global.newtonInstance.getIdentityManager()
+	                    .getIdentityBuilder()
+	                    .setEmail(options.email)
+	                    .setPassword(options.password)
+	                    .setProductEmailParams(Utility.createSimpleObject(options.params))
+	                    .setOnFlowCompleteCallback(function(err){
+	                        if(err){
+	                            reject(err);
+	                            Global.logger.error('NewtonAdapter', 'addIdentity', 'Email', err);
+	                        } else {
+	                            resolve();
+	                            Global.logger.log('NewtonAdapter', 'addIdentity', 'Email', options);
+	                        }
+	                    })
+	                    .getAddEmailIdentityFlow()
+	                    .startAddIdentityFlow();
+	                } else {
+	                    reject('addIdentity email, requires email and password');
+	                    Global.logger.error('NewtonAdapter', 'addIdentity', 'Email', 'addIdentity email requires email and password');
+	                }
+	            } else if(identityType === 'generic'){
+	                if(options.smsTemplate){
+	                    Global.newtonInstance.getIdentityManager()
+	                    .getIdentityBuilder()
+	                    .setOnFlowCompleteCallback(function(err){
+	                        if(err){
+	                            reject(err);
+	                            Global.logger.error('NewtonAdapter', 'addIdentity', 'Generic', err);
+	                        } else {
+	                            resolve();
+	                            Global.logger.log('NewtonAdapter', 'addIdentity', 'Generic', options);
+	                        }
+	                    })
+	                    .setSMSTemplate(options.smsTemplate)
+	                    .getAddGenericIdentityFlow()
+	                    .startAddIdentityFlow();
+	                } else {
+	                    reject('addIdentity generic, requires smsTemplate');
+	                    Global.logger.error('NewtonAdapter', 'addIdentity', 'Generic', 'addIdentity generic requires smsTemplate');
+	                }
+	            } else {
+	                reject('This type of add identity is not supported');
+	                Global.logger.error('NewtonAdapter', 'addIdentity', 'This type of add identity is not supported');
+	            }
+	        });
+	    });
+	};
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* eslint-env browser */
+	/* global Newton */
+	var Promise = __webpack_require__(4);
+	/**
+	* @ngdoc function
+	* @name removeIdentity
+	* @methodOf NewtonAdapter
+	*
+	* @description Remove identity from an user<br>
+	* <b>This method is executed after login (waitLogin:true) or after init (false)</b>
+	*
+	* @param {Object} options configuration object
+	* @param {string} options.type type of identity to remove
+	* @param {string} options.identity identity instance to remove
+	*
+	* @return {Promise} promise will be resolved when removing is completed, rejected if failed
+	*
+	* @example
+	* <pre>
+	*   NewtonAdapter.removeIdentity({
+	*       type: 'oauth'
+	*   }).then(function(){
+	*       console.log('removeIdentity success');
+	*   }).catch(function(err){
+	*       console.log('removeIdentity failed', err);
+	*   });
+	* </pre>
+	*/
+	module.exports = function(deps){
+	    return function(options){
+	        return new Promise(function(resolve, reject){
+	            deps.Bluebus.bind('login', function(){
+	                if(options.type){
+	                    deps.Global.newtonInstance.getIdentityManager().getIdentities(function(identError, identities){
+	                        if(identError){
+	                            reject(identError);
+	                            deps.Global.logger.error('NewtonAdapter', 'removeIdentity', 'getIdentities failed', identError);
+	                        } else {
+	                            deps.Global.logger.log('NewtonAdapter', 'removeIdentity', 'getIdentities success', options, identities);
+	                            if(identities.length < 2){
+	                                reject('it\'s not possible remove unique identity');
+	                                deps.Global.logger.error('NewtonAdapter', 'removeIdentity', 'it\'s not possible remove unique identity');
+	                            } else {
+	                                for(var i = 0; i < identities.length; i++) {
+	                                    if (options.type === identities[i].getType()){
+	                                        identities[i].delete(function(deleteError){
+	                                            if(deleteError){
+	                                                reject(deleteError);
+	                                                deps.Global.logger.error('NewtonAdapter', 'removeIdentity', 'delete failed', deleteError);
+	                                            } else {
+	                                                resolve(true);
+	                                                deps.Global.logger.log('NewtonAdapter', 'removeIdentity', 'delete success');
+	                                            }
+	                                        });
+	                                        break;
+	                                    }
+	                                }
+	                                /** If we're here there was no match */
+	                                var err = new Error('no identities for ' + options.type);
+	                                err.code = 404;
+	                                err.name = 'NotFound';
+	                                reject(err);
+	                            }
+	                        }
+	                    });
+	                } else if(options.identity) {
+	                    options.identity.delete(function(deleteError){
+	                        if(deleteError) {
+	                            reject(deleteError);
+	                            deps.Global.logger.error('NewtonAdapter', 'removeIdentity', 'delete failed', deleteError);
+	                        } else {
+	                            resolve(true);
+	                            deps.Global.logger.log('NewtonAdapter', 'removeIdentity', 'delete success');
+	                        }
+	                    });
+	                } else {
+	                    reject('removeIdentity requires type or identity object');
+	                    deps.Global.logger.error('NewtonAdapter', 'removeIdentity', 'removeIdentity requires type or identity object');
+	                }
+	            });
+	        });
+	    };
+	};
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* global Newton */
+	var Promise = __webpack_require__(4);
+	var Bluebus = __webpack_require__(1);
+	var Global = __webpack_require__(2);
+	var Utility = __webpack_require__(8);
+
+	/**
+	* @ngdoc function
+	* @name init
+	* @methodOf NewtonAdapter
+	*
+	* @description Initializes Newton sdk and sets up internal configuration.
+	*
+	* @param {Object} options configuration object
+	* @param {string} options.secretId secret id of the application
+	* @param {boolean} [options.enable=false] enable calls to Newton library
+	* @param {boolean} [options.waitLogin=false] all Newton calls wait login (logged and unlogged)
+	* @param {boolean} [options.waitDeviceReady=false] wait deviceReady event to initialize Newton
+	* @param {integer} [options.newtonversion=2] version of Newton (1 or 2)
+	* @param {Object} [options.logger=disabled logger] object with debug, log, info, warn, error
+	* @param {Object} [options.properties={}] custom data for Newton session (not supported for v1)
+	* @param {Function} [options.pushCallback=null] a function that will be called in hybrid init(wait for device ready must be true)
+	*
+	* @return {Promise} promise will be resolved when init is completed, rejected if failed
+	*
+	* @example
+	* <pre>
+	*   NewtonAdapter.init({
+	*       secretId: '123456789',
+	*       enable: true,
+	*       waitLogin: true,
+	*       waitDeviceReady: false,
+	*       newtonversion: 2,
+	*       logger: console,
+	*       properties: {
+	*           hello: 'World'
+	*       },
+	*       pushCallback:function(pushData){}
+	*   }).then(function(enabled){
+	*       console.log('init success', enabled);
+	*   }).catch(function(err){
+	*       console.log('init failed', err);
+	*   });
+	* </pre>
+	*/
+
+	module.exports = function(options){
+	    return new Promise(function(resolve, reject){
+	        // get logger and newtonversion
+	        if(options.logger){
+	            Global.logger = options.logger;
+	        }
+	        if(options.newtonversion){
+	            Global.newtonversion = options.newtonversion;
+	        }
+
+	        // check if Newton exists
+	        if(!Newton){
+	            reject('Newton not exist');
+	            Global.logger.error('NewtonAdapter', 'Init', 'Newton not exist');
+	        } else {
+
+	            var initNewton = function(){
+	                // init Newton
+	                if(Global.newtonversion === 1){
+	                    Global.newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId);
+	                    if(options.properties){
+	                        Global.logger.warn('NewtonAdapter', 'Init', 'Newton v.1 not support properties on init method');
+	                    }
+	                } else {
+	                    var args = [options.secretId, Utility.createSimpleObject(options.properties)];
+	                    if (options.pushCallback) { args.push(options.pushCallback); }
+	                    Global.newtonInstance = Newton.getSharedInstanceWithConfig.apply(null, args);
+	                }
+
+	                // trigger init
+	                resolve(true);
+	                Global.logger.log('NewtonAdapter', 'Init', options);
+	                Bluebus.trigger('init');
+
+	                // trigger login, if waitLogin is false
+	                if(!options.waitLogin){
+	                    Bluebus.trigger('login');
+	                }
+	            };
+
+	            if(!options.enable){
+	                resolve(false);
+	                Global.logger.warn('NewtonAdapter', 'Init', 'Newton not enabled');
+	            } else {
+	                if(options.waitDeviceReady){
+	                    document.addEventListener('deviceready', initNewton, false);
+	                } else {
+	                    initNewton();
+	                }
+	            }
+	        }
+	    });
+	};
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* global Newton */
+	var Bluebus = __webpack_require__(1);
+
+	/**
+	* @ngdoc function
+	* @name isInitialized
+	* @methodOf NewtonAdapter
+	*
+	* @description Check if NewtonAdapter is initialized.
+	* <br><b>Synchronous call, don't wait init</b>
+	*
+	* @return {boolean} true if init has been called, else false
+	*
+	* @example
+	* <pre>
+	* NewtonAdapter.isInitialized();
+	* </pre>
+	*/
+
+	module.exports = function(){
+	    return Bluebus.isTriggered('init');
+	};
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* eslint-env browser */
+	/* global Newton */
+	var Global = __webpack_require__(2);
+
+	/**
+	* @ngdoc function
+	* @name autoLogin
+	* @methodOf NewtonAdapter
+	*
+	* @description start autoLogin flow
+	*
+	* @param {Object} options configuration object
+	* @param {string} options.waitingUrl url for waiting page
+	* @param {string} options.subscribeUrl url for account page (redirect here if user isn't subscribed)
+	*
+	* @example
+	* <pre>
+	*   NewtonAdapter.autoLogin({
+	*     "waitingUrl":"http://www.domain.com/#!/waiting",
+	        "subscribeUrl":"http://www.domain.com/#!/settings"
+	*   });
+	* </pre>
+	*/
+	module.exports = function(options){
+	    var instance;
+	    if(options.waitingUrl){
+	        instance = Global.newtonInstance.getLoginBuilder();
+	        if(options.subscribeUrl) {
+	            instance.setSubscribeUrl(options.subscribeUrl);
+	        }
+	        instance.setWaitingUrl(options.waitingUrl)
+	        .getMSISDNURLoginFlow()
+	        .startLoginFlow();
+	    } else {
+	        Global.logger.error('NewtonAdapter', 'autoLogin', 'autoLogin requires waiting url');
+	    }
+	};
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* global Newton */
+	var Global = __webpack_require__(2);
+
+	/**
+	* @ngdoc function
+	* @name finalizeLoginFlow
+	* @methodOf NewtonAdapter
+	*
+	* @description Execute callback when finalize login flow
+	* <br><b>Synchronous call, don't wait init</b>
+	*
+	* @param {function} callback method called when finalize login flow
+	*
+	* @return {boolean} return true if init has been called before, false if init has not been called before or callback is undefined
+	*
+	* @example
+	* <pre>
+	* NewtonAdapter.finalizeLoginFlow(function(){ console.log('ok'); });
+	* </pre>
+	*/
+
+	module.exports = function(callback){
+	    if(Global.newtonInstance && callback){
+	        Global.newtonInstance.finalizeLoginFlow(callback);
+	        return true;
+	    } else {
+	        return false;
+	    }
+	};
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* global Newton */
+	var Global = __webpack_require__(2);
+
+	/**
+	* @ngdoc function
+	* @name isUserLogged
+	* @methodOf NewtonAdapter
+	*
+	* @description Check if the user is already logged on Newton.
+	* <br><b>Synchronous call, don't wait init</b>
+	*
+	* @return {boolean} true if the user is already logged, false if user is unlogged or init has not been called before
+	*
+	* @example
+	* <pre>
+	* NewtonAdapter.isUserLogged();
+	* </pre>
+	*/
+
+	module.exports = function(){
+	    if(Global.newtonInstance){
+	        return Global.newtonInstance.isUserLogged();
+	    } else {
+	        return false;
+	    }
+	};
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* global Newton */
+	var Promise = __webpack_require__(4);
+	var Bluebus = __webpack_require__(1);
+	var Global = __webpack_require__(2);
+	var Utility = __webpack_require__(8);
+
+	/**
+	* @ngdoc function
+	* @name login
+	* @methodOf NewtonAdapter
+	*
+	* @description Performs Newton login
+	*
+	* @param {Object} options configuration object
+	* @param {boolean} [options.logged=false] new state of the user
+	* @param {string} [options.type="custom"] (custom, external, msisdn, autologin, generic or oauth)
+	* @param {string} options.userId required for custom and external login
+	* @param {Object} [options.userProperties={}] available only for custom and external login
+	* @param {string} options.pin required for msisdn login
+	* @param {string} options.msisdn required for msisdn login
+	* @param {string} options.domain required for autologin login
+	* @param {string} options.provider required for oauth login
+	* @param {string} options.access_token required for oauth login
+	* @param {string} options.username required for generic login
+	* @param {string} options.email required for email login
+	* @param {string} options.password required for generic and email login
+	*
+	* @return {Promise} promise will be resolved when login is completed, rejected if failed
+	*
+	* @example
+	* <pre>
+	* // for logged users
+	*   NewtonAdapter.login({
+	*       logged: true,
+	*       type: 'external',
+	*       userId: '123456789',
+	*       userProperties: {
+	*           msisdn: '+39123456789',
+	*           type: 'freemium'
+	*       }
+	*   }).then(function(){
+	*       console.log('login success');
+	*   }).catch(function(err){
+	*       console.log('login failed', err);
+	*   });
+	*
+	* // for unlogged users
+	* NewtonAdapter.login({
+	*       logged: false
+	* });
+	* </pre>
+	*/
+
+	module.exports = function(options){
+	    return new Promise(function(resolve, reject){
+	        Bluebus.bind('init', function(){
+
+	            if(options.callback){
+	                Global.logger.warn('NewtonAdapter', 'Login', 'Callback method for login is not supported, use promise-then');
+	            }
+
+	            var callCallback = function(err){
+	                if(err){
+	                    reject(err);
+	                    Global.logger.error('NewtonAdapter', 'Login', err);
+	                } else {
+	                    resolve();
+	                    Global.logger.log('NewtonAdapter', 'Login', options);
+	                    Bluebus.trigger('login');
+	                }
+	            };
+
+	            if(!options.logged || Global.newtonInstance.isUserLogged()){
+	                callCallback();
+	            } else {
+	                var loginType = options.type ? options.type : 'custom';
+
+	                // newton version 1
+	                if(Global.newtonversion === 1){
+	                    if(loginType === 'custom'){
+	                        if(options.userId){
+	                            Global.newtonInstance.getLoginBuilder()
+	                            .setLoginData(Utility.createSimpleObject(options.userProperties))
+	                            .setCallback(callCallback)
+	                            .setCustomID(options.userId)
+	                            .getCustomFlow()
+	                            .startLoginFlow();
+	                        } else {
+	                            reject('Custom login requires userId');
+	                            Global.logger.error('NewtonAdapter', 'Login', 'Custom login requires userId');
+	                        }
+	                    } else {
+	                        reject('Newton v.1 not support this type of login');
+	                        Global.logger.error('NewtonAdapter', 'Login', 'Newton v.1 not support this type of login');
+	                    }
+
+	                // newton version 2
+	                } else {
+	                    if(loginType === 'custom'){
+	                        if(options.userId){
+	                            Global.newtonInstance.getLoginBuilder()
+	                            .setCustomData(Utility.createSimpleObject(options.userProperties))
+	                            .setOnFlowCompleteCallback(callCallback)
+	                            .setCustomID(options.userId)
+	                            .getCustomLoginFlow()
+	                            .startLoginFlow();
+	                        } else {
+	                            reject('Custom login requires userId');
+	                            Global.logger.error('NewtonAdapter', 'Login', 'Custom login requires userId');
+	                        }
+	                    } else if(loginType === 'external'){
+	                        if(options.userId){
+	                            Global.newtonInstance.getLoginBuilder()
+	                            .setCustomData(Utility.createSimpleObject(options.userProperties))
+	                            .setOnFlowCompleteCallback(callCallback)
+	                            .setExternalID(options.userId)
+	                            .getExternalLoginFlow()
+	                            .startLoginFlow();
+	                        } else {
+	                            reject('External login requires userId');
+	                            Global.logger.error('NewtonAdapter', 'Login', 'External login requires userId');
+	                        }
+	                    } else if(loginType === 'msisdn'){
+	                        if(options.msisdn && options.pin){
+	                            Global.newtonInstance.getLoginBuilder()
+	                            .setOnFlowCompleteCallback(callCallback)
+	                            .setMSISDN(options.msisdn)
+	                            .setPIN(options.pin)
+	                            .getMSISDNPINLoginFlow()
+	                            .startLoginFlow();
+	                        } else {
+	                            reject('Msisdn login requires msisdn and pin');
+	                            Global.logger.error('NewtonAdapter', 'Login', 'Msisdn login requires msisdn and pin');
+	                        }
+	                    } else if(loginType === 'email'){
+	                        if(options.email && options.password){
+	                            Global.newtonInstance.getLoginBuilder()
+	                            .setOnFlowCompleteCallback(callCallback)
+	                            .setEmail(options.email)
+	                            .setPassword(options.password)
+	                            .getEmailLoginFlow()
+	                            .startLoginFlow();
+	                        } else {
+	                            reject('Email login requires email and password');
+	                            Global.logger.error('NewtonAdapter', 'Login', 'Email login requires email and password');
+	                        }
+	                    } else if(loginType === 'generic'){
+	                        if(options.username && options.password){
+	                            Global.newtonInstance.getLoginBuilder()
+	                            .setOnFlowCompleteCallback(callCallback)
+	                            .setUsername(options.username)
+	                            .setPassword(options.password)
+	                            .getGenericLoginFlow()
+	                            .startLoginFlow();
+	                        } else {
+	                            reject('Generic login requires username and password');
+	                            Global.logger.error('NewtonAdapter', 'Login', 'Generic login requires username and password');
+	                        }
+	                    } else if(loginType === 'autologin'){
+	                        if(options.domain){
+	                            Global.newtonInstance.getLoginBuilder()
+	                            .setOnFlowCompleteCallback(callCallback)
+	                            .__setDomain(options.domain)
+	                            .getMSISDNURLoginFlow()
+	                            .startLoginFlow();
+	                        } else {
+	                            reject('Autologin requires domain');
+	                            Global.logger.error('NewtonAdapter', 'Login', 'Autologin requires domain');
+	                        }
+	                    } else if(loginType === 'oauth'){
+	                        if(options.provider && options.access_token){
+	                            Global.newtonInstance.getLoginBuilder()
+	                            .setOAuthProvider(options.provider)
+	                            .setAccessToken(options.access_token)
+	                            .setOnFlowCompleteCallback(callCallback)
+	                            .getOAuthLoginFlow()
+	                            .startLoginFlow();
+	                        } else {
+	                            reject('OAuth login requires provider and access_token');
+	                            Global.logger.error('NewtonAdapter', 'Login', 'OAuth login requires provider and access_token');
+	                        }
+	                    } else {
+	                        reject('This type of login is unknown');
+	                        Global.logger.error('NewtonAdapter', 'Login', 'This type of login is unknown');
+	                    }
+	                }
+	            }
+	        });
+	    });
+	};
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* global Newton */
+	var Promise = __webpack_require__(4);
+	var Bluebus = __webpack_require__(1);
+	var Global = __webpack_require__(2);
+
+	/**
+	* @ngdoc function
+	* @name logout
+	* @methodOf NewtonAdapter
+	*
+	* @description Performs logout from Newton
+	* <br/><b>This method is executed after init</b>
+	*
+	* @return {Promise} promise will be resolved when logout is completed, rejected if failed
+	*
+	* @example
+	* <pre>
+	*   NewtonAdapter.logout().then(function(wasLogged){
+	*       console.log('logout success', wasLogged);
+	*   })
+	* </pre>
+	*/
+
+	module.exports = function(){
+	    return new Promise(function(resolve){
+	        Bluebus.bind('init', function(){
+	            if(Global.newtonInstance.isUserLogged()){
+	                Global.newtonInstance.userLogout();
+	                resolve(true);
+	                Global.logger.log('NewtonAdapter', 'Logout');
+	            } else {
+	                resolve(false);
+	                Global.logger.warn('NewtonAdapter', 'Logout', 'User is already unlogged');
+	            }
+	        });
+	    });
+	};
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* global Newton */
+	var Global = __webpack_require__(2);
+
+	/**
+	* @ngdoc function
+	* @name setUserStateChangeListener
+	* @methodOf NewtonAdapter
+	*
+	* @description Execute callback when user state change
+	* <br><b>Synchronous call, don't wait init</b>
+	*
+	* @param {function} callback method called when user state changes
+	*
+	* @return {boolean} return true if init has been called before, false if init has not been called before or callback is undefined
+	*
+	* @example
+	* <pre>
+	* NewtonAdapter.setUserStateChangeListener(function(state){ console.log(state); });
+	* </pre>
+	*/
+	module.exports = function(callback){
+	    if(Global.newtonInstance && callback){
+	        Global.newtonInstance.setUserStateChangeListener(callback);
+	        return true;
+	    } else {
+	        return false;
+	    }
+	};
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* global Newton */
+	var Promise = __webpack_require__(4);
+	var Bluebus = __webpack_require__(1);
+	var Global = __webpack_require__(2);
+
+	/**
+	* @ngdoc function
+	* @name rankContent
+	* @methodOf NewtonAdapter
+	*
+	* @description Performs Newton content ranking<br>
+	* <b>This method is executed after login (waitLogin:true) or after init (false)</b>
+	* <br><b>Newton version 1 don't support this feature</b>
+	*
+	* @param {Object} options configuration object
+	* @param {string} options.contentId unique identifier of the content
+	* @param {string} options.scope type of action performed on the content
+	* @param {number} [options.score=1] the score associated to the content
+	*
+	* @return {Promise} promise will be resolved when ranking is completed, rejected if failed
+	*
+	* @example
+	* <pre>
+	*   NewtonAdapter.rankContent({
+	*       contentId: '123456777',
+	*       scope: 'social',
+	*       score: 4
+	*   }).then(function(){
+	*       console.log('rankContent success');
+	*   }).catch(function(err){
+	*       console.log('rankContent failed', err);
+	*   });
+	* </pre>
+	*/
+	module.exports = function(options){
+	    return new Promise(function(resolve, reject){
+	        Bluebus.bind('login', function(){
+	            var score = options.score ? options.score : 1;
+	            if(Global.newtonversion === 1){
+	                reject('Newton v.1 not support rank content');
+	                Global.logger.error('NewtonAdapter', 'rankContent', 'Newton v.1 not support rank content');
+	            } else {
+	                if(options.contentId && options.scope){
+	                    Global.newtonInstance.rankContent(options.contentId, options.scope, score);
+	                    resolve();
+	                    Global.logger.log('NewtonAdapter', 'rankContent', options);
+	                } else {
+	                    reject('rankContent requires scope and contentId');
+	                    Global.logger.error('NewtonAdapter', 'rankContent', 'rankContent requires scope and contentId');
+	                }
+	            }
+	        });
+	    });
+	};
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* global Newton */
+	var Promise = __webpack_require__(4);
+	var Bluebus = __webpack_require__(1);
+	var Global = __webpack_require__(2);
+	var Utility = __webpack_require__(8);
+	var rankContent = __webpack_require__(21);
+
+	/**
+	* @ngdoc function
+	* @name trackEvent
+	* @methodOf NewtonAdapter
+	*
+	* @description Performs Newton track event<br>
+	* <b>This method is executed after login (waitLogin:true) or after init (false)</b>
+	*
+	* @param {Object} options configuration object
+	* @param {string} options.name name of the event to track
+	* @param {object} [options.properties={}] custom data of the event
+	* @param {object} [options.rank={}] rank content data
+	*
+	* @return {Promise} promise will be resolved when tracking is completed, rejected if failed
+	*
+	* @example
+	* <pre>
+	*   NewtonAdapter.trackEvent({
+	*       name: 'Play',
+	*       properties: {
+	*           category: 'Game',
+	*           content: 'Fruit Slicer'
+	*       },
+	*       rank: {
+	*           contentId: '123456777',
+	*           scope: 'social',
+	*           score: 4
+	*       }
+	*   }).then(function(){
+	*       console.log('trackEvent success');
+	*   }).catch(function(err){
+	*       console.log('trackEvent failed', err);
+	*   });
+	* </pre>
+	*/
+	module.exports = function(options){
+	    return new Promise(function(resolve, reject){
+	        Bluebus.bind('login', function(){
+	            if(options.name){
+	                Global.newtonInstance.sendEvent(options.name, Utility.createSimpleObject(options.properties));
+	                resolve();
+	                Global.logger.log('NewtonAdapter', 'trackEvent', options);
+
+	                if(options.rank){
+	                    rankContent(options.rank);
+	                }
+	            } else {
+	                reject('trackEvent requires name');
+	                Global.logger.error('NewtonAdapter', 'trackEvent', 'trackEvent requires name');
+	            }
+	        });
+	    });
+	};
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* global Newton */
+	var trackEvent = __webpack_require__(22);
+
+	/**
+	* @ngdoc function
+	* @name trackPageview
+	* @methodOf NewtonAdapter
+	*
+	* @description Performs Newton pageview tracking<br>
+	* <b>This method is executed after login (waitLogin:true) or after init (false)</b>
+	*
+	* @param {Object} options configuration object
+	* @param {Object} options.properties properties of the pageview
+	* @param {string} [options.properties.url=window.location.href] url of pageview
+	*
+	* @return {Promise} promise will be resolved when tracking is completed, rejected if failed
+	*
+	* @example
+	* <pre>
+	*   NewtonAdapter.trackPageview({
+	*       properties: {
+	*           url: 'http://www.google.it',
+	*           title: 'Game',
+	*           hello: 'World'
+	*       }
+	*   }).then(function(){
+	*       console.log('trackPageview success');
+	*   }).catch(function(err){
+	*       console.log('trackPageview failed', err);
+	*   });
+	* </pre>
+	*/
+	module.exports = function(options){
+	    var eventParams = options || {};
+	    eventParams.name = 'pageview';
+	    if(!eventParams.properties){
+	        eventParams.properties = {};
+	    }
+	    if(!eventParams.properties.url){
+	        eventParams.properties.url = window.location.href;
+	    }
+	    return trackEvent(eventParams);
+	};
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* eslint-env browser */
+	/* global Newton */
+	var Promise = __webpack_require__(4);
+	var Bluebus = __webpack_require__(1);
+	var Global = __webpack_require__(2);
+
+	/**
+	* @ngdoc function
+	* @name confirmEmail
+	* @methodOf NewtonAdapter
+	*
+	* @description Confirm email identity without logging user
+	*
+	* @param {Object} options configuration object
+	* @param {string} [options.token] token to confirm email
+	*
+	* @return {Promise} promise that will be resolved when the confirmEmail has been completed, rejected if failed
+	*
+	* @example
+	* <pre>
+	*   NewtonAdapter.confirmEmail({
+	*       token: 'nets:ff6ad467df62a58324b9:ifortune'
+	*   }).then(function(){
+	*       console.log('confirmEmail success');
+	*   }).catch(function(err){
+	*       console.log('confirmEmail failed', err);
+	*   });
+	* </pre>
+	*/
+
+	module.exports = function(options){
+	    return new Promise(function(resolve, reject){
+	        Bluebus.bind('init', function(){
+	            Global.newtonInstance.confirmEmail(options.token, function(err) {
+	                if(err){
+	                    reject(err);
+	                    Global.logger.error('NewtonAdapter', 'confirmEmail', err);
+	                } else {
+	                    resolve();
+	                    Global.logger.log('NewtonAdapter', 'confirmEmail', options);
+	                }
+	            });
+	        });
+	    });
+	};
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* eslint-env browser */
+	/* global Newton */
+	var Promise = __webpack_require__(4);
+	var Bluebus = __webpack_require__(1);
+	var Global = __webpack_require__(2);
+
+	/**
+	* @ngdoc function
+	* @name confirmEmailAndLogin
+	* @methodOf NewtonAdapter
+	*
+	* @description Confirm email flow and login to the service
+	*
+	* @param {Object} options configuration object
+	* @param {string} options.token token to confirm email
+	* @param {Object} [options.properties={}] properties of the timed event
+	*
+	* @return {Promise} promise will be resolved when stop is completed, rejected if failed
+	*
+	* @example
+	* <pre>
+	*   NewtonAdapter.confirmEmailAndLogin({
+	*       token: '123456'
+	*   }).then(function(){
+	*       console.log('confirmEmailAndLogin success');
+	*   }).catch(function(err){
+	*       console.log('confirmEmailAndLogin failed', err);
+	*   });
+	* </pre>
+	*/
+
+	module.exports = function(options){
+	    return new Promise(function(resolve, reject){
+	        Bluebus.bind('init', function(){
+	            Global.newtonInstance.getLoginBuilder().setOnFlowCompleteCallback(function(err) {
+	                if(err){
+	                    reject(err);
+	                    Global.logger.error('NewtonAdapter', 'confirmEmailAndLogin', err);
+	                } else {
+	                    resolve();
+	                    Global.logger.log('NewtonAdapter', 'confirmEmailAndLogin', options);
+	                }
+	            })
+	            .setEmailToken(options.token)
+	            .getEmailConfirmFlow()
+	            .startLoginFlow();
+	        });
+	    });
+	};
+
+/***/ }),
+/* 26 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* global Newton */
+	var Global = __webpack_require__(2);
+
+	/**
+	* @ngdoc function
+	* @name getUserToken
+	* @methodOf NewtonAdapter
+	*
+	* @description Get Newton user token
+	* <br><b>Synchronous call, don't wait init</b>
+	*
+	* @return {string} Newton user token or false if init has not been called before
+	*
+	* @example
+	* <pre>
+	* NewtonAdapter.getUserToken();
+	* </pre>
+	*/
+
+	module.exports = function(){
+	    if(Global.newtonInstance){
+	        return Global.newtonInstance.getUserToken();
+	    } else {
+	        return false;
+	    }
+	};
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* eslint-env browser */
+	/* global Newton */
+	var Promise = __webpack_require__(4);
+	var Bluebus = __webpack_require__(1);
+	var Global = __webpack_require__(2);
+
+	/**
+	* @ngdoc function
+	* @name recoverPassword
+	* @methodOf NewtonAdapter
+	*
+	* @description Recover password of a user<br>
+	*
+	* @param {Object} options configuration object
+	* @param {string} options.msisdn msisdn of the user
+	* @param {string} options.email email of the user
+	*
+	* @return {Promise} promise will be resolved when recovering is completed, rejected if failed
+	*
+	* @example
+	* <pre>
+	*   NewtonAdapter.recoverPassword({
+	*       msidsn: '+391234567890'
+	*   }).then(function(){
+	*       console.log('recoverPassword success');
+	*   }).catch(function(err){
+	*       console.log('recoverPassword failed', err);
+	*   });
+	* </pre>
+	*/
+
+	module.exports = function(options){
+	    return new Promise(function(resolve, reject){
+	        Bluebus.bind('init', function(){
+	            if(options.msisdn){
+	                Global.newtonInstance.getLoginBuilder()
+	                .setOnForgotFlowCallback(function(err){
+	                    if(err){
+	                        reject(err);
+	                        Global.logger.error('NewtonAdapter', 'recoverPassword', err);
+	                    } else {
+	                        resolve();
+	                        Global.logger.log('NewtonAdapter', 'recoverPassword', options);
+	                    }
+	                })
+	                .setMSISDN(options.msisdn)
+	                .getMSISDNPINForgotFlow()
+	                .startForgotFlow();
+	            } else if(options.email){
+	                Global.newtonInstance.getLoginBuilder()
+	                .setOnForgotFlowCallback(function(err){
+	                    if(err){
+	                        reject(err);
+	                        Global.logger.error('NewtonAdapter', 'emailRecoverPassword', err);
+	                    } else {
+	                        resolve();
+	                        Global.logger.log('NewtonAdapter', 'emailRecoverPassword', options);
+	                    }
+	                })
+	                .setEmail(options.email)
+	                .getEmailForgotFlow()
+	                .startForgotFlow();
+	            } else {
+	                reject('recoverPassword requires msisdn or email');
+	                Global.logger.error('NewtonAdapter', 'recoverPassword', 'recoverPassword requires msisdn or email');
+	            }
+	        });
+	    });
+	};
+
+/***/ }),
+/* 28 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* eslint-env browser */
+	/* global Newton */
+	var Promise = __webpack_require__(4);
+	var Bluebus = __webpack_require__(1);
+	var Global = __webpack_require__(2);
+
+	/**
+	* @ngdoc function
+	* @name resetPassword
+	* @methodOf NewtonAdapter
+	*
+	* @description Reset password
+	*
+	* @param {Object} options configuration object
+	* @param {string} options.password new password
+	* @param {string} options.token access token
+	*
+	* @return {Promise} promise will be resolved when password is updated, rejected if failed
+	*
+	* @example
+	* <pre>
+	*   NewtonAdapter.resetPassword({
+	*       password: 'NEWPASSWORD',
+	*       token: '1234567890'
+	*   }).then(function(){
+	*       console.log('resetPassword success');
+	*   }).catch(function(err){
+	*       console.log('resetPassword failed', err);
+	*   });
+	* </pre>
+	*/
+
+	module.exports = function(options){
+	    return new Promise(function(resolve, reject){
+	        Bluebus.bind('init', function(){
+	            if(options.token && !!options.password){
+	                Global.newtonInstance.resetPassword(options.token, options.password, function(err){
+	                    if(err){
+	                        reject(err);
+	                        Global.logger.error('NewtonAdapter', 'resetPassword', err);
+	                    } else {
+	                        resolve();
+	                        Global.logger.log('NewtonAdapter', 'resetPassword', options);
+	                    }
+	                });
+	            } else {
+	                Global.logger.error('NewtonAdapter', 'resetPassword', 'resetPassword requires password and token');
+	                reject('resetPassword requires password and token');
+	            }
+	        });
+	    });
+	};
+
+/***/ }),
+/* 29 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* eslint-env browser */
+	/* global Newton */
+	var Promise = __webpack_require__(4);
+	var Bluebus = __webpack_require__(1);
+	var Global = __webpack_require__(2);
+
+	/**
+	* @ngdoc function
+	* @name userDelete
+	* @methodOf NewtonAdapter
+	*
+	* @description Delete an user<br>
+	* <b>This method is executed after login (waitLogin:true) or after init (false)</b>
+	*
+	* @return {Promise} ppromise will be resolved when deleting is completed, rejected if failed
+	*
+	* @example
+	* <pre>
+	*   NewtonAdapter.userDelete().then(function(){
+	*       console.log('userDelete success');
+	*   }).catch(function(err){
+	*       console.log('userDelete failed', err);
+	*   });
+	* </pre>
+	*/
+
+	module.exports = function(){
+	    return new Promise(function(resolve, reject){
+	        Bluebus.bind('login', function(){
+	            Global.newtonInstance.getIdentityManager().getIdentities(function(identError, identities){
+	                if(identError){
+	                    reject(identError);
+	                    Global.logger.error('NewtonAdapter', 'userDelete', 'getIdentities failed', identError);
+	                } else {
+	                    Global.logger.log('NewtonAdapter', 'userDelete', 'getIdentities success', identities);
+	                    for(var i = 0, goFoward = true; i < identities.length && goFoward; i++){
+	                        if (identities[i].getType() === 'msisdn'){
+	                            goFoward = false;
+	                            reject('Error on userDelete: please use unsubscribe instead');
+	                            Global.logger.error('NewtonAdapter', 'userDelete', 'Error on userDelete: please use unsubscribe instead');
+	                        }
+	                    }
+	                    Global.newtonInstance.getIdentityManager().userDelete(function(deleteError){
+	                        if(deleteError){
+	                            reject(deleteError);
+	                            Global.logger.error('NewtonAdapter', 'userDelete', 'delete', deleteError);
+	                        } else {
+	                            resolve();
+	                            Global.logger.log('NewtonAdapter', 'userDelete', identities);
+	                        }
+	                    });
+	                }
+	            });
+	        });
+	    });
+	};
+
+/***/ })
 /******/ ])
 });
 ;
 
-/* Newton Adapter temp */
+/* Newton Adapter 2.4.0 */
