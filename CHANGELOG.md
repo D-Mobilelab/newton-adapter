@@ -1,3 +1,6 @@
+# 2.5.0
+- Added login without pin support
+
 # 2.4.0
 - From unique main.js to separeted methods and files
 - Add login method with "email"

@@ -1706,9 +1706,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	                            .setPIN(options.pin)
 	                            .getMSISDNPINLoginFlow()
 	                            .startLoginFlow();
+	                        } else if(options.msisdn){
+	                            Global.newtonInstance.getLoginBuilder()
+	                            .setOnFlowCompleteCallback(callCallback)
+	                            .setMSISDN(options.msisdn)
+	                            .setNoPIN()
+	                            .getMSISDNPINLoginFlow()
+	                            .startLoginFlow();
 	                        } else {
-	                            reject('Msisdn login requires msisdn and pin');
-	                            Global.logger.error('NewtonAdapter', 'Login', 'Msisdn login requires msisdn and pin');
+	                            reject('Msisdn login requires at least msisdn');
+	                            Global.logger.error('NewtonAdapter', 'Login', 'Msisdn login requires at least msisdn');
 	                        }
 	                    } else if(loginType === 'email'){
 	                        if(options.email && options.password){
@@ -2346,4 +2353,4 @@ return /******/ (function(modules) { // webpackBootstrap
 });
 ;
 
-/* Newton Adapter 2.4.0 */
+/* Newton Adapter 2.5.0 */
