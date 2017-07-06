@@ -29,8 +29,8 @@ module.exports = function(identityType){
                 } else {
                     var singleIdentity = false;
 
-                    for(var index in identities){
-                        if(identities[index] && identities[index].getType === identityType){
+                    for(var index in identities){ //eslint-disable-line
+                        if(identities[index] && identities[index].getType() === identityType){
                             singleIdentity = identities[index];
                         }
                     }
