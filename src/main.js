@@ -27,6 +27,7 @@ module.exports = new function(){
     this.stopHeartbeat = require('./heartbeat/stopHeartbeat');
 
     this.getIdentities = require('./identities/getIdentities');   
+    this.getIdentity = require('./identities/getIdentity');   
     this.addIdentity = require('./identities/addIdentity');   
     this.removeIdentity = require('./identities/removeIdentity')({ Bluebus: Bluebus, Global: Global });
 

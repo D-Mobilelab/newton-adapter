@@ -83,29 +83,30 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.stopHeartbeat = __webpack_require__(9);
 
 	    this.getIdentities = __webpack_require__(10);   
-	    this.addIdentity = __webpack_require__(11);   
-	    this.removeIdentity = __webpack_require__(12)({ Bluebus: Bluebus, Global: Global });
+	    this.getIdentity = __webpack_require__(11);   
+	    this.addIdentity = __webpack_require__(12);   
+	    this.removeIdentity = __webpack_require__(13)({ Bluebus: Bluebus, Global: Global });
 
-	    this.init = __webpack_require__(13);
-	    this.isInitialized = __webpack_require__(14);
+	    this.init = __webpack_require__(14);
+	    this.isInitialized = __webpack_require__(15);
 
-	    this.autoLogin = __webpack_require__(15);
-	    this.finalizeLoginFlow = __webpack_require__(16);
-	    this.isUserLogged = __webpack_require__(17);
-	    this.login = __webpack_require__(18);
-	    this.logout = __webpack_require__(19);
-	    this.setUserStateChangeListener = __webpack_require__(20);
+	    this.autoLogin = __webpack_require__(16);
+	    this.finalizeLoginFlow = __webpack_require__(17);
+	    this.isUserLogged = __webpack_require__(18);
+	    this.login = __webpack_require__(19);
+	    this.logout = __webpack_require__(20);
+	    this.setUserStateChangeListener = __webpack_require__(21);
 
-	    this.rankContent = __webpack_require__(21);
-	    this.trackEvent = __webpack_require__(22);
-	    this.trackPageview = __webpack_require__(23);
+	    this.rankContent = __webpack_require__(22);
+	    this.trackEvent = __webpack_require__(23);
+	    this.trackPageview = __webpack_require__(24);
 
-	    this.confirmEmail = __webpack_require__(24);
-	    this.confirmEmailAndLogin = __webpack_require__(25);
-	    this.getUserToken = __webpack_require__(26);
-	    this.recoverPassword = __webpack_require__(27);
-	    this.resetPassword = __webpack_require__(28);
-	    this.userDelete = __webpack_require__(29);    
+	    this.confirmEmail = __webpack_require__(25);
+	    this.confirmEmailAndLogin = __webpack_require__(26);
+	    this.getUserToken = __webpack_require__(27);
+	    this.recoverPassword = __webpack_require__(28);
+	    this.resetPassword = __webpack_require__(29);
+	    this.userDelete = __webpack_require__(30);    
 	};
 
 
@@ -1136,6 +1137,55 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Promise = __webpack_require__(4);
 	var Bluebus = __webpack_require__(1);
 	var Global = __webpack_require__(2);
+
+	/**
+	* @ngdoc function
+	* @name getIdentities
+	* @methodOf NewtonAdapter
+	*
+	* @description Get identities from current user<br/>
+	* <b>This method is executed after login (waitLogin:true) or after init (false)</b>
+	*
+	* @return {string} promise that will be resolved when the identities has been retrieved for the current user, rejected if failed
+	*
+	* @example
+	* <pre>
+	* NewtonAdapter.getIdentities();
+	* </pre>
+	*/
+
+	module.exports = function(identityType){
+	    return new Promise(function(resolve, reject){
+	        Bluebus.bind('login', function(){
+	            Global.newtonInstance.getIdentityManager().getIdentities(function(err, identities){
+	                if(err){
+	                    reject(err);
+	                    Global.logger.error('NewtonAdapter', 'getIdentities', err);
+	                } else {
+	                    var singleIdentity = false;
+
+	                    for(var index in identities){
+	                        if(identities[index] && identities[index].getType === identityType){
+	                            singleIdentity = identities[index];
+	                        }
+	                    }
+	                    
+	                    resolve(singleIdentity);
+	                    Global.logger.log('NewtonAdapter', 'getIdentities', identities);
+	                }
+	            });
+	        });
+	    });
+	};
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* global Newton */
+	var Promise = __webpack_require__(4);
+	var Bluebus = __webpack_require__(1);
+	var Global = __webpack_require__(2);
 	var Utility = __webpack_require__(8);
 
 	/**
@@ -1247,7 +1297,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -1335,7 +1385,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -1439,7 +1489,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -1466,7 +1516,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -1508,7 +1558,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -1542,7 +1592,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -1573,7 +1623,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -1775,7 +1825,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -1817,7 +1867,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -1850,7 +1900,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -1909,7 +1959,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -1917,7 +1967,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Bluebus = __webpack_require__(1);
 	var Global = __webpack_require__(2);
 	var Utility = __webpack_require__(8);
-	var rankContent = __webpack_require__(21);
+	var rankContent = __webpack_require__(22);
 
 	/**
 	* @ngdoc function
@@ -1974,11 +2024,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
-	var trackEvent = __webpack_require__(22);
+	var trackEvent = __webpack_require__(23);
 
 	/**
 	* @ngdoc function
@@ -2022,7 +2072,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -2072,7 +2122,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -2126,7 +2176,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -2157,7 +2207,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -2231,7 +2281,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -2288,7 +2338,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -2353,4 +2403,4 @@ return /******/ (function(modules) { // webpackBootstrap
 });
 ;
 
-/* Newton Adapter 2.5.0 */
+/* Newton Adapter temp */
