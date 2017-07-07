@@ -1,3 +1,6 @@
+# 2.6.0
+- Added single identity
+
 # 2.5.0
 - Added login without pin support
 
