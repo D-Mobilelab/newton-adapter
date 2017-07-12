@@ -41,8 +41,10 @@ module.exports = function(deps){
                                 reject('it\'s not possible remove unique identity');
                                 deps.Global.logger.error('NewtonAdapter', 'removeIdentity', 'it\'s not possible remove unique identity');
                             } else {
+                                var found = false;
                                 for(var i = 0; i < identities.length; i++) {
                                     if (options.type === identities[i].getType()){
+                                        found = true;
                                         identities[i].delete(function(deleteError){
                                             if(deleteError){
                                                 reject(deleteError);
@@ -55,11 +57,14 @@ module.exports = function(deps){
                                         break;
                                     }
                                 }
-                                /** If we're here there was no match */
-                                var err = new Error('no identities for ' + options.type);
-                                err.code = 404;
-                                err.name = 'NotFound';
-                                reject(err);
+                                
+                                if (!found) {
+                                    /** If we're here there was no match */
+                                    var err = new Error('no identities for ' + options.type);
+                                    err.code = 404;
+                                    err.name = 'NotFound';
+                                    reject(err);
+                                }                                
                             }
                         }
                     });

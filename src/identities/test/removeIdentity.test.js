@@ -83,7 +83,9 @@ describe('identity/removeIdentity', function() {
         /** mock delete identity method */
         var identity = new Identity('oauth');
         identity.delete = function(fn){
-            fn(new Error('Error while deleting'));
+            setTimeout(function(){
+                fn(new Error('Error while deleting'));
+            }, 10);            
         }
 
         newtonMockInstance.getIdentities = function(fn) {
@@ -140,14 +142,11 @@ describe('identity/removeIdentity', function() {
             .then(function(result) {
                 expect(result).toEqual(true);
                 done();
-            }).catch(function(err) {                
-                done();
-            });
-            
+            }).catch(done.fail);
         Bluebus.trigger('login');
     });
-
-    it('should reject if an error occur', function(done) {
+    
+    it('should reject if an error occurs', function(done) {
         
         var identityOauth = new Identity('oauth');
         var identityMsisdn = new Identity('msisdn');       
