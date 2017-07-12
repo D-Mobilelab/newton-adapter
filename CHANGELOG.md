@@ -1,3 +1,6 @@
+# 2.6.1
+- Bug fix removeIdentity
+
 # 2.6.0
 - Added single identity
 

@@ -1343,8 +1343,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                                reject('it\'s not possible remove unique identity');
 	                                deps.Global.logger.error('NewtonAdapter', 'removeIdentity', 'it\'s not possible remove unique identity');
 	                            } else {
+	                                var found = false;
 	                                for(var i = 0; i < identities.length; i++) {
 	                                    if (options.type === identities[i].getType()){
+	                                        found = true;
 	                                        identities[i].delete(function(deleteError){
 	                                            if(deleteError){
 	                                                reject(deleteError);
@@ -1357,11 +1359,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	                                        break;
 	                                    }
 	                                }
-	                                /** If we're here there was no match */
-	                                var err = new Error('no identities for ' + options.type);
-	                                err.code = 404;
-	                                err.name = 'NotFound';
-	                                reject(err);
+	                                
+	                                if (!found) {
+	                                    /** If we're here there was no match */
+	                                    var err = new Error('no identities for ' + options.type);
+	                                    err.code = 404;
+	                                    err.name = 'NotFound';
+	                                    reject(err);
+	                                }                                
 	                            }
 	                        }
 	                    });
@@ -2403,4 +2408,4 @@ return /******/ (function(modules) { // webpackBootstrap
 });
 ;
 
-/* Newton Adapter 2.6.0 */
+/* Newton Adapter 2.7.0 */
