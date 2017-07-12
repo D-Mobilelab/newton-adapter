@@ -6,7 +6,9 @@ module.exports.Identity = function Identity(type){
     };
 
     this.delete = function(fn){
-        fn(null);
+        setTimeout(function(){
+            fn(null);
+        }, 10);        
     };
 };
 
