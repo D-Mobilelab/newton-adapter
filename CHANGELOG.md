@@ -1,3 +1,6 @@
+# 2.6.2
+- Updated node engine
+
 # 2.6.1
 - Bug fix removeIdentity
 

@@ -2408,4 +2408,4 @@ return /******/ (function(modules) { // webpackBootstrap
 });
 ;
 
-/* Newton Adapter 2.7.0 */
+/* Newton Adapter 2.6.2 */
