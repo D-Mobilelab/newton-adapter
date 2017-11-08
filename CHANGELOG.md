@@ -1,3 +1,6 @@
+# 2.7.0
+- AddIdentity() with type:'email' can accept a smsTemplate param
+
 # 2.6.2
 - Updated node engine
 

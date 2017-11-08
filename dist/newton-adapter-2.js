@@ -168,14 +168,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	/************************************************************************/
 	/******/ ([
 	/* 0 */
-	/***/ function(module, exports) {
+	/***/ (function(module, exports) {
 
 		module.exports = {
 
 		    /*
 		    events: {
 		        eventName: {
-		            triggered: true/false
+		            triggered: true/false,
 		            parameters: lastTriggeredParameters,
 		            stack: [
 		                bindedFunction1, bindedFunction2 ...
@@ -203,20 +203,30 @@ return /******/ (function(modules) { // webpackBootstrap
 		        }
 		    },
 
-		    trigger: function(key, parameters){       
+		    trigger: function(key, parameters, leaveStack){
 		        var event = this.events[key];
 		        if(event){
-		            if(!event.triggered){
+		            // call binding methods
+		            if(event.stack.length > 0){
 		                for(var i = 0; i < event.stack.length; i++){
 		                    event.stack[i].call(this, parameters);
 		                }
 		            }
+
+		            // change event properties
+		            this.events[key] = {
+		                triggered: true,
+		                parameters: parameters,
+		                stack: leaveStack ? this.events[key].stack : []
+		            };
+		        } else {
+		            // change event properties
+		            this.events[key] = {
+		                triggered: true,
+		                parameters: parameters,
+		                stack: []
+		            };
 		        }
-		        this.events[key] = {
-		            triggered: true,
-		            parameters: parameters,
-		            stack: []
-		        };
 		    },
 
 		    isTriggered: function(key){
@@ -242,12 +252,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		};
 
-	/***/ }
+
+	/***/ })
 	/******/ ])
 	});
 	;
 
-	/* Bluebus 1.1.0 */
+	/* Bluebus 1.3.1 */
 
 /***/ }),
 /* 2 */
@@ -1225,21 +1236,24 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return new Promise(function(resolve, reject){
 	        Bluebus.bind('login', function(){
 	            var identityType = options.type ? options.type : 'oauth';
+
+	            var callback = function(errLocal, identityTypeLocal, optionsLocal){
+	                if(errLocal){
+	                    reject(errLocal);
+	                    Global.logger.error('NewtonAdapter', 'addIdentity', identityTypeLocal, errLocal);
+	                } else {
+	                    resolve();
+	                    Global.logger.log('NewtonAdapter', 'addIdentity', identityTypeLocal, optionsLocal);
+	                }
+	            };
+
 	            if(identityType === 'oauth'){
 	                if(options.provider && options.access_token){
 	                    Global.newtonInstance.getIdentityManager()
 	                    .getIdentityBuilder()
 	                    .setOAuthProvider(options.provider)
 	                    .setAccessToken(options.access_token)
-	                    .setOnFlowCompleteCallback(function(err){
-	                        if(err){
-	                            reject(err);
-	                            Global.logger.error('NewtonAdapter', 'addIdentity', 'Oauth', err);
-	                        } else {
-	                            resolve();
-	                            Global.logger.log('NewtonAdapter', 'addIdentity', 'Oauth', options);
-	                        }
-	                    })
+	                    .setOnFlowCompleteCallback(function(err){ callback(err, identityType, options); })
 	                    .getAddOAuthIdentityFlow()
 	                    .startAddIdentityFlow();
 	                } else {
@@ -1248,22 +1262,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	            } else if(identityType === 'email'){
 	                if(options.email && options.password){
-	                    Global.newtonInstance.getIdentityManager()
-	                    .getIdentityBuilder()
-	                    .setEmail(options.email)
-	                    .setPassword(options.password)
-	                    .setProductEmailParams(Utility.createSimpleObject(options.params))
-	                    .setOnFlowCompleteCallback(function(err){
-	                        if(err){
-	                            reject(err);
-	                            Global.logger.error('NewtonAdapter', 'addIdentity', 'Email', err);
-	                        } else {
-	                            resolve();
-	                            Global.logger.log('NewtonAdapter', 'addIdentity', 'Email', options);
-	                        }
-	                    })
-	                    .getAddEmailIdentityFlow()
-	                    .startAddIdentityFlow();
+	                    if(options.smsTemplate){
+	                        Global.newtonInstance.getIdentityManager()
+	                        .getIdentityBuilder()
+	                        .setEmail(options.email)
+	                        .setPassword(options.password)
+	                        .setProductEmailParams(Utility.createSimpleObject(options.params))
+	                        .setOnFlowCompleteCallback(function(err){ callback(err, identityType, options); })
+	                        .setSMSTemplate(options.smsTemplate)
+	                        .getAddEmailIdentityFlow()
+	                        .startAddIdentityFlow();
+	                    } else {
+	                        Global.newtonInstance.getIdentityManager()
+	                        .getIdentityBuilder()
+	                        .setEmail(options.email)
+	                        .setPassword(options.password)
+	                        .setProductEmailParams(Utility.createSimpleObject(options.params))
+	                        .setOnFlowCompleteCallback(function(err){ callback(err, identityType, options); })
+	                        .getAddEmailIdentityFlow()
+	                        .startAddIdentityFlow();
+	                    }
 	                } else {
 	                    reject('addIdentity email, requires email and password');
 	                    Global.logger.error('NewtonAdapter', 'addIdentity', 'Email', 'addIdentity email requires email and password');
@@ -1272,15 +1290,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                if(options.smsTemplate){
 	                    Global.newtonInstance.getIdentityManager()
 	                    .getIdentityBuilder()
-	                    .setOnFlowCompleteCallback(function(err){
-	                        if(err){
-	                            reject(err);
-	                            Global.logger.error('NewtonAdapter', 'addIdentity', 'Generic', err);
-	                        } else {
-	                            resolve();
-	                            Global.logger.log('NewtonAdapter', 'addIdentity', 'Generic', options);
-	                        }
-	                    })
+	                    .setOnFlowCompleteCallback(function(err){ callback(err, identityType, options); })
 	                    .setSMSTemplate(options.smsTemplate)
 	                    .getAddGenericIdentityFlow()
 	                    .startAddIdentityFlow();
@@ -2408,4 +2418,4 @@ return /******/ (function(modules) { // webpackBootstrap
 });
 ;
 
-/* Newton Adapter 2.6.2 */
+/* Newton Adapter 2.7.0 */
