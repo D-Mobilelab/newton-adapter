@@ -41,21 +41,24 @@ module.exports = function(options){
     return new Promise(function(resolve, reject){
         Bluebus.bind('login', function(){
             var identityType = options.type ? options.type : 'oauth';
+
+            var callback = function(errLocal, identityTypeLocal, optionsLocal){
+                if(errLocal){
+                    reject(errLocal);
+                    Global.logger.error('NewtonAdapter', 'addIdentity', identityTypeLocal, errLocal);
+                } else {
+                    resolve();
+                    Global.logger.log('NewtonAdapter', 'addIdentity', identityTypeLocal, optionsLocal);
+                }
+            };
+
             if(identityType === 'oauth'){
                 if(options.provider && options.access_token){
                     Global.newtonInstance.getIdentityManager()
                     .getIdentityBuilder()
                     .setOAuthProvider(options.provider)
                     .setAccessToken(options.access_token)
-                    .setOnFlowCompleteCallback(function(err){
-                        if(err){
-                            reject(err);
-                            Global.logger.error('NewtonAdapter', 'addIdentity', 'Oauth', err);
-                        } else {
-                            resolve();
-                            Global.logger.log('NewtonAdapter', 'addIdentity', 'Oauth', options);
-                        }
-                    })
+                    .setOnFlowCompleteCallback(function(err){ callback(err, identityType, options); })
                     .getAddOAuthIdentityFlow()
                     .startAddIdentityFlow();
                 } else {
@@ -64,22 +67,26 @@ module.exports = function(options){
                 }
             } else if(identityType === 'email'){
                 if(options.email && options.password){
-                    Global.newtonInstance.getIdentityManager()
-                    .getIdentityBuilder()
-                    .setEmail(options.email)
-                    .setPassword(options.password)
-                    .setProductEmailParams(Utility.createSimpleObject(options.params))
-                    .setOnFlowCompleteCallback(function(err){
-                        if(err){
-                            reject(err);
-                            Global.logger.error('NewtonAdapter', 'addIdentity', 'Email', err);
-                        } else {
-                            resolve();
-                            Global.logger.log('NewtonAdapter', 'addIdentity', 'Email', options);
-                        }
-                    })
-                    .getAddEmailIdentityFlow()
-                    .startAddIdentityFlow();
+                    if(options.smsTemplate){
+                        Global.newtonInstance.getIdentityManager()
+                        .getIdentityBuilder()
+                        .setEmail(options.email)
+                        .setPassword(options.password)
+                        .setProductEmailParams(Utility.createSimpleObject(options.params))
+                        .setOnFlowCompleteCallback(function(err){ callback(err, identityType, options); })
+                        .setSMSTemplate(options.smsTemplate)
+                        .getAddEmailIdentityFlow()
+                        .startAddIdentityFlow();
+                    } else {
+                        Global.newtonInstance.getIdentityManager()
+                        .getIdentityBuilder()
+                        .setEmail(options.email)
+                        .setPassword(options.password)
+                        .setProductEmailParams(Utility.createSimpleObject(options.params))
+                        .setOnFlowCompleteCallback(function(err){ callback(err, identityType, options); })
+                        .getAddEmailIdentityFlow()
+                        .startAddIdentityFlow();
+                    }
                 } else {
                     reject('addIdentity email, requires email and password');
                     Global.logger.error('NewtonAdapter', 'addIdentity', 'Email', 'addIdentity email requires email and password');
@@ -88,15 +95,7 @@ module.exports = function(options){
                 if(options.smsTemplate){
                     Global.newtonInstance.getIdentityManager()
                     .getIdentityBuilder()
-                    .setOnFlowCompleteCallback(function(err){
-                        if(err){
-                            reject(err);
-                            Global.logger.error('NewtonAdapter', 'addIdentity', 'Generic', err);
-                        } else {
-                            resolve();
-                            Global.logger.log('NewtonAdapter', 'addIdentity', 'Generic', options);
-                        }
-                    })
+                    .setOnFlowCompleteCallback(function(err){ callback(err, identityType, options); })
                     .setSMSTemplate(options.smsTemplate)
                     .getAddGenericIdentityFlow()
                     .startAddIdentityFlow();
