@@ -1,3 +1,6 @@
+# 2.8.0
+- Login (type:'msisdn') accepts operator
+
 # 2.7.0
 - AddIdentity() with type:'email' can accept a smsTemplate param
 

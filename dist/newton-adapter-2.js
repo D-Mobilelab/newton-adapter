@@ -1764,19 +1764,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	                            Global.logger.error('NewtonAdapter', 'Login', 'External login requires userId');
 	                        }
 	                    } else if(loginType === 'msisdn'){
-	                        if(options.msisdn && options.pin){
-	                            Global.newtonInstance.getLoginBuilder()
+	                        if(options.msisdn){
+	                            var chain = Global.newtonInstance.getLoginBuilder()
 	                            .setOnFlowCompleteCallback(callCallback)
-	                            .setMSISDN(options.msisdn)
-	                            .setPIN(options.pin)
-	                            .getMSISDNPINLoginFlow()
-	                            .startLoginFlow();
-	                        } else if(options.msisdn){
-	                            Global.newtonInstance.getLoginBuilder()
-	                            .setOnFlowCompleteCallback(callCallback)
-	                            .setMSISDN(options.msisdn)
-	                            .setNoPIN()
-	                            .getMSISDNPINLoginFlow()
+	                            .setMSISDN(options.msisdn);
+	                            chain = options.pin ? chain.setPIN(options.pin) : chain.setNoPIN();
+	                            if(options.operator){
+	                                chain = chain.setOperator(options.operator);
+	                            }
+	                            chain.getMSISDNPINLoginFlow()
 	                            .startLoginFlow();
 	                        } else {
 	                            reject('Msisdn login requires at least msisdn');
@@ -2418,4 +2414,4 @@ return /******/ (function(modules) { // webpackBootstrap
 });
 ;
 
-/* Newton Adapter 2.7.0 */
+/* Newton Adapter 2.8.0 */
