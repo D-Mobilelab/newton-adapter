@@ -31,13 +31,18 @@ var Mock = {
             startLoginFlow: function(){ Mock.calls.push('startLoginFlow'); Mock.logged = true; return this; },
             setMSISDN: function(){ Mock.calls.push('setMSISDN'); return this; },
             setPIN: function(){ Mock.calls.push('setPIN'); return this; },
+            setNoPIN: function(){ Mock.calls.push('setNoPIN'); return this; },
+            setOperator: function(){ Mock.calls.push('setOperator'); return this; },
             getMSISDNPINLoginFlow: function(){ Mock.calls.push('getMSISDNPINLoginFlow'); return this; },
             __setDomain: function(){ Mock.calls.push('__setDomain'); return this; },
             getMSISDNURLoginFlow: function(){ Mock.calls.push('getMSISDNURLoginFlow'); return this; },
             setOAuthProvider: function(){ Mock.calls.push('setOAuthProvider'); return this; },
             setAccessToken: function(){ Mock.calls.push('setAccessToken'); return this; },
             setEmail: function(){ Mock.calls.push('setEmail'); return this; },
-            setPassword: function(){ Mock.calls.push('setPassword'); return this; },
+            setPassword: function(){ Mock.calls.push('setPassword'); return this; },          
+            getEmailLoginFlow: function(){ Mock.calls.push('getEmailLoginFlow'); return this; },  
+            setUsername: function(){ Mock.calls.push('setUsername'); return this; },     
+            getGenericLoginFlow: function(){ Mock.calls.push('getGenericLoginFlow'); return this; },          
             setProductEmailParams: function(){ Mock.calls.push('setProductEmailParams'); return this; },
             setSMSTemplate: function(){ Mock.calls.push('setSMSTemplate'); return this; },
             getOAuthLoginFlow: function(){ Mock.calls.push('getOAuthLoginFlow'); return this; },
@@ -84,6 +89,8 @@ var Mock = {
         spyOn(Mock.NewtonMock, 'startLoginFlow').and.callThrough();
         spyOn(Mock.NewtonMock, 'setMSISDN').and.callThrough();
         spyOn(Mock.NewtonMock, 'setPIN').and.callThrough();
+        spyOn(Mock.NewtonMock, 'setNoPIN').and.callThrough();
+        spyOn(Mock.NewtonMock, 'setOperator').and.callThrough();
         spyOn(Mock.NewtonMock, 'getMSISDNPINLoginFlow').and.callThrough();
         spyOn(Mock.NewtonMock, '__setDomain').and.callThrough();
         spyOn(Mock.NewtonMock, 'getMSISDNURLoginFlow').and.callThrough();
@@ -91,6 +98,9 @@ var Mock = {
         spyOn(Mock.NewtonMock, 'setAccessToken').and.callThrough();
         spyOn(Mock.NewtonMock, 'setEmail').and.callThrough();
         spyOn(Mock.NewtonMock, 'setPassword').and.callThrough();
+        spyOn(Mock.NewtonMock, 'getEmailLoginFlow').and.callThrough();
+        spyOn(Mock.NewtonMock, 'setUsername').and.callThrough();
+        spyOn(Mock.NewtonMock, 'getGenericLoginFlow').and.callThrough();
         spyOn(Mock.NewtonMock, 'setProductEmailParams').and.callThrough();
         spyOn(Mock.NewtonMock, 'setSMSTemplate').and.callThrough();
         spyOn(Mock.NewtonMock, 'getOAuthLoginFlow').and.callThrough();

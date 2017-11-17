@@ -9,6 +9,10 @@ describe('login/login', function(){
     };
     var msisdn = '+39123456789';
     var pin = '1234';  
+    var operator = 'tim';
+    var email = 'john@doe.com';  
+    var password = 'johndoe';  
+    var username = 'johndoedoe';  
     var domain = 'www.gameasy.com';  
     var provider = 'facebook';  
     var accessToken = '1234567890abcedf';  
@@ -74,13 +78,91 @@ describe('login/login', function(){
             NewtonAdapter.login({
                 logged: true,
                 type: 'msisdn',
+                msisdn: msisdn
+            }).then(function(){
+                expect(NewtonMock.getLoginBuilder).toHaveBeenCalled();
+                expect(NewtonMock.setMSISDN).toHaveBeenCalledWith(msisdn);
+                expect(NewtonMock.setPIN).not.toHaveBeenCalled();
+                expect(NewtonMock.setNoPIN).toHaveBeenCalled();
+                expect(NewtonMock.setOperator).not.toHaveBeenCalled();
+                expect(NewtonMock.getMSISDNPINLoginFlow).toHaveBeenCalled();
+                expect(NewtonMock.startLoginFlow).toHaveBeenCalled();       
+                done();
+            }).catch(function(reason){
+                done.fail(reason);
+            });        
+        });
+
+        it('msisdn+pin', function(done){
+            NewtonAdapter.login({
+                logged: true,
+                type: 'msisdn',
                 msisdn: msisdn,
                 pin: pin
             }).then(function(){
                 expect(NewtonMock.getLoginBuilder).toHaveBeenCalled();
                 expect(NewtonMock.setMSISDN).toHaveBeenCalledWith(msisdn);
                 expect(NewtonMock.setPIN).toHaveBeenCalledWith(pin);
+                expect(NewtonMock.setNoPIN).not.toHaveBeenCalled();
+                expect(NewtonMock.setOperator).not.toHaveBeenCalled();
                 expect(NewtonMock.getMSISDNPINLoginFlow).toHaveBeenCalled();
+                expect(NewtonMock.startLoginFlow).toHaveBeenCalled();       
+                done();
+            }).catch(function(reason){
+                done.fail(reason);
+            });        
+        });
+
+        it('msisdn+pin+operator', function(done){
+            NewtonAdapter.login({
+                logged: true,
+                type: 'msisdn',
+                msisdn: msisdn,
+                pin: pin,
+                operator: operator
+            }).then(function(){
+                expect(NewtonMock.getLoginBuilder).toHaveBeenCalled();
+                expect(NewtonMock.setMSISDN).toHaveBeenCalledWith(msisdn);
+                expect(NewtonMock.setPIN).toHaveBeenCalledWith(pin);
+                expect(NewtonMock.setNoPIN).not.toHaveBeenCalled();
+                expect(NewtonMock.setOperator).toHaveBeenCalledWith(operator);
+                expect(NewtonMock.getMSISDNPINLoginFlow).toHaveBeenCalled();
+                expect(NewtonMock.startLoginFlow).toHaveBeenCalled();       
+                done();
+            }).catch(function(reason){
+                done.fail(reason);
+            });        
+        });
+
+        it('email', function(done){
+            NewtonAdapter.login({
+                logged: true,
+                type: 'email',
+                email: email,
+                password: password
+            }).then(function(){
+                expect(NewtonMock.getLoginBuilder).toHaveBeenCalled();
+                expect(NewtonMock.setEmail).toHaveBeenCalledWith(email);
+                expect(NewtonMock.setPassword).toHaveBeenCalledWith(password);
+                expect(NewtonMock.getEmailLoginFlow).toHaveBeenCalled();
+                expect(NewtonMock.startLoginFlow).toHaveBeenCalled();       
+                done();
+            }).catch(function(reason){
+                done.fail(reason);
+            });        
+        });
+
+        it('generic', function(done){
+            NewtonAdapter.login({
+                logged: true,
+                type: 'generic',
+                username: username,
+                password: password
+            }).then(function(){
+                expect(NewtonMock.getLoginBuilder).toHaveBeenCalled();
+                expect(NewtonMock.setUsername).toHaveBeenCalledWith(username);
+                expect(NewtonMock.setPassword).toHaveBeenCalledWith(password);
+                expect(NewtonMock.getGenericLoginFlow).toHaveBeenCalled();
                 expect(NewtonMock.startLoginFlow).toHaveBeenCalled();       
                 done();
             }).catch(function(reason){

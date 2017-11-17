@@ -1,7 +1,7 @@
 var Bluebus = require('bluebus');
 
 var removeIdentityModule = require('../removeIdentity');
-var NewtonMock = require('../../NewtonMock');
+var NewtonMock = require('../../NewtonMockToBeDeprecate');
 var Identity = require('./helpers/helpers').Identity;
 var noop = require('./helpers/helpers').noop;
 
