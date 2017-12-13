@@ -44,6 +44,7 @@ module.exports = new function(){
     this.rankContent = require('./tracking/rankContent');
     this.trackEvent = require('./tracking/trackEvent');
     this.trackPageview = require('./tracking/trackPageview');
+    this.setLogView = require('./tracking/setLogView');
 
     this.confirmEmail = require('./user/confirmEmail');
     this.confirmEmailAndLogin = require('./user/confirmEmailAndLogin');
