@@ -1,3 +1,6 @@
+# 2.9.0
+- setLogViewInfo new method
+
 # 2.8.0
 - Login (type:'msisdn') accepts operator
 

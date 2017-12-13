@@ -100,13 +100,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.rankContent = __webpack_require__(22);
 	    this.trackEvent = __webpack_require__(23);
 	    this.trackPageview = __webpack_require__(24);
+	    this.setLogView = __webpack_require__(25);
 
-	    this.confirmEmail = __webpack_require__(25);
-	    this.confirmEmailAndLogin = __webpack_require__(26);
-	    this.getUserToken = __webpack_require__(27);
-	    this.recoverPassword = __webpack_require__(28);
-	    this.resetPassword = __webpack_require__(29);
-	    this.userDelete = __webpack_require__(30);    
+	    this.confirmEmail = __webpack_require__(26);
+	    this.confirmEmailAndLogin = __webpack_require__(27);
+	    this.getUserToken = __webpack_require__(28);
+	    this.recoverPassword = __webpack_require__(29);
+	    this.resetPassword = __webpack_require__(30);
+	    this.userDelete = __webpack_require__(31);    
 	};
 
 
@@ -2086,6 +2087,61 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
+	/* global Newton */
+	var Promise = __webpack_require__(4);
+	var Bluebus = __webpack_require__(1);
+	var Global = __webpack_require__(2);
+	var Utility = __webpack_require__(8);
+	var rankContent = __webpack_require__(22);
+
+	/**
+	* @ngdoc function
+	* @name setLogView
+	* @methodOf NewtonAdapter
+	*
+	* @description Initialize LogView, passing paramenters<br>
+	* <b>This method is executed after init</b>
+	*
+	* @param {Object} options logview configuration object
+	*
+	* @return {Promise} promise will be resolved when set is completed, rejected if failed
+	*
+	* @example
+	* <pre>
+	*   NewtonAdapter.setLogView({
+	*           endpoint: 'endpoint-xxx',
+	*           uid: 'uid-xxx',
+	*           label: 'label-xxx',
+	*           pid: 'pid-xxx'
+	*   }).then(function(){
+	*       console.log('setLogView success');
+	*   }).catch(function(err){
+	*       console.log('setLogView failed', err);
+	*   });
+	* </pre>
+	*/
+	module.exports = function(properties){
+	    return new Promise(function(resolve, reject){
+	        Bluebus.bind('init', function(){
+	            if(properties && Global.newtonInstance.setLogViewInfo){
+	                Global.newtonInstance.setLogViewInfo(Utility.createSimpleObject(properties));
+	                resolve();
+	                Global.logger.log('NewtonAdapter', 'setLogView', properties);
+	            } else if(!properties) {
+	                reject('setLogView requires properties');
+	                Global.logger.error('NewtonAdapter', 'setLogView', 'setLogView requires properties');
+	            } else {
+	                reject('setLogViewInfo method is not present on Newton SDK');
+	                Global.logger.error('NewtonAdapter', 'setLogView', 'setLogViewInfo method is not present on Newton SDK');
+	            }
+	        });
+	    });
+	};
+
+/***/ }),
+/* 26 */
+/***/ (function(module, exports, __webpack_require__) {
+
 	/* eslint-env browser */
 	/* global Newton */
 	var Promise = __webpack_require__(4);
@@ -2133,7 +2189,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -2187,7 +2243,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -2218,7 +2274,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -2292,7 +2348,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -2349,7 +2405,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -2414,4 +2470,4 @@ return /******/ (function(modules) { // webpackBootstrap
 });
 ;
 
-/* Newton Adapter 2.8.0 */
+/* Newton Adapter 2.9.0 */
