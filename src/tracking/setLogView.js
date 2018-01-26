@@ -35,7 +35,7 @@ module.exports = function(properties){
     return new Promise(function(resolve, reject){
         Bluebus.bind('init', function(){
             if(properties && Global.newtonInstance.setLogViewInfo){
-                Global.newtonInstance.setLogViewInfo(Utility.createSimpleObject(properties));
+                Global.newtonInstance.setLogViewInfo(properties);
                 resolve();
                 Global.logger.log('NewtonAdapter', 'setLogView', properties);
             } else if(!properties) {
