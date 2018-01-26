@@ -1,3 +1,6 @@
+# 2.9.1
+- setLogViewInfo takes an object instead of a SimpleObject
+
 # 2.9.0
 - setLogViewInfo new method
 
