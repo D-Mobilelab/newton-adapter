@@ -1779,6 +1779,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	                            reject('Msisdn login requires at least msisdn');
 	                            Global.logger.error('NewtonAdapter', 'Login', 'Msisdn login requires at least msisdn');
 	                        }
+	                    } else if (loginType === 'alias') {
+	                        if (options.alias) {
+	                            var chain = Global.newtonInstance.getLoginBuilder()
+	                                .setOnFlowCompleteCallback(callCallback)
+	                                .setAlias(options.alias);
+	                            chain = options.pin ? chain.setPIN(options.pin) : chain.setNoPIN();
+	                            if (options.operator) {
+	                                chain = chain.setOperator(options.operator);
+	                            }
+	                            chain.getMSISDNPINLoginFlow()
+	                                .startLoginFlow();
+	                        } else {
+	                            reject('Msisdn login requires at least msisdn');
+	                            Global.logger.error('NewtonAdapter', 'Login', 'Msisdn login requires at least msisdn');
+	                        }
 	                    } else if(loginType === 'email'){
 	                        if(options.email && options.password){
 	                            Global.newtonInstance.getLoginBuilder()
@@ -2470,4 +2485,4 @@ return /******/ (function(modules) { // webpackBootstrap
 });
 ;
 
-/* Newton Adapter 2.9.1 */
+/* Newton Adapter temp */
