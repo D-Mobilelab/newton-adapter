@@ -46,6 +46,20 @@ module.exports = function(options){
                 .setMSISDN(options.msisdn)
                 .getMSISDNPINForgotFlow()
                 .startForgotFlow();
+            } else if(options.alias){
+                Global.newtonInstance.getLoginBuilder()
+                .setOnForgotFlowCallback(function (err) {
+                    if (err) {
+                        reject(err);
+                        Global.logger.error('NewtonAdapter', 'recoverPassword', err);
+                    } else {
+                        resolve();
+                        Global.logger.log('NewtonAdapter', 'recoverPassword', options);
+                    }
+                })
+                .setAlias(options.alias)
+                .getMSISDNPINForgotFlow()
+                .startForgotFlow();
             } else if(options.email){
                 Global.newtonInstance.getLoginBuilder()
                 .setOnForgotFlowCallback(function(err){
