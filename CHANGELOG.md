@@ -1,3 +1,6 @@
+# 2.10.0
+- New Alias Flow
+
 # 2.9.1
 - setLogViewInfo takes an object instead of a SimpleObject
 
