@@ -1,6 +1,3 @@
-# 2.11.0
-- Alias management
-
 # 2.9.1
 - setLogViewInfo takes an object instead of a SimpleObject
 
