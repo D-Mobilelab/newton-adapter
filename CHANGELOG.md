@@ -1,7 +1,4 @@
-# 2.9.3
-- Alias management fix
-
-# 2.9.2
+# 2.10.0
 - Alias management
 
 # 2.9.1
