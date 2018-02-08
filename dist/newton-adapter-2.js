@@ -1766,14 +1766,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        }
 	                    } else if(loginType === 'msisdn'){
 	                        if(options.msisdn){
-	                            var chain = Global.newtonInstance.getLoginBuilder()
+	                            var msisdnChain = Global.newtonInstance.getLoginBuilder()
 	                            .setOnFlowCompleteCallback(callCallback)
 	                            .setMSISDN(options.msisdn);
-	                            chain = options.pin ? chain.setPIN(options.pin) : chain.setNoPIN();
+	                            msisdnChain = options.pin ? msisdnChain.setPIN(options.pin) : msisdnChain.setNoPIN();
 	                            if(options.operator){
-	                                chain = chain.setOperator(options.operator);
+	                                msisdnChain = msisdnChain.setOperator(options.operator);
 	                            }
-	                            chain.getMSISDNPINLoginFlow()
+	                            msisdnChain.getMSISDNPINLoginFlow()
 	                            .startLoginFlow();
 	                        } else {
 	                            reject('Msisdn login requires at least msisdn');
@@ -1781,14 +1781,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        }
 	                    } else if (loginType === 'alias') {
 	                        if (options.alias) {
-	                            var chain = Global.newtonInstance.getLoginBuilder()
+	                            var aliasChain = Global.newtonInstance.getLoginBuilder()
 	                                .setOnFlowCompleteCallback(callCallback)
 	                                .setAlias(options.alias);
-	                            chain = options.pin ? chain.setPIN(options.pin) : chain.setNoPIN();
+	                            aliasChain = options.pin ? aliasChain.setPIN(options.pin) : aliasChain.setNoPIN();
 	                            if (options.operator) {
-	                                chain = chain.setOperator(options.operator);
+	                                aliasChain = aliasChain.setOperator(options.operator);
 	                            }
-	                            chain.getMSISDNPINLoginFlow()
+	                            aliasChain.getMSISDNPINLoginFlow()
 	                                .startLoginFlow();
 	                        } else {
 	                            reject('Msisdn login requires at least msisdn');
@@ -2499,4 +2499,4 @@ return /******/ (function(modules) { // webpackBootstrap
 });
 ;
 
-/* Newton Adapter 2.9.2 */
+/* Newton Adapter temp */
