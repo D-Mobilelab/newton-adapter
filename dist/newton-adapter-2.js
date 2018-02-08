@@ -2499,4 +2499,4 @@ return /******/ (function(modules) { // webpackBootstrap
 });
 ;
 
-/* Newton Adapter 2.11.0 */
+/* Newton Adapter temp */
