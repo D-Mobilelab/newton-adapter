@@ -1,3 +1,6 @@
+# 2.11.0
+- smsTemplate to recoverPassword
+
 # 2.10.0
 - New Alias Flow
 
