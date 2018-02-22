@@ -33,33 +33,67 @@ module.exports = function(options){
     return new Promise(function(resolve, reject){
         Bluebus.bind('init', function(){
             if(options.msisdn){
-                Global.newtonInstance.getLoginBuilder()
-                .setOnForgotFlowCallback(function(err){
-                    if(err){
-                        reject(err);
-                        Global.logger.error('NewtonAdapter', 'recoverPassword', err);
-                    } else {
-                        resolve();
-                        Global.logger.log('NewtonAdapter', 'recoverPassword', options);
-                    }
-                })
-                .setMSISDN(options.msisdn)
-                .getMSISDNPINForgotFlow()
-                .startForgotFlow();
+                if(options.smsTemplate){
+                    Global.newtonInstance.getLoginBuilder()
+                    .setOnForgotFlowCallback(function(err){
+                        if(err){
+                            reject(err);
+                            Global.logger.error('NewtonAdapter', 'recoverPassword', err);
+                        } else {
+                            resolve();
+                            Global.logger.log('NewtonAdapter', 'recoverPassword', options);
+                        }
+                    })
+                    .setMSISDN(options.msisdn)
+                    .setSMSTemplate(options.smsTemplate)
+                    .getMSISDNPINForgotFlow()
+                    .startForgotFlow();
+                } else {
+                    Global.newtonInstance.getLoginBuilder()
+                    .setOnForgotFlowCallback(function(err){
+                        if(err){
+                            reject(err);
+                            Global.logger.error('NewtonAdapter', 'recoverPassword', err);
+                        } else {
+                            resolve();
+                            Global.logger.log('NewtonAdapter', 'recoverPassword', options);
+                        }
+                    })
+                    .setMSISDN(options.msisdn)
+                    .getMSISDNPINForgotFlow()
+                    .startForgotFlow();
+                }
             } else if(options.alias){
-                Global.newtonInstance.getLoginBuilder()
-                .setOnForgotFlowCallback(function (err) {
-                    if (err) {
-                        reject(err);
-                        Global.logger.error('NewtonAdapter', 'recoverPassword', err);
-                    } else {
-                        resolve();
-                        Global.logger.log('NewtonAdapter', 'recoverPassword', options);
-                    }
-                })
-                .setAlias(options.alias)
-                .getMSISDNPINForgotFlow()
-                .startForgotFlow();
+                if(options.smsTemplate){
+                    Global.newtonInstance.getLoginBuilder()
+                    .setOnForgotFlowCallback(function (err) {
+                        if (err) {
+                            reject(err);
+                            Global.logger.error('NewtonAdapter', 'recoverPassword', err);
+                        } else {
+                            resolve();
+                            Global.logger.log('NewtonAdapter', 'recoverPassword', options);
+                        }
+                    })
+                    .setAlias(options.alias)
+                    .setSMSTemplate(options.smsTemplate)
+                    .getMSISDNPINForgotFlow()
+                    .startForgotFlow();
+                } else {
+                    Global.newtonInstance.getLoginBuilder()
+                    .setOnForgotFlowCallback(function (err) {
+                        if (err) {
+                            reject(err);
+                            Global.logger.error('NewtonAdapter', 'recoverPassword', err);
+                        } else {
+                            resolve();
+                            Global.logger.log('NewtonAdapter', 'recoverPassword', options);
+                        }
+                    })
+                    .setAlias(options.alias)
+                    .getMSISDNPINForgotFlow()
+                    .startForgotFlow();
+                }
             } else if(options.email){
                 Global.newtonInstance.getLoginBuilder()
                 .setOnForgotFlowCallback(function(err){
