@@ -69,7 +69,8 @@ module.exports = function(options){
                     }
                 } else {
                     var args = [options.secretId, Utility.createSimpleObject(options.properties)];
-                    if (options.pushCallback) { args.push(options.pushCallback); }
+                    if (options.config) { args.push(options.config); }
+                    // if (options.pushCallback) { args.push(options.pushCallback); }
                     Global.newtonInstance = Newton.getSharedInstanceWithConfig.apply(null, args);
                 }
 
