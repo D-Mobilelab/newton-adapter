@@ -1,3 +1,6 @@
+# 2.12.0
+- config params to init method
+
 # 2.11.0
 - smsTemplate to recoverPassword
 
