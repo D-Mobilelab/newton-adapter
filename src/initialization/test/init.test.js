@@ -55,6 +55,24 @@ describe('initialization/init', function(){
         });
     });
 
+    it('call Newton.getSharedInstanceWithConfig with secretId and properties and config', function (done) {
+        var secretId = '<local_host>';
+        var properties = { bridgeId: '123123123' };
+        var config = { whiteLabel: 'ww', isInternational: true };
+        NewtonAdapter.init({
+            secretId: secretId,
+            enable: true,
+            properties: properties,
+            config: config
+        }).then(function () {
+            expect(Newton.getSharedInstanceWithConfig).toHaveBeenCalledWith(secretId, properties, config);
+            done();
+        }).catch(function (reason) {
+            done.fail(reason);
+        });
+    });
+
+
     it('version 1', function(done){
         var secretId = '<local_host>';        
         var customLogger = { 
@@ -214,7 +232,7 @@ describe('initialization/init', function(){
         document.dispatchEvent(event);
     });
 
-    it('Newton.getSharedInstanceWithConfig to be executed with pushCallback params', function(done){
+    xit('Newton.getSharedInstanceWithConfig to be executed with pushCallback params', function(done){
         function onPush(pushData) {}
         var event = new CustomEvent('deviceready', { detail: Date.now() });
         NewtonAdapter.init({
