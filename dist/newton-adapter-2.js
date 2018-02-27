@@ -366,7 +366,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 
 	  function Promise(fn) {
-	    if (typeof this !== 'object') throw new TypeError('Promises must be constructed via new');
+	    if (!(this instanceof Promise)) throw new TypeError('Promises must be constructed via new');
 	    if (typeof fn !== 'function') throw new TypeError('not a function');
 	    this._state = 0;
 	    this._handled = false;
@@ -490,9 +490,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 
 	  Promise.all = function (arr) {
-	    var args = Array.prototype.slice.call(arr);
-
 	    return new Promise(function (resolve, reject) {
+	      if (!arr || typeof arr.length === 'undefined') throw new TypeError('Promise.all accepts an array');
+	      var args = Array.prototype.slice.call(arr);
 	      if (args.length === 0) return resolve([]);
 	      var remaining = args.length;
 
@@ -590,7 +590,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	var apply = Function.prototype.apply;
+	/* WEBPACK VAR INJECTION */(function(global) {var apply = Function.prototype.apply;
 
 	// DOM APIs, for completeness
 
@@ -641,9 +641,17 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	// setimmediate attaches itself to the global object
 	__webpack_require__(6);
-	exports.setImmediate = setImmediate;
-	exports.clearImmediate = clearImmediate;
+	// On some exotic environments, it's not clear which object `setimmeidate` was
+	// able to install onto.  Search each possibility in the same order as the
+	// `setimmediate` library.
+	exports.setImmediate = (typeof self !== "undefined" && self.setImmediate) ||
+	                       (typeof global !== "undefined" && global.setImmediate) ||
+	                       (this && this.setImmediate);
+	exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
+	                         (typeof global !== "undefined" && global.clearImmediate) ||
+	                         (this && this.clearImmediate);
 
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ }),
 /* 6 */
@@ -1475,7 +1483,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    }
 	                } else {
 	                    var args = [options.secretId, Utility.createSimpleObject(options.properties)];
-	                    if (options.pushCallback) { args.push(options.pushCallback); }
+	                    if (options.config) { args.push(options.config); }
+	                    // if (options.pushCallback) { args.push(options.pushCallback); }
 	                    Global.newtonInstance = Newton.getSharedInstanceWithConfig.apply(null, args);
 	                }
 
@@ -2533,4 +2542,4 @@ return /******/ (function(modules) { // webpackBootstrap
 });
 ;
 
-/* Newton Adapter 2.11.0 */
+/* Newton Adapter temp */
