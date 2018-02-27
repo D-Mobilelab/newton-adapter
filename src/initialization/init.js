@@ -19,8 +19,7 @@ var Utility = require('../utility');
 * @param {integer} [options.newtonversion=2] version of Newton (1 or 2)
 * @param {Object} [options.logger=disabled logger] object with debug, log, info, warn, error
 * @param {Object} [options.properties={}] custom data for Newton session (not supported for v1)
-* @param {Function} [options.pushCallback=null] a function that will be called in hybrid init(wait for device ready must be true)
-*
+* @param {Function} [options.config={}] required whiteLabel (string), isInternational(boolean), and ravenInstance (optional). NB: If you just define whiteLabel and not isInternational newton will generate an exception!
 * @return {Promise} promise will be resolved when init is completed, rejected if failed
 *
 * @example
@@ -32,10 +31,14 @@ var Utility = require('../utility');
 *       waitDeviceReady: false,
 *       newtonversion: 2,
 *       logger: console,
+*       config: {
+*           whiteLabel: 'ww',
+*           isInternational: true,
+*           ravenInstance: {}    
+*       },
 *       properties: {
 *           hello: 'World'
-*       },
-*       pushCallback:function(pushData){}
+*       }
 *   }).then(function(enabled){
 *       console.log('init success', enabled);
 *   }).catch(function(err){
