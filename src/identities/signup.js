@@ -57,8 +57,8 @@ module.exports = function (options) {
                 signupChain = signupChain.setCustomData(Utility.createSimpleObject(options.customData)); // THIS SHOULD BE A SIMPLE OBJECT
             }
 
-            if (typeof options.setUserProperties !== 'undefined') {
-                signupChain = signupChain.setUserProperties(Utility.createSimpleObject(options.setUserProperties)); // THIS SHOULD BE A SIMPLE OBJECT
+            if (typeof options.userProperties !== 'undefined') {
+                signupChain = signupChain.setUserProperties(Utility.createSimpleObject(options.userProperties)); // THIS SHOULD BE A SIMPLE OBJECT
             }
 
             signupChain = signupChain.getEmailSignupFlow().startLoginFlow();
