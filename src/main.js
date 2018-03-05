@@ -29,6 +29,7 @@ module.exports = new function(){
     this.getIdentities = require('./identities/getIdentities');   
     this.getIdentity = require('./identities/getIdentity');   
     this.addIdentity = require('./identities/addIdentity');   
+    this.signup = require('./identities/signup');   
     this.removeIdentity = require('./identities/removeIdentity')({ Bluebus: Bluebus, Global: Global });
 
     this.init = require('./initialization/init');

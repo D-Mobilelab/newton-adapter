@@ -55,7 +55,9 @@ var Mock = {
             setOnForgotFlowCallback: function(callback){ Mock.calls.push('setOnForgotFlowCallback'); callback.call(); return this; },
             getMSISDNPINForgotFlow: function(){ Mock.calls.push('getMSISDNPINForgotFlow'); return this; },
             startForgotFlow: function(){ Mock.calls.push('startForgotFlow'); return this; },
-            setLogViewInfo: function(){ Mock.calls.push('setLogViewInfo'); return this; }
+            setLogViewInfo: function(){ Mock.calls.push('setLogViewInfo'); return this; },
+            setUserProperties: function () { Mock.calls.push('setUserProperties'); return this; },
+            getEmailSignupFlow: function () { Mock.calls.push('getEmailSignupFlow'); return this; }
         };
         Mock.Newton = {
             getSharedInstanceWithConfig: function(){ Mock.calls.push('getCustomFlow'); return Mock.NewtonMock; },
@@ -115,6 +117,8 @@ var Mock = {
         spyOn(Mock.NewtonMock, 'getMSISDNPINForgotFlow').and.callThrough();
         spyOn(Mock.NewtonMock, 'startForgotFlow').and.callThrough();
         spyOn(Mock.NewtonMock, 'setLogViewInfo').and.callThrough();
+        spyOn(Mock.NewtonMock, 'setUserProperties').and.callThrough();
+        spyOn(Mock.NewtonMock, 'getEmailSignupFlow').and.callThrough();
         
         spyOn(Mock.Newton, 'getSharedInstanceWithConfig').and.callThrough();
     }
