@@ -1,3 +1,6 @@
+# 2.13.0
+- signup method
+
 # 2.12.0
 - config params to init method
 
