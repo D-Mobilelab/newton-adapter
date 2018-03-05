@@ -2,5 +2,5 @@ bower_components/
 npm-debug.log
 node_modules/
 test/report/
-docs/temp/
+docs/
 .DS_*
