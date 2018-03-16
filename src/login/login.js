@@ -4,6 +4,8 @@ var Bluebus = require('bluebus');
 var Global = require('../global');
 var Utility = require('../utility');
 
+var loginWithReceipt = require('./loginWithReceipt');
+
 /**
 * @ngdoc function
 * @name login
@@ -13,7 +15,7 @@ var Utility = require('../utility');
 *
 * @param {Object} options configuration object
 * @param {boolean} [options.logged=false] new state of the user
-* @param {string} [options.type="custom"] (custom, external, msisdn, autologin, generic or oauth)
+* @param {string} [options.type="custom"] (custom, external, msisdn, autologin, generic, oauth, receipt)
 * @param {string} options.userId required for custom and external login
 * @param {Object} [options.userProperties={}] available only for custom and external login
 * @param {string} options.pin required for msisdn login
@@ -43,6 +45,13 @@ var Utility = require('../utility');
 *   }).catch(function(err){
 *       console.log('login failed', err);
 *   });
+
+    const offerId = await NewtonAdapter.getOfferFor(nativeItemId, store);
+    const receipt = await NativeNewton.buy(offerId, nativeItemId)
+    NewtonAdapter.login({
+        type: 'receipt',
+        receipt: receipt
+    });
 *
 * // for unlogged users
 * NewtonAdapter.login({
@@ -197,6 +206,10 @@ module.exports = function(options){
                             reject('OAuth login requires provider and access_token');
                             Global.logger.error('NewtonAdapter', 'Login', 'OAuth login requires provider and access_token');
                         }
+                    } else if(loginType === 'receipt') {
+                        loginWithReceipt(options.receipt, options.customData)
+                            .then(callCallback)
+                            .catch(callCallback);
                     } else {
                         reject('This type of login is unknown');
                         Global.logger.error('NewtonAdapter', 'Login', 'This type of login is unknown');
