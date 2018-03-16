@@ -20,7 +20,9 @@ var Global = require('../global');
 */
 module.exports = function(callback){
     if(Global.newtonInstance && callback){
-        Global.newtonInstance.setUserStateChangeListener(callback);
+        Global.newtonInstance.setUserStateChangeListener({
+            onLoginStateChange: callback
+        });        
         return true;
     } else {
         return false;

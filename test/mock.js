@@ -14,7 +14,9 @@ var Mock = {
             isUserLogged: function(){ Mock.calls.push('isUserLogged'); return Mock.logged; },
             rankContent: function(){ Mock.calls.push('rankContent'); },
             getUserToken: function(){ Mock.calls.push('getUserToken'); },
-            setUserStateChangeListener: function(callback){ Mock.calls.push('setUserStateChangeListener'); callback.call(); },
+            setUserStateChangeListener: function(callbacks){
+                Mock.calls.push('setUserStateChangeListener'); callbacks.onLoginStateChange(); 
+            },
             userLogout: function(){ Mock.calls.push('userLogout'); },
             finalizeLoginFlow: function(callback){ Mock.calls.push('finalizeLoginFlow'); callback.call(); },
             // login methods
