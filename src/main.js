@@ -57,6 +57,6 @@ module.exports = new function(){
     this.setPushCallback = require('./push/index').setPushCallback;
     this.registerDevice = require('./push/index').registerDevice;
 
-    this.addPayment = require('./payment/index').addPayment;
+    this.addSerializedPayment = require('./payment/index').addSerializedPayment;
     this.getOfferFor = require('./payment/index').getOfferFor;
 };

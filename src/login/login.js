@@ -46,8 +46,8 @@ var loginWithReceipt = require('./loginWithReceipt');
 *       console.log('login failed', err);
 *   });
 
-    const offerId = await NewtonAdapter.getOfferFor(nativeItemId, store);
-    const receipt = await NativeNewton.buy(offerId, nativeItemId)
+    const offerId = await NewtonAdapter.getOfferFor("nativeItemId", "googlePlay");
+    const receipt = await NativeNewton.buy(offerId, "nativeItemId")
     NewtonAdapter.login({
         type: 'receipt',
         receipt: receipt

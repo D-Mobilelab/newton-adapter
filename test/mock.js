@@ -59,7 +59,17 @@ var Mock = {
             startForgotFlow: function(){ Mock.calls.push('startForgotFlow'); return this; },
             setLogViewInfo: function(){ Mock.calls.push('setLogViewInfo'); return this; },
             setUserProperties: function () { Mock.calls.push('setUserProperties'); return this; },
-            getEmailSignupFlow: function () { Mock.calls.push('getEmailSignupFlow'); return this; }
+            getEmailSignupFlow: function () { Mock.calls.push('getEmailSignupFlow'); return this; },
+            getPaymentManager: function() { 
+                return {
+                    getOfferFor: function(str, str2, fn) {
+                        fn(null, 'offerIdMock');
+                    },
+                    addSerializedPayment: function(str, fn) {
+                        fn();
+                    }
+                };
+            }
         };
         Mock.Newton = {
             getSharedInstanceWithConfig: function(){ Mock.calls.push('getCustomFlow'); return Mock.NewtonMock; },
