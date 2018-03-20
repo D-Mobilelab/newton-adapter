@@ -21,4 +21,4 @@ module.exports = function promisify(func) {
             func.apply(this, args);
         });
     };
-}
+};
