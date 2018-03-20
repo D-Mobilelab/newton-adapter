@@ -208,10 +208,13 @@ module.exports = function(options){
                             Global.logger.error('NewtonAdapter', 'Login', 'OAuth login requires provider and access_token');
                         }
                     } else if(loginType === 'receipt') {
-                        if(options.receipt){
-                            loginWithReceipt(options.receipt, options.userProperties)
-                                .then(callCallback)
-                                .catch(callCallback);
+                        if(options.receipt && options.receipt.serializedPayment){
+                            Global.newtonInstance.getLoginBuilder()
+                            .setCustomData(Utility.createSimpleObject.fromJSONObject(options.userProperties))
+                            .setSerializedPayment(options.receipt.serializedPayment)
+                            .setOnFlowCompleteCallback(callCallback)
+                            .getPaymentReceiptLoginFlow()
+                            .startLoginFlow();
                         } else {
                             reject('Receipt login requires receipt');
                             Global.logger.error('NewtonAdapter', 'Login', 'Receipt login requires receipt');
