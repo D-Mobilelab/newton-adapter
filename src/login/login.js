@@ -26,6 +26,7 @@ var loginWithReceipt = require('./loginWithReceipt');
 * @param {string} options.username required for generic login
 * @param {string} options.email required for email login
 * @param {string} options.password required for generic and email login
+* @param {Object} options.receipt available only for receipt login
 *
 * @return {Promise} promise will be resolved when login is completed, rejected if failed
 *
@@ -45,13 +46,13 @@ var loginWithReceipt = require('./loginWithReceipt');
 *   }).catch(function(err){
 *       console.log('login failed', err);
 *   });
-
-    const offerId = await NewtonAdapter.getOfferFor("nativeItemId", "googlePlay");
-    const receipt = await NativeNewton.buy(offerId, "nativeItemId")
-    NewtonAdapter.login({
-        type: 'receipt',
-        receipt: receipt
-    });
+*   
+*   const offerId = await NewtonAdapter.getOfferFor("nativeItemId", "googlePlay");
+*   const receipt = await NativeNewton.buy(offerId, "nativeItemId")
+*   NewtonAdapter.login({
+*       type: 'receipt',
+*       receipt: receipt
+*   });
 *
 * // for unlogged users
 * NewtonAdapter.login({
@@ -207,9 +208,14 @@ module.exports = function(options){
                             Global.logger.error('NewtonAdapter', 'Login', 'OAuth login requires provider and access_token');
                         }
                     } else if(loginType === 'receipt') {
-                        loginWithReceipt(options.receipt, options.customData)
-                            .then(callCallback)
-                            .catch(callCallback);
+                        if(options.receipt){
+                            loginWithReceipt(options.receipt, options.userProperties)
+                                .then(callCallback)
+                                .catch(callCallback);
+                        } else {
+                            reject('Receipt login requires receipt');
+                            Global.logger.error('NewtonAdapter', 'Login', 'Receipt login requires receipt');
+                        }
                     } else {
                         reject('This type of login is unknown');
                         Global.logger.error('NewtonAdapter', 'Login', 'This type of login is unknown');
