@@ -109,6 +109,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.recoverPassword = __webpack_require__(30);
 	    this.resetPassword = __webpack_require__(31);
 	    this.userDelete = __webpack_require__(32);    
+
+	    this.setPushCallback = __webpack_require__(33).setPushCallback;
+	    this.registerDevice = __webpack_require__(33).registerDevice;
+
+	    this.addSerializedPayment = __webpack_require__(34).addSerializedPayment;
+	    this.getOfferFor = __webpack_require__(34).getOfferFor;
 	};
 
 
@@ -1497,7 +1503,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	* @param {string} options.secretId secret id of the application
 	* @param {boolean} [options.enable=false] enable calls to Newton library
 	* @param {boolean} [options.waitLogin=false] all Newton calls wait login (logged and unlogged)
-	* @param {boolean} [options.waitDeviceReady=false] wait deviceReady event to initialize Newton
 	* @param {integer} [options.newtonversion=2] version of Newton (1 or 2)
 	* @param {Object} [options.logger=disabled logger] object with debug, log, info, warn, error
 	* @param {Object} [options.properties={}] custom data for Newton session (not supported for v1)
@@ -1510,7 +1515,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	*       secretId: '123456789',
 	*       enable: true,
 	*       waitLogin: true,
-	*       waitDeviceReady: false,
 	*       newtonversion: 2,
 	*       logger: console,
 	*       config: {
@@ -1555,7 +1559,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	                } else {
 	                    var args = [options.secretId, Utility.createSimpleObject(options.properties)];
 	                    if (options.config) { args.push(options.config); }
-	                    // if (options.pushCallback) { args.push(options.pushCallback); }
 	                    Global.newtonInstance = Newton.getSharedInstanceWithConfig.apply(null, args);
 	                }
 
@@ -1574,11 +1577,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                resolve(false);
 	                Global.logger.warn('NewtonAdapter', 'Init', 'Newton not enabled');
 	            } else {
-	                if(options.waitDeviceReady){
-	                    document.addEventListener('deviceready', initNewton, false);
-	                } else {
-	                    initNewton();
-	                }
+	                initNewton();
 	            }
 	        }
 	    });
@@ -1737,7 +1736,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	*
 	* @param {Object} options configuration object
 	* @param {boolean} [options.logged=false] new state of the user
-	* @param {string} [options.type="custom"] (custom, external, msisdn, autologin, generic or oauth)
+	* @param {string} [options.type="custom"] (custom, external, msisdn, autologin, generic, oauth, receipt)
 	* @param {string} options.userId required for custom and external login
 	* @param {Object} [options.userProperties={}] available only for custom and external login
 	* @param {string} options.pin required for msisdn login
@@ -1748,6 +1747,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	* @param {string} options.username required for generic login
 	* @param {string} options.email required for email login
 	* @param {string} options.password required for generic and email login
+	* @param {Object} options.receipt available only for receipt login
 	*
 	* @return {Promise} promise will be resolved when login is completed, rejected if failed
 	*
@@ -1766,6 +1766,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	*       console.log('login success');
 	*   }).catch(function(err){
 	*       console.log('login failed', err);
+	*   });
+	*   
+	*   const offerId = await NewtonAdapter.getOfferFor("nativeItemId", "googlePlay");
+	*   const receipt = await NativeNewton.buy(offerId, "nativeItemId")
+	*   NewtonAdapter.login({
+	*       type: 'receipt',
+	*       receipt: receipt
 	*   });
 	*
 	* // for unlogged users
@@ -1921,6 +1928,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	                            reject('OAuth login requires provider and access_token');
 	                            Global.logger.error('NewtonAdapter', 'Login', 'OAuth login requires provider and access_token');
 	                        }
+	                    } else if(loginType === 'receipt') {
+	                        if(options.receipt && options.receipt.serializedPayment){
+	                            Global.newtonInstance.getLoginBuilder()
+	                            .setCustomData(Utility.createSimpleObject.fromJSONObject(options.userProperties))
+	                            .setSerializedPayment(options.receipt.serializedPayment)
+	                            .setOnFlowCompleteCallback(callCallback)
+	                            .getPaymentReceiptLoginFlow()
+	                            .startLoginFlow();
+	                        } else {
+	                            reject('Receipt login requires receipt');
+	                            Global.logger.error('NewtonAdapter', 'Login', 'Receipt login requires receipt');
+	                        }
 	                    } else {
 	                        reject('This type of login is unknown');
 	                        Global.logger.error('NewtonAdapter', 'Login', 'This type of login is unknown');
@@ -1999,7 +2018,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	*/
 	module.exports = function(callback){
 	    if(Global.newtonInstance && callback){
-	        Global.newtonInstance.setUserStateChangeListener(callback);
+	        Global.newtonInstance.setUserStateChangeListener({
+	            onLoginStateChange: callback
+	        });        
 	        return true;
 	    } else {
 	        return false;
@@ -2608,9 +2629,115 @@ return /******/ (function(modules) { // webpackBootstrap
 	    });
 	};
 
+/***/ }),
+/* 33 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var Promise = __webpack_require__(4);
+	var Global = __webpack_require__(2);
+
+	function registerDevice() {
+	    return new Promise(function(resolve, reject) {
+	        Global.newtonInstance.getPushManager().registerDevice(resolve, reject);
+	    });
+	}
+
+	function setPushCallback(callback) {
+	    Global.newtonInstance.getPushManager().setCallback(callback);
+	}
+
+	module.exports = {
+	    registerDevice: registerDevice,
+	    setPushCallback: setPushCallback
+	};
+
+
+/***/ }),
+/* 34 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var Global = __webpack_require__(2);
+	var Promisify = __webpack_require__(35);
+
+	/** 
+	 * Flow example
+	 * if (user.logged) {
+	 *  getOfferFor(nativeItemId, store)  
+	 *   .then(function(offer_id) {
+	 *       return NativeNewton.buy(offer_id, nativeItemId) 
+	 *   })
+	 *  .then(function(receipt){
+	 *      // NativeStorage.setItem('receipt', receipt) save it
+	 *      return addPayment(receipt.serializedPayment);
+	 *  })
+	 *  .catch(function(){
+	 *      // handle item already owned etc 
+	 *      
+	 *  }) 
+	 * }
+	 */
+
+
+	/**
+	 * 
+	 * @param {String} nativeItemId 
+	 * @param {String} store - googlePlay|appleStore
+	 * @returns {Promise}
+	 */
+	function getOfferFor(nativeItemId, store) {
+	    var getOfferForPromise = Promisify(Global.newtonInstance.getPaymentManager().getOfferFor);
+	    return getOfferForPromise(nativeItemId, store);    
+	}
+
+	/**
+	 * 
+	 * @param {String} serializedPayment 
+	 * @returns {Promise}
+	 */
+	function addSerializedPayment(serializedPayment) {
+	    var addPaymentPromise = Promisify(Global.newtonInstance.getPaymentManager().addSerializedPayment);
+	    return addPaymentPromise(serializedPayment);   
+	}
+
+	module.exports = {
+	    getOfferFor: getOfferFor,
+	    addSerializedPayment: addSerializedPayment
+	};
+
+
+/***/ }),
+/* 35 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var Promise = __webpack_require__(4);
+	/**
+	 * Promisify the node js style callbacks
+	 * @param {Function} func
+	 * @returns {Function} 
+	 */
+	module.exports = function promisify(func) {
+	    return function promisified() {
+	        var args = [].slice.call(arguments);    
+	        return new Promise(function(resolve, reject) {
+	            var callback = function() {
+	                var realArgs = [].slice.call(arguments);
+	                if(realArgs[0]) {
+	                    reject(realArgs[0]);
+	                    return;
+	                }
+	                realArgs.shift();
+	                resolve.apply(null, realArgs);
+	            };
+	            args[args.length] = callback;
+	            func.apply(this, args);
+	        });
+	    };
+	};
+
+
 /***/ })
 /******/ ])
 });
 ;
 
-/* Newton Adapter 2.13.0 */
+/* Newton Adapter 2.14.0 */

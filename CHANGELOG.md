@@ -1,3 +1,10 @@
+# 2.14.0
+- new: Payment methods and tests
+- new: registerDevice (needed to register device on hybrid)
+- setPushCallback (register push callback in hybrid case)
+- loginWithReceipt (login with the googlePlay receipt)
+- fix: onLoginStateChange
+
 # 2.13.0
 - signup method
 
