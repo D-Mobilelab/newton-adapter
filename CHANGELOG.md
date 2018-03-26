@@ -1,3 +1,6 @@
+# 2.14.1
+- Fix onLoginStateChange: reverted as before
+
 # 2.14.0
 - new: Payment methods and tests
 - new: registerDevice (needed to register device on hybrid)
