@@ -4,8 +4,6 @@ var Bluebus = require('bluebus');
 var Global = require('../global');
 var Utility = require('../utility');
 
-var loginWithReceipt = require('./loginWithReceipt');
-
 /**
 * @ngdoc function
 * @name login
