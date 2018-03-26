@@ -53,4 +53,10 @@ module.exports = new function(){
     this.recoverPassword = require('./user/recoverPassword');
     this.resetPassword = require('./user/resetPassword');
     this.userDelete = require('./user/userDelete');    
+
+    this.setPushCallback = require('./push/index').setPushCallback;
+    this.registerDevice = require('./push/index').registerDevice;
+
+    this.addSerializedPayment = require('./payment/index').addSerializedPayment;
+    this.getOfferFor = require('./payment/index').getOfferFor;
 };

@@ -14,7 +14,9 @@ var Mock = {
             isUserLogged: function(){ Mock.calls.push('isUserLogged'); return Mock.logged; },
             rankContent: function(){ Mock.calls.push('rankContent'); },
             getUserToken: function(){ Mock.calls.push('getUserToken'); },
-            setUserStateChangeListener: function(callback){ Mock.calls.push('setUserStateChangeListener'); callback.call(); },
+            setUserStateChangeListener: function(callbacks){
+                Mock.calls.push('setUserStateChangeListener'); callbacks.onLoginStateChange(); 
+            },
             userLogout: function(){ Mock.calls.push('userLogout'); },
             finalizeLoginFlow: function(callback){ Mock.calls.push('finalizeLoginFlow'); callback.call(); },
             // login methods
@@ -57,7 +59,17 @@ var Mock = {
             startForgotFlow: function(){ Mock.calls.push('startForgotFlow'); return this; },
             setLogViewInfo: function(){ Mock.calls.push('setLogViewInfo'); return this; },
             setUserProperties: function () { Mock.calls.push('setUserProperties'); return this; },
-            getEmailSignupFlow: function () { Mock.calls.push('getEmailSignupFlow'); return this; }
+            getEmailSignupFlow: function () { Mock.calls.push('getEmailSignupFlow'); return this; },
+            getPaymentManager: function() { 
+                return {
+                    getOfferFor: function(str, str2, fn) {
+                        fn(null, 'offerIdMock');
+                    },
+                    addSerializedPayment: function(str, fn) {
+                        fn();
+                    }
+                };
+            }
         };
         Mock.Newton = {
             getSharedInstanceWithConfig: function(){ Mock.calls.push('getCustomFlow'); return Mock.NewtonMock; },
