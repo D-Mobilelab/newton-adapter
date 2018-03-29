@@ -1,4 +1,4 @@
-# 2.14.1
+# 2.14.2
 - Fix onLoginStateChange: reverted as before
 
 # 2.14.0
