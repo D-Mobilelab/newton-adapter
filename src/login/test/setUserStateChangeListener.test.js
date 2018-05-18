@@ -19,11 +19,11 @@ describe('login/setUserStateChangeListener', function(){
             enable: true,
             waitLogin: false
         }).then(function(){
-            var mock = { callback: function(){} };
-            spyOn(mock, 'callback').and.callThrough();
-            NewtonAdapter.setUserStateChangeListener(mock.callback);
+            var mock = { onLoginStateChange: function(){} };
+            spyOn(mock, 'onLoginStateChange').and.callThrough();
+            NewtonAdapter.setUserStateChangeListener(mock);
             expect(NewtonMock.setUserStateChangeListener).toHaveBeenCalled();
-            expect(mock.callback).toHaveBeenCalled();
+            expect(mock.onLoginStateChange).toHaveBeenCalled();
             done();
         }).catch(function(reason){
             done.fail(reason);

@@ -29,6 +29,7 @@ module.exports = new function(){
     this.getIdentities = require('./identities/getIdentities');   
     this.getIdentity = require('./identities/getIdentity');   
     this.addIdentity = require('./identities/addIdentity');   
+    this.signup = require('./identities/signup');   
     this.removeIdentity = require('./identities/removeIdentity')({ Bluebus: Bluebus, Global: Global });
 
     this.init = require('./initialization/init');
@@ -52,4 +53,10 @@ module.exports = new function(){
     this.recoverPassword = require('./user/recoverPassword');
     this.resetPassword = require('./user/resetPassword');
     this.userDelete = require('./user/userDelete');    
+
+    this.setPushCallback = require('./push/index').setPushCallback;
+    this.registerDevice = require('./push/index').registerDevice;
+
+    this.addSerializedPayment = require('./payment/index').addSerializedPayment;
+    this.getOfferFor = require('./payment/index').getOfferFor;
 };

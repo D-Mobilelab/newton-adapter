@@ -15,12 +15,12 @@ var Global = require('../global');
 *
 * @example
 * <pre>
-* NewtonAdapter.setUserStateChangeListener(function(state){ console.log(state); });
+* NewtonAdapter.setUserStateChangeListener({ onLoginStateChange: function(state){ ... }});
 * </pre>
 */
-module.exports = function(callback){
-    if(Global.newtonInstance && callback){
-        Global.newtonInstance.setUserStateChangeListener(callback);
+module.exports = function(objCallbacks){
+    if(Global.newtonInstance && objCallbacks) {
+        Global.newtonInstance.setUserStateChangeListener(objCallbacks);        
         return true;
     } else {
         return false;

@@ -85,29 +85,36 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.getIdentities = __webpack_require__(10);   
 	    this.getIdentity = __webpack_require__(11);   
 	    this.addIdentity = __webpack_require__(12);   
-	    this.removeIdentity = __webpack_require__(13)({ Bluebus: Bluebus, Global: Global });
+	    this.signup = __webpack_require__(13);   
+	    this.removeIdentity = __webpack_require__(14)({ Bluebus: Bluebus, Global: Global });
 
-	    this.init = __webpack_require__(14);
-	    this.isInitialized = __webpack_require__(15);
+	    this.init = __webpack_require__(15);
+	    this.isInitialized = __webpack_require__(16);
 
-	    this.autoLogin = __webpack_require__(16);
-	    this.finalizeLoginFlow = __webpack_require__(17);
-	    this.isUserLogged = __webpack_require__(18);
-	    this.login = __webpack_require__(19);
-	    this.logout = __webpack_require__(20);
-	    this.setUserStateChangeListener = __webpack_require__(21);
+	    this.autoLogin = __webpack_require__(17);
+	    this.finalizeLoginFlow = __webpack_require__(18);
+	    this.isUserLogged = __webpack_require__(19);
+	    this.login = __webpack_require__(20);
+	    this.logout = __webpack_require__(21);
+	    this.setUserStateChangeListener = __webpack_require__(22);
 
-	    this.rankContent = __webpack_require__(22);
-	    this.trackEvent = __webpack_require__(23);
-	    this.trackPageview = __webpack_require__(24);
-	    this.setLogView = __webpack_require__(25);
+	    this.rankContent = __webpack_require__(23);
+	    this.trackEvent = __webpack_require__(24);
+	    this.trackPageview = __webpack_require__(25);
+	    this.setLogView = __webpack_require__(26);
 
-	    this.confirmEmail = __webpack_require__(26);
-	    this.confirmEmailAndLogin = __webpack_require__(27);
-	    this.getUserToken = __webpack_require__(28);
-	    this.recoverPassword = __webpack_require__(29);
-	    this.resetPassword = __webpack_require__(30);
-	    this.userDelete = __webpack_require__(31);    
+	    this.confirmEmail = __webpack_require__(27);
+	    this.confirmEmailAndLogin = __webpack_require__(28);
+	    this.getUserToken = __webpack_require__(29);
+	    this.recoverPassword = __webpack_require__(30);
+	    this.resetPassword = __webpack_require__(31);
+	    this.userDelete = __webpack_require__(32);    
+
+	    this.setPushCallback = __webpack_require__(33).setPushCallback;
+	    this.registerDevice = __webpack_require__(33).registerDevice;
+
+	    this.addSerializedPayment = __webpack_require__(34).addSerializedPayment;
+	    this.getOfferFor = __webpack_require__(34).getOfferFor;
 	};
 
 
@@ -366,7 +373,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 
 	  function Promise(fn) {
-	    if (typeof this !== 'object') throw new TypeError('Promises must be constructed via new');
+	    if (!(this instanceof Promise)) throw new TypeError('Promises must be constructed via new');
 	    if (typeof fn !== 'function') throw new TypeError('not a function');
 	    this._state = 0;
 	    this._handled = false;
@@ -490,9 +497,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 
 	  Promise.all = function (arr) {
-	    var args = Array.prototype.slice.call(arr);
-
 	    return new Promise(function (resolve, reject) {
+	      if (!arr || typeof arr.length === 'undefined') throw new TypeError('Promise.all accepts an array');
+	      var args = Array.prototype.slice.call(arr);
 	      if (args.length === 0) return resolve([]);
 	      var remaining = args.length;
 
@@ -590,7 +597,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	var apply = Function.prototype.apply;
+	/* WEBPACK VAR INJECTION */(function(global) {var apply = Function.prototype.apply;
 
 	// DOM APIs, for completeness
 
@@ -641,9 +648,17 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	// setimmediate attaches itself to the global object
 	__webpack_require__(6);
-	exports.setImmediate = setImmediate;
-	exports.clearImmediate = clearImmediate;
+	// On some exotic environments, it's not clear which object `setimmeidate` was
+	// able to install onto.  Search each possibility in the same order as the
+	// `setimmediate` library.
+	exports.setImmediate = (typeof self !== "undefined" && self.setImmediate) ||
+	                       (typeof global !== "undefined" && global.setImmediate) ||
+	                       (this && this.setImmediate);
+	exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
+	                         (typeof global !== "undefined" && global.clearImmediate) ||
+	                         (this && this.clearImmediate);
 
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ }),
 /* 6 */
@@ -1311,6 +1326,81 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
+	/* global Newton */
+	var Promise = __webpack_require__(4);
+	var Bluebus = __webpack_require__(1);
+	var Global = __webpack_require__(2);
+	var Utility = __webpack_require__(8);
+
+	/**
+	* @ngdoc function
+	* @name signup
+	* @methodOf NewtonAdapter
+	*
+	* @description Register a non logged user<br>
+	* <b>This method is executed when user is unlogged and not recognized by Newton.</b>
+	*
+	* @param {Object} options configuration object
+	* @param {string} options.email email of identity to add (email)
+	* @param {string} options.password password of identity to add (email)
+	* @param {Object} [options.userProperties={}] user props to store for that identity (email)
+	* @param {Object} [options.customData={}] custom data for newton tracking event (custom event)
+	*
+	* @return {Promise} promise will be resolved when signup is completed, rejected if failed
+	*
+	* @example
+	* <pre>
+	*   NewtonAdapter.signup({
+	*       email: 'mail@mail.com',
+	*       password: 'mailpwd',
+	*       userProperties: {},
+	*       customData: {}
+	*   }).then(function(){
+	*       console.log('signup success');
+	*   }).catch(function(err){
+	*       console.log('signup failed', err);
+	*   });
+	* </pre>
+	*/
+
+	module.exports = function (options) {
+	    return new Promise(function (resolve, reject) {
+	        var callback = function (errLocal, optionsLocal) {
+	            if (errLocal) {
+	                reject(errLocal);
+	                Global.logger.error('NewtonAdapter', 'signup', errLocal);
+	            } else {
+	                resolve();
+	                Global.logger.log('NewtonAdapter', 'signup', optionsLocal);
+	            }
+	        };
+
+	        if(options.email && options.password){
+	            var signupChain = Newton.getSharedInstance().getLoginBuilder()
+	                .setOnFlowCompleteCallback(function (err) { callback(err, options); })
+	                .setEmail(options.email)
+	                .setPassword(options.password);
+
+	            if (typeof options.customData !== 'undefined') {
+	                signupChain = signupChain.setCustomData(Utility.createSimpleObject(options.customData)); // THIS SHOULD BE A SIMPLE OBJECT
+	            }
+
+	            if (typeof options.userProperties !== 'undefined') {
+	                signupChain = signupChain.setUserProperties(Utility.createSimpleObject(options.userProperties)); // THIS SHOULD BE A SIMPLE OBJECT
+	            }
+
+	            signupChain = signupChain.getEmailSignupFlow().startLoginFlow();
+	        } else {
+	            reject('Can not start signup flow');
+	            Global.logger.error('NewtonAdapter', 'signup', 'Signup is not supported with those arguments.', options);
+	        }
+	    });
+	};
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
 	/* eslint-env browser */
 	/* global Newton */
 	var Promise = __webpack_require__(4);
@@ -1401,7 +1491,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -1421,7 +1511,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	* @param {string} options.secretId secret id of the application
 	* @param {boolean} [options.enable=false] enable calls to Newton library
 	* @param {boolean} [options.waitLogin=false] all Newton calls wait login (logged and unlogged)
-	* @param {boolean} [options.waitDeviceReady=false] wait deviceReady event to initialize Newton
 	* @param {integer} [options.newtonversion=2] version of Newton (1 or 2)
 	* @param {Object} [options.logger=disabled logger] object with debug, log, info, warn, error
 	* @param {Object} [options.properties={}] custom data for Newton session (not supported for v1)
@@ -1434,7 +1523,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	*       secretId: '123456789',
 	*       enable: true,
 	*       waitLogin: true,
-	*       waitDeviceReady: false,
 	*       newtonversion: 2,
 	*       logger: console,
 	*       config: {
@@ -1479,7 +1567,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	                } else {
 	                    var args = [options.secretId, Utility.createSimpleObject(options.properties)];
 	                    if (options.config) { args.push(options.config); }
-	                    // if (options.pushCallback) { args.push(options.pushCallback); }
 	                    Global.newtonInstance = Newton.getSharedInstanceWithConfig.apply(null, args);
 	                }
 
@@ -1498,18 +1585,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	                resolve(false);
 	                Global.logger.warn('NewtonAdapter', 'Init', 'Newton not enabled');
 	            } else {
-	                if(options.waitDeviceReady){
-	                    document.addEventListener('deviceready', initNewton, false);
-	                } else {
-	                    initNewton();
-	                }
+	                initNewton();
 	            }
 	        }
 	    });
 	};
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -1536,7 +1619,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -1578,7 +1661,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -1612,7 +1695,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -1643,7 +1726,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -1661,7 +1744,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	*
 	* @param {Object} options configuration object
 	* @param {boolean} [options.logged=false] new state of the user
-	* @param {string} [options.type="custom"] (custom, external, msisdn, autologin, generic or oauth)
+	* @param {string} [options.type="custom"] (custom, external, msisdn, autologin, generic, oauth, receipt)
 	* @param {string} options.userId required for custom and external login
 	* @param {Object} [options.userProperties={}] available only for custom and external login
 	* @param {string} options.pin required for msisdn login
@@ -1672,6 +1755,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	* @param {string} options.username required for generic login
 	* @param {string} options.email required for email login
 	* @param {string} options.password required for generic and email login
+	* @param {Object} options.receipt available only for receipt login
 	*
 	* @return {Promise} promise will be resolved when login is completed, rejected if failed
 	*
@@ -1690,6 +1774,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	*       console.log('login success');
 	*   }).catch(function(err){
 	*       console.log('login failed', err);
+	*   });
+	*   
+	*   const offerId = await NewtonAdapter.getOfferFor("nativeItemId", "googlePlay");
+	*   const receipt = await NativeNewton.buy(offerId, "nativeItemId")
+	*   NewtonAdapter.login({
+	*       type: 'receipt',
+	*       receipt: receipt
 	*   });
 	*
 	* // for unlogged users
@@ -1845,6 +1936,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	                            reject('OAuth login requires provider and access_token');
 	                            Global.logger.error('NewtonAdapter', 'Login', 'OAuth login requires provider and access_token');
 	                        }
+	                    } else if(loginType === 'receipt') {
+	                        if(options.receipt && options.receipt.serializedPayment){
+	                            Global.newtonInstance.getLoginBuilder()
+	                            .setCustomData(Utility.createSimpleObject.fromJSONObject(options.userProperties))
+	                            .setSerializedPayment(options.receipt.serializedPayment)
+	                            .setOnFlowCompleteCallback(callCallback)
+	                            .getPaymentReceiptLoginFlow()
+	                            .startLoginFlow();
+	                        } else {
+	                            reject('Receipt login requires receipt');
+	                            Global.logger.error('NewtonAdapter', 'Login', 'Receipt login requires receipt');
+	                        }
 	                    } else {
 	                        reject('This type of login is unknown');
 	                        Global.logger.error('NewtonAdapter', 'Login', 'This type of login is unknown');
@@ -1856,7 +1959,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -1898,7 +2001,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -1918,12 +2021,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	*
 	* @example
 	* <pre>
-	* NewtonAdapter.setUserStateChangeListener(function(state){ console.log(state); });
+	* NewtonAdapter.setUserStateChangeListener({ onLoginStateChange: function(state){ ... }});
 	* </pre>
 	*/
-	module.exports = function(callback){
-	    if(Global.newtonInstance && callback){
-	        Global.newtonInstance.setUserStateChangeListener(callback);
+	module.exports = function(objCallbacks){
+	    if(Global.newtonInstance && objCallbacks) {
+	        Global.newtonInstance.setUserStateChangeListener(objCallbacks);        
 	        return true;
 	    } else {
 	        return false;
@@ -1931,7 +2034,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -1990,7 +2093,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -1998,7 +2101,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Bluebus = __webpack_require__(1);
 	var Global = __webpack_require__(2);
 	var Utility = __webpack_require__(8);
-	var rankContent = __webpack_require__(22);
+	var rankContent = __webpack_require__(23);
 
 	/**
 	* @ngdoc function
@@ -2055,11 +2158,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
-	var trackEvent = __webpack_require__(23);
+	var trackEvent = __webpack_require__(24);
 
 	/**
 	* @ngdoc function
@@ -2103,7 +2206,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -2111,7 +2214,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Bluebus = __webpack_require__(1);
 	var Global = __webpack_require__(2);
 	var Utility = __webpack_require__(8);
-	var rankContent = __webpack_require__(22);
+	var rankContent = __webpack_require__(23);
 
 	/**
 	* @ngdoc function
@@ -2158,7 +2261,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -2208,7 +2311,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -2262,7 +2365,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -2293,7 +2396,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -2415,7 +2518,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -2472,7 +2575,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -2532,9 +2635,115 @@ return /******/ (function(modules) { // webpackBootstrap
 	    });
 	};
 
+/***/ }),
+/* 33 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var Promise = __webpack_require__(4);
+	var Global = __webpack_require__(2);
+
+	function registerDevice() {
+	    return new Promise(function(resolve, reject) {
+	        Global.newtonInstance.getPushManager().registerDevice(resolve, reject);
+	    });
+	}
+
+	function setPushCallback(callback) {
+	    Global.newtonInstance.getPushManager().setCallback(callback);
+	}
+
+	module.exports = {
+	    registerDevice: registerDevice,
+	    setPushCallback: setPushCallback
+	};
+
+
+/***/ }),
+/* 34 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var Global = __webpack_require__(2);
+	var Promisify = __webpack_require__(35);
+
+	/** 
+	 * Flow example
+	 * if (user.logged) {
+	 *  getOfferFor(nativeItemId, store)  
+	 *   .then(function(offer_id) {
+	 *       return NativeNewton.buy(offer_id, nativeItemId) 
+	 *   })
+	 *  .then(function(receipt){
+	 *      // NativeStorage.setItem('receipt', receipt) save it
+	 *      return addPayment(receipt.serializedPayment);
+	 *  })
+	 *  .catch(function(){
+	 *      // handle item already owned etc 
+	 *      
+	 *  }) 
+	 * }
+	 */
+
+
+	/**
+	 * 
+	 * @param {String} nativeItemId 
+	 * @param {String} store - googlePlay|appleStore
+	 * @returns {Promise}
+	 */
+	function getOfferFor(nativeItemId, store) {
+	    var getOfferForPromise = Promisify(Global.newtonInstance.getPaymentManager().getOfferFor);
+	    return getOfferForPromise(nativeItemId, store);    
+	}
+
+	/**
+	 * 
+	 * @param {String} serializedPayment 
+	 * @returns {Promise}
+	 */
+	function addSerializedPayment(serializedPayment) {
+	    var addPaymentPromise = Promisify(Global.newtonInstance.getPaymentManager().addSerializedPayment);
+	    return addPaymentPromise(serializedPayment);   
+	}
+
+	module.exports = {
+	    getOfferFor: getOfferFor,
+	    addSerializedPayment: addSerializedPayment
+	};
+
+
+/***/ }),
+/* 35 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var Promise = __webpack_require__(4);
+	/**
+	 * Promisify the node js style callbacks
+	 * @param {Function} func
+	 * @returns {Function} 
+	 */
+	module.exports = function promisify(func) {
+	    return function promisified() {
+	        var args = [].slice.call(arguments);    
+	        return new Promise(function(resolve, reject) {
+	            var callback = function() {
+	                var realArgs = [].slice.call(arguments);
+	                if(realArgs[0]) {
+	                    reject(realArgs[0]);
+	                    return;
+	                }
+	                realArgs.shift();
+	                resolve.apply(null, realArgs);
+	            };
+	            args[args.length] = callback;
+	            func.apply(this, args);
+	        });
+	    };
+	};
+
+
 /***/ })
 /******/ ])
 });
 ;
 
-/* Newton Adapter 2.12.0 */
+/* Newton Adapter 2.14.2 */

@@ -13,7 +13,7 @@ var Utility = require('../utility');
 *
 * @param {Object} options configuration object
 * @param {boolean} [options.logged=false] new state of the user
-* @param {string} [options.type="custom"] (custom, external, msisdn, autologin, generic or oauth)
+* @param {string} [options.type="custom"] (custom, external, msisdn, autologin, generic, oauth, receipt)
 * @param {string} options.userId required for custom and external login
 * @param {Object} [options.userProperties={}] available only for custom and external login
 * @param {string} options.pin required for msisdn login
@@ -24,6 +24,7 @@ var Utility = require('../utility');
 * @param {string} options.username required for generic login
 * @param {string} options.email required for email login
 * @param {string} options.password required for generic and email login
+* @param {Object} options.receipt available only for receipt login
 *
 * @return {Promise} promise will be resolved when login is completed, rejected if failed
 *
@@ -42,6 +43,13 @@ var Utility = require('../utility');
 *       console.log('login success');
 *   }).catch(function(err){
 *       console.log('login failed', err);
+*   });
+*   
+*   const offerId = await NewtonAdapter.getOfferFor("nativeItemId", "googlePlay");
+*   const receipt = await NativeNewton.buy(offerId, "nativeItemId")
+*   NewtonAdapter.login({
+*       type: 'receipt',
+*       receipt: receipt
 *   });
 *
 * // for unlogged users
@@ -196,6 +204,18 @@ module.exports = function(options){
                         } else {
                             reject('OAuth login requires provider and access_token');
                             Global.logger.error('NewtonAdapter', 'Login', 'OAuth login requires provider and access_token');
+                        }
+                    } else if(loginType === 'receipt') {
+                        if(options.receipt && options.receipt.serializedPayment){
+                            Global.newtonInstance.getLoginBuilder()
+                            .setCustomData(Utility.createSimpleObject.fromJSONObject(options.userProperties))
+                            .setSerializedPayment(options.receipt.serializedPayment)
+                            .setOnFlowCompleteCallback(callCallback)
+                            .getPaymentReceiptLoginFlow()
+                            .startLoginFlow();
+                        } else {
+                            reject('Receipt login requires receipt');
+                            Global.logger.error('NewtonAdapter', 'Login', 'Receipt login requires receipt');
                         }
                     } else {
                         reject('This type of login is unknown');

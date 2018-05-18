@@ -15,7 +15,6 @@ var Utility = require('../utility');
 * @param {string} options.secretId secret id of the application
 * @param {boolean} [options.enable=false] enable calls to Newton library
 * @param {boolean} [options.waitLogin=false] all Newton calls wait login (logged and unlogged)
-* @param {boolean} [options.waitDeviceReady=false] wait deviceReady event to initialize Newton
 * @param {integer} [options.newtonversion=2] version of Newton (1 or 2)
 * @param {Object} [options.logger=disabled logger] object with debug, log, info, warn, error
 * @param {Object} [options.properties={}] custom data for Newton session (not supported for v1)
@@ -28,7 +27,6 @@ var Utility = require('../utility');
 *       secretId: '123456789',
 *       enable: true,
 *       waitLogin: true,
-*       waitDeviceReady: false,
 *       newtonversion: 2,
 *       logger: console,
 *       config: {
@@ -73,7 +71,6 @@ module.exports = function(options){
                 } else {
                     var args = [options.secretId, Utility.createSimpleObject(options.properties)];
                     if (options.config) { args.push(options.config); }
-                    // if (options.pushCallback) { args.push(options.pushCallback); }
                     Global.newtonInstance = Newton.getSharedInstanceWithConfig.apply(null, args);
                 }
 
@@ -92,11 +89,7 @@ module.exports = function(options){
                 resolve(false);
                 Global.logger.warn('NewtonAdapter', 'Init', 'Newton not enabled');
             } else {
-                if(options.waitDeviceReady){
-                    document.addEventListener('deviceready', initNewton, false);
-                } else {
-                    initNewton();
-                }
+                initNewton();
             }
         }
     });

@@ -275,5 +275,15 @@ describe('login/login', function(){
                 done.fail(reason);
             });
         });
+
+        it('login with serializePayment', function(done){
+            NewtonAdapter.login({
+                receipt: { serializedPayment: "o2ih1290ew9h90qhe1290eh12h" },
+                customData: { loginWithPayment: 1 }
+            }).then(function() {
+                done();
+            }).catch(done.fail);
+        });
+        
     });
 });
