@@ -59,4 +59,9 @@ module.exports = new function(){
 
     this.addSerializedPayment = require('./payment/index').addSerializedPayment;
     this.getOfferFor = require('./payment/index').getOfferFor;
+
+    this.flowBegin = require('./analyticsFlow/flowBegin');
+    this.flowStep = require('./analyticsFlow/flowStep');
+    this.flowCancel = require('./analyticsFlow/flowCancel');
+    this.flowSucceed = require('./analyticsFlow/flowSucceed');
 };
