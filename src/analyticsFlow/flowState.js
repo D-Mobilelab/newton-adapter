@@ -1,34 +1,27 @@
-/* global Newton */
-var isFlowStarted = false;
-
-const currentFlow = {
+var currentFlow = {
     name: '',
-    props: {}
+    props: {},
+    started: false
 };
 
-const publicFlowInterface = {
+var publicFlowInterface = {
     setCurrentFlow: function(options){
         currentFlow.name = options.name;
-        currentFlow.props = options.properties
-
-        isFlowStarted = true;        
+        currentFlow.props = options.properties;
+        currentFlow.started = true;        
     },
     getCurrentFlow: function(){
-        if(isFlowStarted){
-            return currentFlow;
-        } else {
-            return false;
-        }
+        return currentFlow;
     },
     isFlowStarted: function(){
-        return isFlowStarted;
+        return currentFlow.started;
     },
     cleanCurrentFlow: function(){
-        isStarted = false;
-        
+        currentFlow.started = false;
         currentFlow.name = '';
         currentFlow.props = {};
+
     }
-}
+};
 
 module.exports = publicFlowInterface;

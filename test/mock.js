@@ -69,7 +69,11 @@ var Mock = {
                         fn();
                     }
                 };
-            }
+            },
+            flowBegin: function () { Mock.calls.push('flowBegin'); return this; },
+            flowStep: function () { Mock.calls.push('flowStep'); return this; },
+            flowCancel: function () { Mock.calls.push('flowCancel'); return this; },
+            flowSucceed: function () { Mock.calls.push('flowSucceed'); return this; }
         };
         Mock.Newton = {
             getSharedInstanceWithConfig: function(){ Mock.calls.push('getCustomFlow'); return Mock.NewtonMock; },
@@ -131,6 +135,10 @@ var Mock = {
         spyOn(Mock.NewtonMock, 'setLogViewInfo').and.callThrough();
         spyOn(Mock.NewtonMock, 'setUserProperties').and.callThrough();
         spyOn(Mock.NewtonMock, 'getEmailSignupFlow').and.callThrough();
+        spyOn(Mock.NewtonMock, 'flowBegin').and.callThrough();
+        spyOn(Mock.NewtonMock, 'flowStep').and.callThrough();
+        spyOn(Mock.NewtonMock, 'flowCancel').and.callThrough();
+        spyOn(Mock.NewtonMock, 'flowSucceed').and.callThrough();
         
         spyOn(Mock.Newton, 'getSharedInstanceWithConfig').and.callThrough();
     }
