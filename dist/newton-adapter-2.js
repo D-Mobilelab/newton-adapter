@@ -115,6 +115,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    this.addSerializedPayment = __webpack_require__(34).addSerializedPayment;
 	    this.getOfferFor = __webpack_require__(34).getOfferFor;
+
+	    this.flowBegin = __webpack_require__(36);
+	    this.flowStep = __webpack_require__(38);
+	    this.flowCancel = __webpack_require__(39);
+	    this.flowSucceed = __webpack_require__(40);
 	};
 
 
@@ -2741,9 +2746,268 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 
+/***/ }),
+/* 36 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* global Newton */
+	var Promise = __webpack_require__(4);
+	var Bluebus = __webpack_require__(1);
+	var Global = __webpack_require__(2);
+	var Utility = __webpack_require__(8);
+	var currentFlow = __webpack_require__(37);
+
+	/**
+	* @ngdoc function
+	* @name flowBegin
+	* @methodOf NewtonAdapter
+	*
+	* @description Performs Newton start analytics flow<br>
+	* <b>This method is executed after login (waitLogin:true) or after init (false)</b>
+	*
+	* @param {Object} options configuration object
+	* @param {string} options.name name of the starting flow
+	* @param {Object} [options.properties={}] additional properties for tracking
+	*
+	* @return {Promise} promise will be resolved when flow is started, rejected if failed
+	*
+	* @example
+	* <pre>
+	*   NewtonAdapter.flowBegin({
+	*       name: 'onBoarding',
+	*       properties: {
+	*           type: 'clickNext'
+	*       }
+	*   }).then(function(){
+	*       console.log('Flow Begin with success');
+	*   }).catch(function(err){
+	*       console.log('Flow Begin failed', err);
+	*   });
+	* </pre>
+	*/
+
+	module.exports = function(options){
+	    return new Promise(function(resolve, reject){
+	        Bluebus.bind('login', function(){
+	            if(options && options.name && !currentFlow.isFlowStarted()){
+	                Global.newtonInstance.flowBegin(options.name, Utility.createSimpleObject(options.properties));
+	                currentFlow.setCurrentFlow(options);
+	                
+	                resolve();
+	                Global.logger.log('NewtonAdapter', 'flowBegin', options);
+	            } else {
+	                reject('flowBegin requires name');
+	                Global.logger.error('NewtonAdapter', 'flowBegin', 'flowBegin requires name');
+	            }
+	        });
+	    });
+	};
+
+/***/ }),
+/* 37 */
+/***/ (function(module, exports) {
+
+	var currentFlow = {
+	    name: '',
+	    props: {},
+	    started: false
+	};
+
+	var publicFlowInterface = {
+	    setCurrentFlow: function(options){
+	        currentFlow.name = options.name;
+	        currentFlow.props = options.properties;
+	        currentFlow.started = true;        
+	    },
+	    getCurrentFlow: function(){
+	        return currentFlow;
+	    },
+	    isFlowStarted: function(){
+	        return currentFlow.started;
+	    },
+	    cleanCurrentFlow: function(){
+	        currentFlow.started = false;
+	        currentFlow.name = '';
+	        currentFlow.props = {};
+
+	    }
+	};
+
+	module.exports = publicFlowInterface;
+
+/***/ }),
+/* 38 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* global Newton */
+	var Promise = __webpack_require__(4);
+	var Bluebus = __webpack_require__(1);
+	var Global = __webpack_require__(2);
+	var Utility = __webpack_require__(8);
+	var currentFlow = __webpack_require__(37);
+
+	/**
+	* @ngdoc function
+	* @name flowStep
+	* @methodOf NewtonAdapter
+	*
+	* @description Performs Newton new step of analytics flow<br>
+	* <b>This method is executed after flowBegin Newton's method</b>
+	*
+	* @param {Object} options configuration object
+	* @param {string} options.name name of the step flow
+	* @param {Object} [options.properties={}] additional properties for tracking
+	*
+	* @return {Promise} promise will be resolved when flow step is added, rejected if failed
+	*
+	* @example
+	* <pre>
+	*   NewtonAdapter.flowStep({
+	*       name: 'onBoarding1',
+	*       properties: {
+	*           type: 'slide'
+	*       }
+	*   }).then(function(){
+	*       console.log('Flow Step with success');
+	*   }).catch(function(err){
+	*       console.log('Flow Step failed', err);
+	*   });
+	* </pre>
+	*/
+
+	module.exports = function(options){
+	    return new Promise(function(resolve, reject){
+	        Bluebus.bind('login', function(){
+	            if(options && options.name && currentFlow.isFlowStarted()){
+	                Global.newtonInstance.flowStep(options.name, Utility.createSimpleObject(options.properties ? options.properties : {}));
+
+	                resolve();
+	                Global.logger.log('NewtonAdapter', 'flowStep', options);
+	            } else {
+	                reject('flowStep requires name');
+	                Global.logger.error('NewtonAdapter', 'flowStep', 'flowStep requires name or flow not started!');
+	            }
+	        });
+	    });
+	};
+
+/***/ }),
+/* 39 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* global Newton */
+	var Promise = __webpack_require__(4);
+	var Bluebus = __webpack_require__(1);
+	var Global = __webpack_require__(2);
+	var Utility = __webpack_require__(8);
+	var currentFlow = __webpack_require__(37);
+
+	/**
+	* @ngdoc function
+	* @name flowCancel
+	* @methodOf NewtonAdapter
+	*
+	* @description End flow with failuer<br>
+	* <b>This method is executed when the flow has been interrupted by the user (as a skip tutorial button)</b>
+	*
+	* @param {Object} options configuration object
+	* @param {string} options.name name of the canceled flow
+	* @param {Object} [options.properties={}] additional properties for tracking
+	*
+	* @return {Promise} promise will be resolved when call is ended with success, rejected if failed
+	*
+	* @example
+	* <pre>
+	*   NewtonAdapter.flowCancel({
+	*       name: 'closeOnBoarding',
+	*       properties: {
+	*           'device': 'ios'
+	*       }
+	*   }).then(function(){
+	*       console.log('Flow is aborted by the user');
+	*   }).catch(function(err){
+	*       console.log('Failed to abort the flow', err);
+	*   });
+	* </pre>
+	*/
+
+	module.exports = function(options){
+	    return new Promise(function(resolve, reject){
+	        Bluebus.bind('login', function(){
+	            if(options && options.name && currentFlow.isFlowStarted()){
+	                Global.newtonInstance.flowCancel(options.name, Utility.createSimpleObject(options.properties ? options.properties : {}));
+	                currentFlow.cleanCurrentFlow();
+	                
+	                resolve();
+	                Global.logger.log('NewtonAdapter', 'flowCancel', options);
+	            } else {
+	                reject('flowCancel failed');
+	                Global.logger.error('NewtonAdapter', 'flowCancel', 'flowCancel failed');
+	            }
+	        });
+	    });
+	};
+
+/***/ }),
+/* 40 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* global Newton */
+	var Promise = __webpack_require__(4);
+	var Bluebus = __webpack_require__(1);
+	var Global = __webpack_require__(2);
+	var Utility = __webpack_require__(8);
+	var currentFlow = __webpack_require__(37);
+
+	/**
+	* @ngdoc function
+	* @name flowSucceed
+	* @methodOf NewtonAdapter
+	*
+	* @description End flow with success<br>
+	* <b>This method is executed after flow has been started to end that flow</b>
+	*
+	* @param {Object} options configuration object
+	* @param {string} options.name name of the starting flow
+	* @param {Object} [options.properties={}] additional properties for tracking
+	*
+	* @return {Promise} promise will be resolved when call is ended with success, rejected if failed
+	*
+	* @example
+	* <pre>
+	*   NewtonAdapter.flowSucceed({
+	*       name: 'goToStore',
+	*       properties: {
+	*           'device': 'ios'
+	*       }
+	*   }).then(function(){
+	*       console.log('Flow is ended with success');
+	*   }).catch(function(err){
+	*       console.log('Failed to close flow', err);
+	*   });
+	* </pre>
+	*/
+
+	module.exports = function(options){
+	    return new Promise(function(resolve, reject){
+	        Bluebus.bind('login', function(){
+	            if(options && options.name && currentFlow.isFlowStarted()){
+	                Global.newtonInstance.flowSucceed(options.name, Utility.createSimpleObject(options.properties ? options.properties : {}));
+	                currentFlow.cleanCurrentFlow();
+	                
+	                resolve();
+	                Global.logger.log('NewtonAdapter', 'flowSucceed', options);
+	            } else {
+	                reject('flowSucceed failed');
+	                Global.logger.error('NewtonAdapter', 'flowSucceed', 'flowSucceed failed');
+	            }
+	        });
+	    });
+	};
+
 /***/ })
 /******/ ])
 });
 ;
 
-/* Newton Adapter 2.14.2 */
+/* Newton Adapter temp */
