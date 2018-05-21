@@ -38,7 +38,7 @@ module.exports = function(options){
     return new Promise(function(resolve, reject){
         Bluebus.bind('login', function(){
             if(options && options.name && currentFlow.isFlowStarted()){
-                Global.newtonInstance.flowStep(options.name, Utility.createSimpleObject(options.properties ? options.properties : {}));
+                Global.newtonInstance.flowStep(options.name, Utility.createSimpleObject(options.properties));
 
                 resolve();
                 Global.logger.log('NewtonAdapter', 'flowStep', options);

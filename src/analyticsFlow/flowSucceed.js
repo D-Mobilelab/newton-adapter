@@ -11,7 +11,7 @@ var currentFlow = require('./flowState');
 * @methodOf NewtonAdapter
 *
 * @description End flow with success<br>
-* <b>This method is executed after flow has been started to end that flow</b>
+* <b>This method is executed after flow has been started to end it</b>
 *
 * @param {Object} options configuration object
 * @param {string} options.name name of the starting flow
@@ -38,7 +38,7 @@ module.exports = function(options){
     return new Promise(function(resolve, reject){
         Bluebus.bind('login', function(){
             if(options && options.name && currentFlow.isFlowStarted()){
-                Global.newtonInstance.flowSucceed(options.name, Utility.createSimpleObject(options.properties ? options.properties : {}));
+                Global.newtonInstance.flowSucceed(options.name, Utility.createSimpleObject(options.properties));
                 currentFlow.cleanCurrentFlow();
                 
                 resolve();

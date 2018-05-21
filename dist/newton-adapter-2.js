@@ -2879,7 +2879,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return new Promise(function(resolve, reject){
 	        Bluebus.bind('login', function(){
 	            if(options && options.name && currentFlow.isFlowStarted()){
-	                Global.newtonInstance.flowStep(options.name, Utility.createSimpleObject(options.properties ? options.properties : {}));
+	                Global.newtonInstance.flowStep(options.name, Utility.createSimpleObject(options.properties));
 
 	                resolve();
 	                Global.logger.log('NewtonAdapter', 'flowStep', options);
@@ -2935,7 +2935,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return new Promise(function(resolve, reject){
 	        Bluebus.bind('login', function(){
 	            if(options && options.name && currentFlow.isFlowStarted()){
-	                Global.newtonInstance.flowCancel(options.name, Utility.createSimpleObject(options.properties ? options.properties : {}));
+	                Global.newtonInstance.flowCancel(options.name, Utility.createSimpleObject(options.properties));
 	                currentFlow.cleanCurrentFlow();
 	                
 	                resolve();
@@ -2965,7 +2965,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	* @methodOf NewtonAdapter
 	*
 	* @description End flow with success<br>
-	* <b>This method is executed after flow has been started to end that flow</b>
+	* <b>This method is executed after flow has been started to end it</b>
 	*
 	* @param {Object} options configuration object
 	* @param {string} options.name name of the starting flow
@@ -2992,7 +2992,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return new Promise(function(resolve, reject){
 	        Bluebus.bind('login', function(){
 	            if(options && options.name && currentFlow.isFlowStarted()){
-	                Global.newtonInstance.flowSucceed(options.name, Utility.createSimpleObject(options.properties ? options.properties : {}));
+	                Global.newtonInstance.flowSucceed(options.name, Utility.createSimpleObject(options.properties));
 	                currentFlow.cleanCurrentFlow();
 	                
 	                resolve();
