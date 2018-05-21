@@ -1,3 +1,6 @@
+# 2.15.0
+- New flow methods: flowBegin, flowCancel, flowState, flowStep, flowSucceed
+
 # 2.14.2
 - Fix onLoginStateChange: reverted as before
 
