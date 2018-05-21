@@ -17,9 +17,9 @@ var publicFlowInterface = {
         return currentFlow.started;
     },
     cleanCurrentFlow: function(){
-        currentFlow.started = false;
         currentFlow.name = '';
         currentFlow.props = {};
+        currentFlow.started = false;
 
     }
 };

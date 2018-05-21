@@ -40,7 +40,6 @@ module.exports = function(options){
             if(options && options.name && !currentFlow.isFlowStarted()){
                 Global.newtonInstance.flowBegin(options.name, Utility.createSimpleObject(options.properties));
                 currentFlow.setCurrentFlow(options);
-                
                 resolve();
                 Global.logger.log('NewtonAdapter', 'flowBegin', options);
             } else {
