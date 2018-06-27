@@ -106,15 +106,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.confirmEmail = __webpack_require__(27);
 	    this.confirmEmailAndLogin = __webpack_require__(28);
 	    this.getUserToken = __webpack_require__(29);
-	    this.recoverPassword = __webpack_require__(30);
-	    this.resetPassword = __webpack_require__(31);
-	    this.userDelete = __webpack_require__(32);    
+	    this.getTransientToken = __webpack_require__(30);
+	    this.recoverPassword = __webpack_require__(31);
+	    this.resetPassword = __webpack_require__(32);
+	    this.userDelete = __webpack_require__(33);    
 
-	    this.setPushCallback = __webpack_require__(33).setPushCallback;
-	    this.registerDevice = __webpack_require__(33).registerDevice;
+	    this.setPushCallback = __webpack_require__(34).setPushCallback;
+	    this.registerDevice = __webpack_require__(34).registerDevice;
 
-	    this.addSerializedPayment = __webpack_require__(34).addSerializedPayment;
-	    this.getOfferFor = __webpack_require__(34).getOfferFor;
+	    this.addSerializedPayment = __webpack_require__(35).addSerializedPayment;
+	    this.getOfferFor = __webpack_require__(35).getOfferFor;
 	};
 
 
@@ -2399,6 +2400,36 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
+	/* global Newton */
+	var Global = __webpack_require__(2);
+
+	/**
+	* @ngdoc function
+	* @name getTransientToken
+	* @methodOf NewtonAdapter
+	*
+	* @description Get Newton transient token for mobile fingerprint
+	* <br><b>Asynchronous call, require a callback</b>
+	*
+	*
+	* @example
+	* <pre>
+	* NewtonAdapter.getTransientToken(function(err, resp){
+	*    console.log(err, resp);
+	* });
+	* </pre>
+	*/
+
+	module.exports = function(callback){
+	    if(Global.newtonInstance && callback){
+	        Global.newtonInstance.getTransientToken(callback);
+	    }
+	};
+
+/***/ }),
+/* 31 */
+/***/ (function(module, exports, __webpack_require__) {
+
 	/* eslint-env browser */
 	/* global Newton */
 	var Promise = __webpack_require__(4);
@@ -2518,7 +2549,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -2575,7 +2606,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -2636,7 +2667,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var Promise = __webpack_require__(4);
@@ -2659,11 +2690,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var Global = __webpack_require__(2);
-	var Promisify = __webpack_require__(35);
+	var Promisify = __webpack_require__(36);
 
 	/** 
 	 * Flow example
@@ -2712,7 +2743,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var Promise = __webpack_require__(4);
@@ -2746,4 +2777,4 @@ return /******/ (function(modules) { // webpackBootstrap
 });
 ;
 
-/* Newton Adapter 2.14.2 */
+/* Newton Adapter temp */

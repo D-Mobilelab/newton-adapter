@@ -50,6 +50,7 @@ module.exports = new function(){
     this.confirmEmail = require('./user/confirmEmail');
     this.confirmEmailAndLogin = require('./user/confirmEmailAndLogin');
     this.getUserToken = require('./user/getUserToken');
+    this.getTransientToken = require('./user/getTransientToken');
     this.recoverPassword = require('./user/recoverPassword');
     this.resetPassword = require('./user/resetPassword');
     this.userDelete = require('./user/userDelete');    
