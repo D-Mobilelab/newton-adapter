@@ -107,15 +107,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.confirmEmailAndLogin = __webpack_require__(28);
 	    this.getUserToken = __webpack_require__(29);
 	    this.getTransientToken = __webpack_require__(30);
-	    this.recoverPassword = __webpack_require__(31);
-	    this.resetPassword = __webpack_require__(32);
-	    this.userDelete = __webpack_require__(33);    
+	    this.getSessionId = __webpack_require__(31);
+	    this.recoverPassword = __webpack_require__(32);
+	    this.resetPassword = __webpack_require__(33);
+	    this.userDelete = __webpack_require__(34);    
 
-	    this.setPushCallback = __webpack_require__(34).setPushCallback;
-	    this.registerDevice = __webpack_require__(34).registerDevice;
+	    this.setPushCallback = __webpack_require__(35).setPushCallback;
+	    this.registerDevice = __webpack_require__(35).registerDevice;
 
-	    this.addSerializedPayment = __webpack_require__(35).addSerializedPayment;
-	    this.getOfferFor = __webpack_require__(35).getOfferFor;
+	    this.addSerializedPayment = __webpack_require__(36).addSerializedPayment;
+	    this.getOfferFor = __webpack_require__(36).getOfferFor;
 	};
 
 
@@ -2430,6 +2431,36 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
+	/* global Newton */
+	var Global = __webpack_require__(2);
+
+	/**
+	* @ngdoc function
+	* @name getSessionId
+	* @methodOf NewtonAdapter
+	*
+	* @description Get Newton session Id
+	*
+	* @return {string} Newton session id or false
+	*
+	* @example
+	* <pre>
+	* NewtonAdapter.getSessionId();
+	* </pre>
+	*/
+
+	module.exports = function(){
+	    if(Global.newtonInstance){
+	        return Global.newtonInstance.getSessionId();
+	    } else {
+	        return false;
+	    }
+	};
+
+/***/ }),
+/* 32 */
+/***/ (function(module, exports, __webpack_require__) {
+
 	/* eslint-env browser */
 	/* global Newton */
 	var Promise = __webpack_require__(4);
@@ -2549,7 +2580,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -2606,7 +2637,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -2667,7 +2698,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var Promise = __webpack_require__(4);
@@ -2690,11 +2721,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var Global = __webpack_require__(2);
-	var Promisify = __webpack_require__(36);
+	var Promisify = __webpack_require__(37);
 
 	/** 
 	 * Flow example
@@ -2743,7 +2774,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var Promise = __webpack_require__(4);
