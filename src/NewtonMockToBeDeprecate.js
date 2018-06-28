@@ -6,6 +6,7 @@ var NewtonMock = {
     isUserLogged: function(){ calls.push('isUserLogged'); return logged; },
     rankContent: function(){ calls.push('rankContent'); },
     getUserToken: function(){ calls.push('getUserToken'); },
+    getSessionId: function(){ calls.push('getSessionId'); },
     setUserStateChangeListener: function(callback){ calls.push('setUserStateChangeListener'); callback.call(); },
     userLogout: function(){ calls.push('userLogout'); },
     finalizeLoginFlow: function(callback){ calls.push('finalizeLoginFlow'); callback.call(); },
