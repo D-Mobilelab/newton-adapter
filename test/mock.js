@@ -14,6 +14,7 @@ var Mock = {
             isUserLogged: function(){ Mock.calls.push('isUserLogged'); return Mock.logged; },
             rankContent: function(){ Mock.calls.push('rankContent'); },
             getUserToken: function(){ Mock.calls.push('getUserToken'); },
+            getSessionId: function(){ Mock.calls.push('getSessionId'); },
             setUserStateChangeListener: function(callbacks){
                 Mock.calls.push('setUserStateChangeListener'); callbacks.onLoginStateChange(); 
             },
@@ -91,6 +92,7 @@ var Mock = {
         spyOn(Mock.NewtonMock, 'isUserLogged').and.callThrough();
         spyOn(Mock.NewtonMock, 'rankContent').and.callThrough();
         spyOn(Mock.NewtonMock, 'getUserToken').and.callThrough();
+        spyOn(Mock.NewtonMock, 'getSessionId').and.callThrough();
         spyOn(Mock.NewtonMock, 'setUserStateChangeListener').and.callThrough();
         spyOn(Mock.NewtonMock, 'userLogout').and.callThrough();
         spyOn(Mock.NewtonMock, 'finalizeLoginFlow').and.callThrough();
