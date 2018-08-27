@@ -1,4 +1,7 @@
 # 2.16.0
+- New method userLogoutAsync
+
+# 2.16.0
 - New flow methods: getTransientToken, getSessionId
 
 # 2.15.0
