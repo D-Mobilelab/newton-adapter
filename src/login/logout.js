@@ -8,7 +8,8 @@ var Global = require('../global');
 * @name logout
 * @methodOf NewtonAdapter
 *
-* @description Performs logout from Newton
+* @description Performs logout from Newton. 
+* <br/><b>This will not slogging you on the server (the token will remain active on server side, to logout the user also server side, please take a look too asyncLogout)</b>
 * <br/><b>This method is executed after init</b>
 *
 * @return {Promise} promise will be resolved when logout is completed, rejected if failed

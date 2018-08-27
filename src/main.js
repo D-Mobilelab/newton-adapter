@@ -40,6 +40,7 @@ module.exports = new function(){
     this.isUserLogged = require('./login/isUserLogged');
     this.login = require('./login/login');
     this.logout = require('./login/logout');
+    this.asyncLogout = require('./login/asyncLogout');
     this.setUserStateChangeListener = require('./login/setUserStateChangeListener');
 
     this.rankContent = require('./tracking/rankContent');
