@@ -26,15 +26,16 @@ var Global = require('../global');
 
 module.exports = function(callback){
     Bluebus.bind('init', function(){
-        if(typeof callback === 'function'){
-            if(Global.newtonInstance.isUserLogged()){
-                Global.newtonInstance.userLogoutAsync(callback);
-                Global.logger.log('NewtonAdapter', 'AsyncLogout');
-            } else {
-                Global.logger.warn('NewtonAdapter', 'AsyncLogout', 'User is already unlogged');
-            }
+        if(Global.newtonInstance.isUserLogged()){
+            Global.newtonInstance.userLogoutAsync(function(resp){
+                if(typeof callback === 'function'){
+                    callback(resp);
+                } else {
+                    Global.logger.log('NewtonAdapter', 'AsyncLogout', 'User Logged Out');
+                }
+            });
         } else {
-            Global.logger.warn('NewtonAdapter', 'AsyncLogout', 'Callback not provided');
+            Global.logger.warn('NewtonAdapter', 'AsyncLogout', 'User is already unlogged');
         }
     });
 };
