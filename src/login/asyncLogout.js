@@ -30,9 +30,9 @@ module.exports = function(callback){
             Global.newtonInstance.userLogoutAsync(function(resp){
                 if(typeof callback === 'function'){
                     callback(resp);
-                } else {
-                    Global.logger.log('NewtonAdapter', 'AsyncLogout', 'User Logged Out');
                 }
+
+                Global.logger.log('NewtonAdapter', 'AsyncLogout', 'User logged out');
             });
         } else {
             Global.logger.warn('NewtonAdapter', 'AsyncLogout', 'User is already unlogged');
