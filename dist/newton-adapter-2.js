@@ -2014,7 +2014,6 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
-	var Promise = __webpack_require__(4);
 	var Bluebus = __webpack_require__(1);
 	var Global = __webpack_require__(2);
 
@@ -2042,11 +2041,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	module.exports = function(callback){
 	    Bluebus.bind('init', function(){
-	        if(Global.newtonInstance.isUserLogged()){
-	            Global.newtonInstance.userLogoutAsync(callback);
-	            Global.logger.log('NewtonAdapter', 'Logout');
+	        if(typeof callback === 'function'){
+	            if(Global.newtonInstance.isUserLogged()){
+	                Global.newtonInstance.userLogoutAsync(callback);
+	                Global.logger.log('NewtonAdapter', 'AsyncLogout');
+	            } else {
+	                Global.logger.warn('NewtonAdapter', 'AsyncLogout', 'User is already unlogged');
+	            }
 	        } else {
-	            Global.logger.warn('NewtonAdapter', 'Logout', 'User is already unlogged');
+	            Global.logger.warn('NewtonAdapter', 'AsyncLogout', 'Callback not provided');
 	        }
 	    });
 	};

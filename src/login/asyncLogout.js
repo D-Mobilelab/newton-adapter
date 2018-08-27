@@ -1,5 +1,4 @@
 /* global Newton */
-var Promise = require('promise-polyfill');
 var Bluebus = require('bluebus');
 var Global = require('../global');
 
@@ -27,11 +26,15 @@ var Global = require('../global');
 
 module.exports = function(callback){
     Bluebus.bind('init', function(){
-        if(Global.newtonInstance.isUserLogged()){
-            Global.newtonInstance.userLogoutAsync(callback);
-            Global.logger.log('NewtonAdapter', 'Logout');
+        if(typeof callback === 'function'){
+            if(Global.newtonInstance.isUserLogged()){
+                Global.newtonInstance.userLogoutAsync(callback);
+                Global.logger.log('NewtonAdapter', 'AsyncLogout');
+            } else {
+                Global.logger.warn('NewtonAdapter', 'AsyncLogout', 'User is already unlogged');
+            }
         } else {
-            Global.logger.warn('NewtonAdapter', 'Logout', 'User is already unlogged');
+            Global.logger.warn('NewtonAdapter', 'AsyncLogout', 'Callback not provided');
         }
     });
 };
