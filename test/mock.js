@@ -19,6 +19,7 @@ var Mock = {
                 Mock.calls.push('setUserStateChangeListener'); callbacks.onLoginStateChange(); 
             },
             userLogout: function(){ Mock.calls.push('userLogout'); },
+            userLogoutAsync: function(){ Mock.calls.push('userLogoutAsync'); },
             finalizeLoginFlow: function(callback){ Mock.calls.push('finalizeLoginFlow'); callback.call(); },
             // login methods
             getLoginBuilder: function(){ Mock.calls.push('getLoginBuilder'); return this; },
@@ -95,6 +96,7 @@ var Mock = {
         spyOn(Mock.NewtonMock, 'getSessionId').and.callThrough();
         spyOn(Mock.NewtonMock, 'setUserStateChangeListener').and.callThrough();
         spyOn(Mock.NewtonMock, 'userLogout').and.callThrough();
+        spyOn(Mock.NewtonMock, 'userLogoutAsync').and.callThrough();
         spyOn(Mock.NewtonMock, 'finalizeLoginFlow').and.callThrough();
         // login methods
         spyOn(Mock.NewtonMock, 'getLoginBuilder').and.callThrough();
