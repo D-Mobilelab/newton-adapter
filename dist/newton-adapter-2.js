@@ -96,32 +96,33 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.isUserLogged = __webpack_require__(19);
 	    this.login = __webpack_require__(20);
 	    this.logout = __webpack_require__(21);
-	    this.setUserStateChangeListener = __webpack_require__(22);
+	    this.asyncLogout = __webpack_require__(22);
+	    this.setUserStateChangeListener = __webpack_require__(23);
 
-	    this.rankContent = __webpack_require__(23);
-	    this.trackEvent = __webpack_require__(24);
-	    this.trackPageview = __webpack_require__(25);
-	    this.setLogView = __webpack_require__(26);
+	    this.rankContent = __webpack_require__(24);
+	    this.trackEvent = __webpack_require__(25);
+	    this.trackPageview = __webpack_require__(26);
+	    this.setLogView = __webpack_require__(27);
 
-	    this.confirmEmail = __webpack_require__(27);
-	    this.confirmEmailAndLogin = __webpack_require__(28);
-	    this.getUserToken = __webpack_require__(29);
-	    this.getTransientToken = __webpack_require__(30);
-	    this.getSessionId = __webpack_require__(31);
-	    this.recoverPassword = __webpack_require__(32);
-	    this.resetPassword = __webpack_require__(33);
-	    this.userDelete = __webpack_require__(34);    
+	    this.confirmEmail = __webpack_require__(28);
+	    this.confirmEmailAndLogin = __webpack_require__(29);
+	    this.getUserToken = __webpack_require__(30);
+	    this.getTransientToken = __webpack_require__(31);
+	    this.getSessionId = __webpack_require__(32);
+	    this.recoverPassword = __webpack_require__(33);
+	    this.resetPassword = __webpack_require__(34);
+	    this.userDelete = __webpack_require__(35);    
 
-	    this.setPushCallback = __webpack_require__(35).setPushCallback;
-	    this.registerDevice = __webpack_require__(35).registerDevice;
+	    this.setPushCallback = __webpack_require__(36).setPushCallback;
+	    this.registerDevice = __webpack_require__(36).registerDevice;
 
-	    this.addSerializedPayment = __webpack_require__(36).addSerializedPayment;
-	    this.getOfferFor = __webpack_require__(36).getOfferFor;
+	    this.addSerializedPayment = __webpack_require__(37).addSerializedPayment;
+	    this.getOfferFor = __webpack_require__(37).getOfferFor;
 
-	    this.flowBegin = __webpack_require__(38);
-	    this.flowStep = __webpack_require__(40);
-	    this.flowCancel = __webpack_require__(41);
-	    this.flowSucceed = __webpack_require__(42);
+	    this.flowBegin = __webpack_require__(39);
+	    this.flowStep = __webpack_require__(41);
+	    this.flowCancel = __webpack_require__(42);
+	    this.flowSucceed = __webpack_require__(43);
 	};
 
 
@@ -380,7 +381,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 
 	  function Promise(fn) {
-	    if (typeof this !== 'object') throw new TypeError('Promises must be constructed via new');
+	    if (!(this instanceof Promise)) throw new TypeError('Promises must be constructed via new');
 	    if (typeof fn !== 'function') throw new TypeError('not a function');
 	    this._state = 0;
 	    this._handled = false;
@@ -504,9 +505,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 
 	  Promise.all = function (arr) {
-	    var args = Array.prototype.slice.call(arr);
-
 	    return new Promise(function (resolve, reject) {
+	      if (!arr || typeof arr.length === 'undefined') throw new TypeError('Promise.all accepts an array');
+	      var args = Array.prototype.slice.call(arr);
 	      if (args.length === 0) return resolve([]);
 	      var remaining = args.length;
 
@@ -604,7 +605,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	var apply = Function.prototype.apply;
+	/* WEBPACK VAR INJECTION */(function(global) {var apply = Function.prototype.apply;
 
 	// DOM APIs, for completeness
 
@@ -655,9 +656,17 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	// setimmediate attaches itself to the global object
 	__webpack_require__(6);
-	exports.setImmediate = setImmediate;
-	exports.clearImmediate = clearImmediate;
+	// On some exotic environments, it's not clear which object `setimmeidate` was
+	// able to install onto.  Search each possibility in the same order as the
+	// `setimmediate` library.
+	exports.setImmediate = (typeof self !== "undefined" && self.setImmediate) ||
+	                       (typeof global !== "undefined" && global.setImmediate) ||
+	                       (this && this.setImmediate);
+	exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
+	                         (typeof global !== "undefined" && global.clearImmediate) ||
+	                         (this && this.clearImmediate);
 
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ }),
 /* 6 */
@@ -1971,7 +1980,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	* @name logout
 	* @methodOf NewtonAdapter
 	*
-	* @description Performs logout from Newton
+	* @description Performs logout from Newton. 
+	* <br/><b>This will not slogging you on the server (the token will remain active on server side, to logout the user also server side, please take a look too asyncLogout)</b>
 	* <br/><b>This method is executed after init</b>
 	*
 	* @return {Promise} promise will be resolved when logout is completed, rejected if failed
@@ -2004,6 +2014,48 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
+	var Promise = __webpack_require__(4);
+	var Bluebus = __webpack_require__(1);
+	var Global = __webpack_require__(2);
+
+	/**
+	* @ngdoc function
+	* @name asyncLogout
+	* @methodOf NewtonAdapter
+	*
+	* @description Performs logout from Newton, each server and client side.
+	* <br/><b>This method is executed after init</b>
+	*
+	* @return {Promise} promise will be resolved when logout is completed, rejected if failed
+	*
+	* @example
+	* <pre>
+	*   NewtonAdapter.asyncLogout(function(resp){
+	*       if(resp){
+	*            // MANAGE ERROR
+	*        } else {
+	*            console.log('Logout with success');
+	*        }   
+	*   })
+	* </pre>
+	*/
+
+	module.exports = function(callback){
+	    Bluebus.bind('init', function(){
+	        if(Global.newtonInstance.isUserLogged()){
+	            Global.newtonInstance.userLogoutAsync(callback);
+	            Global.logger.log('NewtonAdapter', 'Logout');
+	        } else {
+	            Global.logger.warn('NewtonAdapter', 'Logout', 'User is already unlogged');
+	        }
+	    });
+	};
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* global Newton */
 	var Global = __webpack_require__(2);
 
 	/**
@@ -2033,7 +2085,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -2092,7 +2144,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -2100,7 +2152,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Bluebus = __webpack_require__(1);
 	var Global = __webpack_require__(2);
 	var Utility = __webpack_require__(8);
-	var rankContent = __webpack_require__(23);
+	var rankContent = __webpack_require__(24);
 
 	/**
 	* @ngdoc function
@@ -2157,11 +2209,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
-	var trackEvent = __webpack_require__(24);
+	var trackEvent = __webpack_require__(25);
 
 	/**
 	* @ngdoc function
@@ -2205,7 +2257,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -2213,7 +2265,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Bluebus = __webpack_require__(1);
 	var Global = __webpack_require__(2);
 	var Utility = __webpack_require__(8);
-	var rankContent = __webpack_require__(23);
+	var rankContent = __webpack_require__(24);
 
 	/**
 	* @ngdoc function
@@ -2260,7 +2312,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -2310,7 +2362,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -2364,7 +2416,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -2395,7 +2447,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -2425,7 +2477,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -2455,7 +2507,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -2577,7 +2629,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -2634,7 +2686,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -2695,7 +2747,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var Promise = __webpack_require__(4);
@@ -2718,11 +2770,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var Global = __webpack_require__(2);
-	var Promisify = __webpack_require__(37);
+	var Promisify = __webpack_require__(38);
 
 	/** 
 	 * Flow example
@@ -2771,7 +2823,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var Promise = __webpack_require__(4);
@@ -2801,7 +2853,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -2809,7 +2861,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Bluebus = __webpack_require__(1);
 	var Global = __webpack_require__(2);
 	var Utility = __webpack_require__(8);
-	var currentFlow = __webpack_require__(39);
+	var currentFlow = __webpack_require__(40);
 
 	/**
 	* @ngdoc function
@@ -2857,7 +2909,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports) {
 
 	var currentFlow = {
@@ -2889,7 +2941,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = publicFlowInterface;
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -2897,7 +2949,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Bluebus = __webpack_require__(1);
 	var Global = __webpack_require__(2);
 	var Utility = __webpack_require__(8);
-	var currentFlow = __webpack_require__(39);
+	var currentFlow = __webpack_require__(40);
 
 	/**
 	* @ngdoc function
@@ -2944,7 +2996,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -2952,7 +3004,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Bluebus = __webpack_require__(1);
 	var Global = __webpack_require__(2);
 	var Utility = __webpack_require__(8);
-	var currentFlow = __webpack_require__(39);
+	var currentFlow = __webpack_require__(40);
 
 	/**
 	* @ngdoc function
@@ -3000,7 +3052,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -3008,7 +3060,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Bluebus = __webpack_require__(1);
 	var Global = __webpack_require__(2);
 	var Utility = __webpack_require__(8);
-	var currentFlow = __webpack_require__(39);
+	var currentFlow = __webpack_require__(40);
 
 	/**
 	* @ngdoc function
@@ -3060,4 +3112,4 @@ return /******/ (function(modules) { // webpackBootstrap
 });
 ;
 
-/* Newton Adapter 2.16.0 */
+/* Newton Adapter temp */
