@@ -4,7 +4,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/D-Mobilelab/newton-adapter/badge.svg?branch=master&v=1)](https://coveralls.io/github/D-Mobilelab/newton-adapter?branch=master)
 [![npm version](https://badge.fury.io/js/newton-adapter.svg)](https://badge.fury.io/js/newton-adapter)
 [![Bower version](https://badge.fury.io/bo/newton-adapter.svg)](https://badge.fury.io/bo/newton-adapter)
-[![GitHub version](https://badge.fury.io/gh/D-Mobilelab%2Fnewton-adapter.svg)](https://badge.fury.io/gh/D-Mobilelab%2Fnewton-adapter)
+[![GitHub version](https://badge.fury.io/gh/D-Mobilelab%2Fnewton-adapter.svg)](https://badge.fury.io/gh/D-Mobilelab%2Fnewton-adapter) [![Greenkeeper badge](https://badges.greenkeeper.io/D-Mobilelab/newton-adapter.svg)](https://greenkeeper.io/)
 
 ## Installation
 
