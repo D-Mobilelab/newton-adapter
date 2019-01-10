@@ -57,6 +57,19 @@ describe('init -', function(){
         expect(Newton.getSharedInstanceWithConfig).toHaveBeenCalledWith(secretId, properties);
     });
 
+    it('call Newton.getSharedInstanceWithConfig with secretId, properties and config', function(){
+        var secretId = '<local_host>';
+        var properties = { bridgeId: '123123123' };
+        var config = { isInternational: true };
+        NewtonAdapter.init({
+            secretId: secretId,
+            enable: true,
+            properties: properties,
+            config: config
+        });
+        expect(Newton.getSharedInstanceWithConfig).toHaveBeenCalledWith(secretId, properties, config);
+    });
+
     describe('waitLogin: false - ', function(){
         beforeEach(function(){
             NewtonAdapter.init({

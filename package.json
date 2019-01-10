@@ -1,6 +1,6 @@
 {
   "name": "newton-adapter",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A light adapter for Newton library, for tracking and authentication",
   "keywords": [
     "newton",
@@ -13,8 +13,14 @@
   },
   "license": "MIT",
   "contributors": [
-    { "name": "Aurelio Merenda", "email": "aurelio.merenda@buogiorno.com" },
-    { "name": "Fabio Fognani", "email": "fabio.fognani@buongiorno.com" }
+    {
+      "name": "Aurelio Merenda",
+      "email": "aurelio.merenda@buogiorno.com"
+    },
+    {
+      "name": "Fabio Fognani",
+      "email": "fabio.fognani@buongiorno.com"
+    }
   ],
   "repository": {
     "type": "git",

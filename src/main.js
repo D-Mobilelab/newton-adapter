@@ -62,7 +62,11 @@ var NewtonAdapter = new function(){
         // init enablePromise and init Newton
         enablePromise = new PromiseLite(); 
         enablePromise.then(function(){
-            newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId, createSimpleObject(options.properties));
+            if(options.config){
+                newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId, createSimpleObject(options.properties), options.config);
+            } else {
+                newtonInstance = Newton.getSharedInstanceWithConfig(options.secretId, createSimpleObject(options.properties));
+            }
             logger.log('NewtonAdapter', 'Init', options);
         });
         enablePromise.fail(function(){

@@ -5,6 +5,9 @@ NewtonAdapter.init({
 	logger: console,
 	properties: {
 		bridge_session_id: '123123123'
+	},
+	config: {
+		isInternational: false
 	}
 });
 
