@@ -1,3 +1,5 @@
+var Global = require('./global');
+
 var Utility = {
     createSimpleObject: function(object){
         try {

@@ -1,3 +1,6 @@
+#2.17.1
+ - Fix global path in utility.js and logger for stopheartbeat
+
 # 2.16.0
 - New method userLogoutAsync
 

@@ -39,10 +39,10 @@ module.exports = function(options){
             if(options && options.name){
                 Global.newtonInstance.timedEventStop(options.name, Utility.createSimpleObject(options.properties));
                 resolve();
-                Global.logger.log('NewtonAdapter', 'startHeartbeat', options);
+                Global.logger.log('NewtonAdapter', 'StopHeartbeat', options);
             } else {
-                reject('startHeartbeat requires name');
-                Global.logger.error('NewtonAdapter', 'startHeartbeat', 'startHeartbeat requires name');
+                reject('StopHeartbeat requires name');
+                Global.logger.error('NewtonAdapter', 'StopHeartbeat', 'StopHeartbeat requires name');
             }
         });
     });
