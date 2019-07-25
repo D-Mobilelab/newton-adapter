@@ -1,3 +1,6 @@
+#2.17.2
+ - Remove Node parameter from package.json
+
 #2.17.1
  - Fix global path in utility.js and logger for stopheartbeat
 
