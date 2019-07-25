@@ -274,7 +274,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	;
 
-	/* Bluebus 1.3.1 */
+	/* Bluebus 1.3.2 */
 
 /***/ }),
 /* 2 */
@@ -3121,4 +3121,4 @@ return /******/ (function(modules) { // webpackBootstrap
 });
 ;
 
-/* Newton Adapter 2.17.2 */
+/* Newton Adapter 2.17.3 */

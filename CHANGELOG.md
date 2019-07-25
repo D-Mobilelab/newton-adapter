@@ -1,3 +1,6 @@
+#2.17.3
+ - Updated bluebus to v1.3.2
+
 #2.17.2
  - Remove Node parameter from package.json
 
