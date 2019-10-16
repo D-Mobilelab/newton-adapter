@@ -71,7 +71,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    // USE ONLY FOR TEST!
 	    /**
 	     * TODO: if(process.env.NODE_ENV === 'test') {
-	     *  
+	     *
 	     * }
 	     */
 	    this.resetForTest = function(){
@@ -82,10 +82,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.startHeartbeat = __webpack_require__(3);
 	    this.stopHeartbeat = __webpack_require__(9);
 
-	    this.getIdentities = __webpack_require__(10);   
-	    this.getIdentity = __webpack_require__(11);   
-	    this.addIdentity = __webpack_require__(12);   
-	    this.signup = __webpack_require__(13);   
+	    this.getIdentities = __webpack_require__(10);
+	    this.getIdentity = __webpack_require__(11);
+	    this.addIdentity = __webpack_require__(12);
+	    this.signup = __webpack_require__(13);
 	    this.removeIdentity = __webpack_require__(14)({ Bluebus: Bluebus, Global: Global });
 
 	    this.init = __webpack_require__(15);
@@ -108,21 +108,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.confirmEmailAndLogin = __webpack_require__(29);
 	    this.getUserToken = __webpack_require__(30);
 	    this.getTransientToken = __webpack_require__(31);
-	    this.getSessionId = __webpack_require__(32);
-	    this.recoverPassword = __webpack_require__(33);
-	    this.resetPassword = __webpack_require__(34);
-	    this.userDelete = __webpack_require__(35);    
+	    this.syncUserState = __webpack_require__(32);
+	    this.getSessionId = __webpack_require__(33);
+	    this.recoverPassword = __webpack_require__(34);
+	    this.resetPassword = __webpack_require__(35);
+	    this.userDelete = __webpack_require__(36);
 
-	    this.setPushCallback = __webpack_require__(36).setPushCallback;
-	    this.registerDevice = __webpack_require__(36).registerDevice;
+	    this.setPushCallback = __webpack_require__(37).setPushCallback;
+	    this.registerDevice = __webpack_require__(37).registerDevice;
 
-	    this.addSerializedPayment = __webpack_require__(37).addSerializedPayment;
-	    this.getOfferFor = __webpack_require__(37).getOfferFor;
+	    this.addSerializedPayment = __webpack_require__(38).addSerializedPayment;
+	    this.getOfferFor = __webpack_require__(38).getOfferFor;
 
-	    this.flowBegin = __webpack_require__(39);
-	    this.flowStep = __webpack_require__(41);
-	    this.flowCancel = __webpack_require__(42);
-	    this.flowSucceed = __webpack_require__(43);
+	    this.flowBegin = __webpack_require__(40);
+	    this.flowStep = __webpack_require__(42);
+	    this.flowCancel = __webpack_require__(43);
+	    this.flowSucceed = __webpack_require__(44);
 	};
 
 
@@ -2461,6 +2462,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	/* global Newton */
 	var Global = __webpack_require__(2);
+	var syncUserState = __webpack_require__(32);
 
 	/**
 	* @ngdoc function
@@ -2470,6 +2472,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	* @description Get Newton transient token for mobile fingerprint
 	* <br><b>Asynchronous call, require a callback</b>
 	*
+	* @param {Function} callback function invoked with error, resp
+	* @param {Object} options configuration object
+	* @param {Boolean} [options.syncUserState=false] Call syncUserState before retrieving the token
 	*
 	* @example
 	* <pre>
@@ -2479,14 +2484,57 @@ return /******/ (function(modules) { // webpackBootstrap
 	* </pre>
 	*/
 
-	module.exports = function(callback){
+	module.exports = function(callback, options){
+	    options = options || { syncUserState: false };
 	    if(Global.newtonInstance && callback){
-	        Global.newtonInstance.getTransientToken(callback);
+	        if (options.syncUserState) {
+	            syncUserState(function(err) {
+	                if (!err) {
+	                    Global.newtonInstance.getTransientToken(callback);
+	                }
+	            });
+	        } else {
+	            Global.newtonInstance.getTransientToken(callback);
+	        }
 	    }
 	};
 
+
 /***/ }),
 /* 32 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* global Newton */
+	var Global = __webpack_require__(2);
+
+	/**
+	 * @ngdoc function
+	 * @name syncUserState
+	 * @methodOf NewtonAdapter
+	 *
+	 * @description Refresh the current local user state asking to the server the real user state
+	 * <br><b>Asynchronous call, require a callback</b>
+	 *
+	 * @param {Function} callback The callback invoked when the state is refreshed
+	 *
+	 * @example
+	 * <pre>
+	 * NewtonAdapter.syncUserState(function(err){
+	 *    console.log(err);
+	 *    //... user state ensured
+	 * });
+	 * </pre>
+	 */
+
+	module.exports = function(callback) {
+	    if (Global.newtonInstance && callback) {
+	        Global.newtonInstance.syncUserState(callback);
+	    }
+	};
+
+
+/***/ }),
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -2516,7 +2564,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -2638,7 +2686,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -2695,7 +2743,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* eslint-env browser */
@@ -2756,7 +2804,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var Promise = __webpack_require__(4);
@@ -2779,11 +2827,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var Global = __webpack_require__(2);
-	var Promisify = __webpack_require__(38);
+	var Promisify = __webpack_require__(39);
 
 	/** 
 	 * Flow example
@@ -2832,7 +2880,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var Promise = __webpack_require__(4);
@@ -2862,7 +2910,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -2870,7 +2918,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Bluebus = __webpack_require__(1);
 	var Global = __webpack_require__(2);
 	var Utility = __webpack_require__(8);
-	var currentFlow = __webpack_require__(40);
+	var currentFlow = __webpack_require__(41);
 
 	/**
 	* @ngdoc function
@@ -2918,7 +2966,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports) {
 
 	var currentFlow = {
@@ -2950,7 +2998,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = publicFlowInterface;
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -2958,7 +3006,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Bluebus = __webpack_require__(1);
 	var Global = __webpack_require__(2);
 	var Utility = __webpack_require__(8);
-	var currentFlow = __webpack_require__(40);
+	var currentFlow = __webpack_require__(41);
 
 	/**
 	* @ngdoc function
@@ -3005,7 +3053,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -3013,7 +3061,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Bluebus = __webpack_require__(1);
 	var Global = __webpack_require__(2);
 	var Utility = __webpack_require__(8);
-	var currentFlow = __webpack_require__(40);
+	var currentFlow = __webpack_require__(41);
 
 	/**
 	* @ngdoc function
@@ -3061,7 +3109,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* global Newton */
@@ -3069,7 +3117,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Bluebus = __webpack_require__(1);
 	var Global = __webpack_require__(2);
 	var Utility = __webpack_require__(8);
-	var currentFlow = __webpack_require__(40);
+	var currentFlow = __webpack_require__(41);
 
 	/**
 	* @ngdoc function
@@ -3121,4 +3169,4 @@ return /******/ (function(modules) { // webpackBootstrap
 });
 ;
 
-/* Newton Adapter 2.17.3 */
+/* Newton Adapter temp */
