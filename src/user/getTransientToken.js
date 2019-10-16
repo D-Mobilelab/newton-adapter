@@ -11,7 +11,7 @@ var syncUserState = require('./syncUserState');
 * <br><b>Asynchronous call, require a callback</b>
 *
 * @param {Function} callback function invoked with error, resp
-* @param {Object} options
+* @param {Object} options configuration object
 * @param {Boolean} [options.syncUserState=false] Call syncUserState before retrieving the token
 *
 * @example
