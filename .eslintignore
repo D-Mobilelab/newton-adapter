@@ -1,3 +1,7 @@
 gulpfile.js
 src/**/*.test.js
 dist/*
+webpack.config.js
+rolup.config.js
+babel.config.js
+examples

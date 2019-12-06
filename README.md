@@ -22,9 +22,9 @@ You can found the library ready for production on <i>bower_components/newton-ada
 
 ## Documentation
 
-To read documentation, go to: 
+To read documentation, go to:
 
-[http://d-mobilelab.github.io/newton-adapter/2.0.0](http://d-mobilelab.github.io/newton-adapter/2.0.0)
+[http://d-mobilelab.github.io/newton-adapter/latest](http://d-mobilelab.github.io/newton-adapter/latest)
 
 Replace <i>2.0.0</i> with the version of the documentation you want to read.
 

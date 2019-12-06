@@ -7,8 +7,12 @@ module.exports = function(config) {
         basePath: '.',
 
         frameworks: ['jasmine'],
-        
-        files: ['src/**/*.test.js'],
+
+        files: [
+            // PhantomJS does not have native support for promises....
+            'node_modules/promise-polyfill/dist/polyfill.js',
+            'src/**/*.test.js'
+        ],
 
         browsers: ['PhantomJS'],
 
