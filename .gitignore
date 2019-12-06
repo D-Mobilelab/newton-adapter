@@ -4,3 +4,5 @@ node_modules/
 test/report/
 docs/
 .DS_*
+dist/
+umd/

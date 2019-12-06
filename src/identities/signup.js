@@ -1,6 +1,5 @@
 /* global Newton */
-var Promise = require('promise-polyfill');
-var Bluebus = require('bluebus');
+
 var Global = require('../global');
 var Utility = require('../utility');
 
@@ -54,14 +53,18 @@ module.exports = function (options) {
                 .setPassword(options.password);
 
             if (typeof options.customData !== 'undefined') {
-                signupChain = signupChain.setCustomData(Utility.createSimpleObject(options.customData)); // THIS SHOULD BE A SIMPLE OBJECT
+                signupChain = signupChain.setCustomData(
+                    Utility.createSimpleObject(options.customData)
+                ); // THIS SHOULD BE A SIMPLE OBJECT
             }
 
             if (typeof options.userProperties !== 'undefined') {
-                signupChain = signupChain.setUserProperties(Utility.createSimpleObject(options.userProperties)); // THIS SHOULD BE A SIMPLE OBJECT
+                signupChain = signupChain.setUserProperties(
+                    Utility.createSimpleObject(options.userProperties)
+                ); // THIS SHOULD BE A SIMPLE OBJECT
             }
 
-            signupChain = signupChain.getEmailSignupFlow().startLoginFlow();
+            signupChain.getEmailSignupFlow().startLoginFlow();
         } else {
             reject('Can not start signup flow');
             Global.logger.error('NewtonAdapter', 'signup', 'Signup is not supported with those arguments.', options);

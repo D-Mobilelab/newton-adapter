@@ -1,5 +1,3 @@
-/* global Newton */
-var Promise = require('promise-polyfill');
 var Bluebus = require('bluebus');
 var Global = require('../global');
 var Utility = require('../utility');
@@ -38,7 +36,10 @@ module.exports = function(options){
     return new Promise(function(resolve, reject){
         Bluebus.bind('login', function(){
             if(options && options.name && currentFlow.isFlowStarted()){
-                Global.newtonInstance.flowStep(options.name, Utility.createSimpleObject(options.properties));
+                Global.newtonInstance.flowStep(
+                    options.name,
+                    Utility.createSimpleObject(options.properties)
+                );
                 resolve();
                 Global.logger.log('NewtonAdapter', 'flowStep', options);
             } else {

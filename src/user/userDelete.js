@@ -1,6 +1,5 @@
 /* eslint-env browser */
-/* global Newton */
-var Promise = require('promise-polyfill');
+
 var Bluebus = require('bluebus');
 var Global = require('../global');
 
@@ -27,30 +26,31 @@ var Global = require('../global');
 module.exports = function(){
     return new Promise(function(resolve, reject){
         Bluebus.bind('login', function(){
-            Global.newtonInstance.getIdentityManager().getIdentities(function(identError, identities){
-                if(identError){
-                    reject(identError);
-                    Global.logger.error('NewtonAdapter', 'userDelete', 'getIdentities failed', identError);
-                } else {
-                    Global.logger.log('NewtonAdapter', 'userDelete', 'getIdentities success', identities);
-                    for(var i = 0, goFoward = true; i < identities.length && goFoward; i++){
-                        if (identities[i].getType() === 'msisdn'){
-                            goFoward = false;
-                            reject('Error on userDelete: please use unsubscribe instead');
-                            Global.logger.error('NewtonAdapter', 'userDelete', 'Error on userDelete: please use unsubscribe instead');
+            Global.newtonInstance.getIdentityManager()
+                .getIdentities(function(identError, identities){
+                    if(identError){
+                        reject(identError);
+                        Global.logger.error('NewtonAdapter', 'userDelete', 'getIdentities failed', identError);
+                    } else {
+                        Global.logger.log('NewtonAdapter', 'userDelete', 'getIdentities success', identities);
+                        for(var i = 0, goFoward = true; i < identities.length && goFoward; i++){
+                            if (identities[i].getType() === 'msisdn'){
+                                goFoward = false;
+                                reject('Error on userDelete: please use unsubscribe instead');
+                                Global.logger.error('NewtonAdapter', 'userDelete', 'Error on userDelete: please use unsubscribe instead');
+                            }
                         }
+                        Global.newtonInstance.getIdentityManager().userDelete(function(deleteError){
+                            if(deleteError){
+                                reject(deleteError);
+                                Global.logger.error('NewtonAdapter', 'userDelete', 'delete', deleteError);
+                            } else {
+                                resolve();
+                                Global.logger.log('NewtonAdapter', 'userDelete', identities);
+                            }
+                        });
                     }
-                    Global.newtonInstance.getIdentityManager().userDelete(function(deleteError){
-                        if(deleteError){
-                            reject(deleteError);
-                            Global.logger.error('NewtonAdapter', 'userDelete', 'delete', deleteError);
-                        } else {
-                            resolve();
-                            Global.logger.log('NewtonAdapter', 'userDelete', identities);
-                        }
-                    });
-                }
-            });
+                });
         });
     });
 };

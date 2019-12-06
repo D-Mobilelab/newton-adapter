@@ -1,5 +1,4 @@
-/* global Newton */
-var Promise = require('promise-polyfill');
+
 var Bluebus = require('bluebus');
 var Global = require('../global');
 var Utility = require('../utility');
@@ -13,7 +12,8 @@ var Utility = require('../utility');
 *
 * @param {Object} options configuration object
 * @param {boolean} [options.logged=false] new state of the user
-* @param {string} [options.type="custom"] (custom, external, msisdn, autologin, generic, oauth, receipt)
+* @param {string} [options.type="custom"]
+ * (custom, external, msisdn, autologin, generic, oauth, receipt)
 * @param {string} options.userId required for custom and external login
 * @param {Object} [options.userProperties={}] available only for custom and external login
 * @param {string} options.pin required for msisdn login
@@ -44,7 +44,7 @@ var Utility = require('../utility');
 *   }).catch(function(err){
 *       console.log('login failed', err);
 *   });
-*   
+*
 *   const offerId = await NewtonAdapter.getOfferFor("nativeItemId", "googlePlay");
 *   const receipt = await NativeNewton.buy(offerId, "nativeItemId")
 *   NewtonAdapter.login({
@@ -133,7 +133,9 @@ module.exports = function(options){
                             var msisdnChain = Global.newtonInstance.getLoginBuilder()
                             .setOnFlowCompleteCallback(callCallback)
                             .setMSISDN(options.msisdn);
-                            msisdnChain = options.pin ? msisdnChain.setPIN(options.pin) : msisdnChain.setNoPIN();
+                            msisdnChain = options.pin
+                                ? msisdnChain.setPIN(options.pin)
+                                : msisdnChain.setNoPIN();
                             if(options.operator){
                                 msisdnChain = msisdnChain.setOperator(options.operator);
                             }
@@ -148,7 +150,9 @@ module.exports = function(options){
                             var aliasChain = Global.newtonInstance.getLoginBuilder()
                                 .setOnFlowCompleteCallback(callCallback)
                                 .setAlias(options.alias);
-                            aliasChain = options.pin ? aliasChain.setPIN(options.pin) : aliasChain.setNoPIN();
+                            aliasChain = options.pin
+                                ? aliasChain.setPIN(options.pin)
+                                : aliasChain.setNoPIN();
                             if (options.operator) {
                                 aliasChain = aliasChain.setOperator(options.operator);
                             }
@@ -184,6 +188,7 @@ module.exports = function(options){
                         }
                     } else if(loginType === 'autologin'){
                         if(options.domain){
+                            // eslint-disable-next-line no-underscore-dangle
                             Global.newtonInstance.getLoginBuilder()
                             .setOnFlowCompleteCallback(callCallback)
                             .__setDomain(options.domain)
@@ -208,7 +213,9 @@ module.exports = function(options){
                     } else if(loginType === 'receipt') {
                         if(options.receipt && options.receipt.serializedPayment){
                             Global.newtonInstance.getLoginBuilder()
-                            .setCustomData(Utility.createSimpleObject.fromJSONObject(options.userProperties))
+                            .setCustomData(
+                                Utility.createSimpleObject.fromJSONObject(options.userProperties)
+                            )
                             .setSerializedPayment(options.receipt.serializedPayment)
                             .setOnFlowCompleteCallback(callCallback)
                             .getPaymentReceiptLoginFlow()

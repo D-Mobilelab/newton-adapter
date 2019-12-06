@@ -1,6 +1,5 @@
 /* eslint-env browser */
-/* global Newton */
-var Promise = require('promise-polyfill');
+
 /**
 * @ngdoc function
 * @name removeIdentity
@@ -31,43 +30,44 @@ module.exports = function(deps){
         return new Promise(function(resolve, reject){
             deps.Bluebus.bind('login', function(){
                 if(options.type){
-                    deps.Global.newtonInstance.getIdentityManager().getIdentities(function(identError, identities){
-                        if(identError){
-                            reject(identError);
-                            deps.Global.logger.error('NewtonAdapter', 'removeIdentity', 'getIdentities failed', identError);
-                        } else {
-                            deps.Global.logger.log('NewtonAdapter', 'removeIdentity', 'getIdentities success', options, identities);
-                            if(identities.length < 2){
-                                reject('it\'s not possible remove unique identity');
-                                deps.Global.logger.error('NewtonAdapter', 'removeIdentity', 'it\'s not possible remove unique identity');
+                    deps.Global.newtonInstance.getIdentityManager()
+                        .getIdentities(function(identError, identities){
+                            if(identError){
+                                reject(identError);
+                                deps.Global.logger.error('NewtonAdapter', 'removeIdentity', 'getIdentities failed', identError);
                             } else {
-                                var found = false;
-                                for(var i = 0; i < identities.length; i++) {
-                                    if (options.type === identities[i].getType()){
-                                        found = true;
-                                        identities[i].delete(function(deleteError){
-                                            if(deleteError){
-                                                reject(deleteError);
-                                                deps.Global.logger.error('NewtonAdapter', 'removeIdentity', 'delete failed', deleteError);
-                                            } else {
-                                                resolve(true);
-                                                deps.Global.logger.log('NewtonAdapter', 'removeIdentity', 'delete success');
-                                            }
-                                        });
-                                        break;
+                                deps.Global.logger.log('NewtonAdapter', 'removeIdentity', 'getIdentities success', options, identities);
+                                if(identities.length < 2){
+                                    reject('it\'s not possible remove unique identity');
+                                    deps.Global.logger.error('NewtonAdapter', 'removeIdentity', 'it\'s not possible remove unique identity');
+                                } else {
+                                    var found = false;
+                                    for(var i = 0; i < identities.length; i++) {
+                                        if (options.type === identities[i].getType()){
+                                            found = true;
+                                            identities[i].delete(function(deleteError){
+                                                if(deleteError){
+                                                    reject(deleteError);
+                                                    deps.Global.logger.error('NewtonAdapter', 'removeIdentity', 'delete failed', deleteError);
+                                                } else {
+                                                    resolve(true);
+                                                    deps.Global.logger.log('NewtonAdapter', 'removeIdentity', 'delete success');
+                                                }
+                                            });
+                                            break;
+                                        }
+                                    }
+
+                                    if (!found) {
+                                        /** If we're here there was no match */
+                                        var err = new Error('no identities for ' + options.type);
+                                        err.code = 404;
+                                        err.name = 'NotFound';
+                                        reject(err);
                                     }
                                 }
-                                
-                                if (!found) {
-                                    /** If we're here there was no match */
-                                    var err = new Error('no identities for ' + options.type);
-                                    err.code = 404;
-                                    err.name = 'NotFound';
-                                    reject(err);
-                                }                                
                             }
-                        }
-                    });
+                        });
                 } else if(options.identity) {
                     options.identity.delete(function(deleteError){
                         if(deleteError) {

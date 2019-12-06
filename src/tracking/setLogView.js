@@ -1,9 +1,6 @@
-/* global Newton */
-var Promise = require('promise-polyfill');
+
 var Bluebus = require('bluebus');
 var Global = require('../global');
-var Utility = require('../utility');
-var rankContent = require('./rankContent');
 
 /**
 * @ngdoc function
