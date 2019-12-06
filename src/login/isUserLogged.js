@@ -1,4 +1,3 @@
-/* global Newton */
 var Global = require('../global');
 
 /**
@@ -9,7 +8,8 @@ var Global = require('../global');
 * @description Check if the user is already logged on Newton.
 * <br><b>Synchronous call, don't wait init</b>
 *
-* @return {boolean} true if the user is already logged, false if user is unlogged or init has not been called before
+* @return {boolean} true if the user is already logged,
+ * false if user is unlogged or init has not been called before
 *
 * @example
 * <pre>

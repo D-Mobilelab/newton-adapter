@@ -1,5 +1,5 @@
 /* eslint-env browser */
-/* global Newton */
+/* eslint-disable global-require */
 var Bluebus = require('bluebus');
 var Global = require('./global');
 
@@ -15,7 +15,7 @@ module.exports = new function(){
     // USE ONLY FOR TEST!
     /**
      * TODO: if(process.env.NODE_ENV === 'test') {
-     *  
+     *
      * }
      */
     this.resetForTest = function(){
@@ -26,10 +26,10 @@ module.exports = new function(){
     this.startHeartbeat = require('./heartbeat/startHeartbeat');
     this.stopHeartbeat = require('./heartbeat/stopHeartbeat');
 
-    this.getIdentities = require('./identities/getIdentities');   
-    this.getIdentity = require('./identities/getIdentity');   
-    this.addIdentity = require('./identities/addIdentity');   
-    this.signup = require('./identities/signup');   
+    this.getIdentities = require('./identities/getIdentities');
+    this.getIdentity = require('./identities/getIdentity');
+    this.addIdentity = require('./identities/addIdentity');
+    this.signup = require('./identities/signup');
     this.removeIdentity = require('./identities/removeIdentity')({ Bluebus: Bluebus, Global: Global });
 
     this.init = require('./initialization/init');
@@ -55,7 +55,7 @@ module.exports = new function(){
     this.getSessionId = require('./user/getSessionId');
     this.recoverPassword = require('./user/recoverPassword');
     this.resetPassword = require('./user/resetPassword');
-    this.userDelete = require('./user/userDelete');    
+    this.userDelete = require('./user/userDelete');
 
     this.setPushCallback = require('./push/index').setPushCallback;
     this.registerDevice = require('./push/index').registerDevice;

@@ -1,4 +1,3 @@
-var Promise = require('promise-polyfill');
 var Global = require('../global');
 
 function registerDevice() {

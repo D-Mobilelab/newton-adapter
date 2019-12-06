@@ -1,5 +1,4 @@
-/* global Newton */
-var Promise = require('promise-polyfill');
+
 var Bluebus = require('bluebus');
 var Global = require('../global');
 
@@ -11,7 +10,8 @@ var Global = require('../global');
 * @description Get identities from current user<br/>
 * <b>This method is executed after login (waitLogin:true) or after init (false)</b>
 *
-* @return {string} promise that will be resolved when the identities has been retrieved for the current user, rejected if failed
+* @return {string} promise that will be resolved
+ * when the identities has been retrieved for the current user, rejected if failed
 *
 * @example
 * <pre>

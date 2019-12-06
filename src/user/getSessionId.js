@@ -1,4 +1,3 @@
-/* global Newton */
 var Global = require('../global');
 
 /**

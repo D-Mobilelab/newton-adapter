@@ -1,6 +1,5 @@
 /* eslint-env browser */
-/* global Newton */
-var Promise = require('promise-polyfill');
+
 var Bluebus = require('bluebus');
 var Global = require('../global');
 
@@ -14,7 +13,8 @@ var Global = require('../global');
 * @param {Object} options configuration object
 * @param {string} [options.token] token to confirm email
 *
-* @return {Promise} promise that will be resolved when the confirmEmail has been completed, rejected if failed
+* @return {Promise} promise that will be resolved
+ * when the confirmEmail has been completed, rejected if failed
 *
 * @example
 * <pre>

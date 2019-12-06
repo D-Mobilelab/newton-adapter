@@ -1,5 +1,3 @@
-/* global Newton */
-var Promise = require('promise-polyfill');
 var Bluebus = require('bluebus');
 var Global = require('../global');
 var Utility = require('../utility');
@@ -10,8 +8,9 @@ var currentFlow = require('./flowState');
 * @name flowCancel
 * @methodOf NewtonAdapter
 *
-* @description End flow with failuer<br>
-* <b>This method is executed when the flow has been interrupted by the user (as a skip tutorial button)</b>
+* @description End flow with failure<br>
+* <b>This method is executed when the flow
+ * has been interrupted by the user (as a skip tutorial button)</b>
 *
 * @param {Object} options configuration object
 * @param {string} options.name name of the canceled flow
@@ -38,7 +37,10 @@ module.exports = function(options){
     return new Promise(function(resolve, reject){
         Bluebus.bind('login', function(){
             if(options && options.name && currentFlow.isFlowStarted()){
-                Global.newtonInstance.flowCancel(options.name, Utility.createSimpleObject(options.properties));
+                Global.newtonInstance.flowCancel(
+                    options.name,
+                    Utility.createSimpleObject(options.properties)
+                );
                 currentFlow.cleanCurrentFlow();
                 resolve();
                 Global.logger.log('NewtonAdapter', 'flowCancel', options);

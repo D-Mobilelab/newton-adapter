@@ -1,5 +1,4 @@
-/* global Newton */
-var Promise = require('promise-polyfill');
+
 var Bluebus = require('bluebus');
 var Global = require('../global');
 var Utility = require('../utility');
@@ -21,7 +20,7 @@ var Utility = require('../utility');
 * @param {Object} [options.params={}] params of identity to add (email)
 * @param {string} options.smsTemplate SMS template of identity to add (generic)
 *
-* @return {Promise} ppromise will be resolved when adding is completed, rejected if failed
+* @return {Promise} promise will be resolved when adding is completed, rejected if failed
 *
 * @example
 * <pre>
@@ -58,7 +57,9 @@ module.exports = function(options){
                     .getIdentityBuilder()
                     .setOAuthProvider(options.provider)
                     .setAccessToken(options.access_token)
-                    .setOnFlowCompleteCallback(function(err){ callback(err, identityType, options); })
+                    .setOnFlowCompleteCallback(function(err){
+                        callback(err, identityType, options);
+                    })
                     .getAddOAuthIdentityFlow()
                     .startAddIdentityFlow();
                 } else {
@@ -73,7 +74,9 @@ module.exports = function(options){
                         .setEmail(options.email)
                         .setPassword(options.password)
                         .setProductEmailParams(Utility.createSimpleObject(options.params))
-                        .setOnFlowCompleteCallback(function(err){ callback(err, identityType, options); })
+                        .setOnFlowCompleteCallback(function(err){
+                            callback(err, identityType, options);
+                        })
                         .setSMSTemplate(options.smsTemplate)
                         .getAddEmailIdentityFlow()
                         .startAddIdentityFlow();
@@ -83,7 +86,9 @@ module.exports = function(options){
                         .setEmail(options.email)
                         .setPassword(options.password)
                         .setProductEmailParams(Utility.createSimpleObject(options.params))
-                        .setOnFlowCompleteCallback(function(err){ callback(err, identityType, options); })
+                        .setOnFlowCompleteCallback(function(err){
+                            callback(err, identityType, options);
+                        })
                         .getAddEmailIdentityFlow()
                         .startAddIdentityFlow();
                     }
@@ -95,7 +100,9 @@ module.exports = function(options){
                 if(options.smsTemplate){
                     Global.newtonInstance.getIdentityManager()
                     .getIdentityBuilder()
-                    .setOnFlowCompleteCallback(function(err){ callback(err, identityType, options); })
+                    .setOnFlowCompleteCallback(function(err){
+                        callback(err, identityType, options);
+                    })
                     .setSMSTemplate(options.smsTemplate)
                     .getAddGenericIdentityFlow()
                     .startAddIdentityFlow();

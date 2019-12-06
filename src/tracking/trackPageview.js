@@ -1,4 +1,3 @@
-/* global Newton */
 var trackEvent = require('./trackEvent');
 
 /**

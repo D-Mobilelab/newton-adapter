@@ -1,4 +1,3 @@
-/* global Newton */
 var Bluebus = require('bluebus');
 var Global = require('../global');
 
@@ -19,7 +18,7 @@ var Global = require('../global');
 *            // MANAGE ERROR
 *        } else {
 *            console.log('Logout with success');
-*        }   
+*        }
 *   })
 * </pre>
 */

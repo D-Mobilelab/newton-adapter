@@ -1,4 +1,3 @@
-/* global Newton */
 var Global = require('../global');
 
 /**
@@ -11,7 +10,8 @@ var Global = require('../global');
 *
 * @param {function} callback method called when user state changes
 *
-* @return {boolean} return true if init has been called before, false if init has not been called before or callback is undefined
+* @return {boolean} return true if init has been called before,
+ * false if init has not been called before or callback is undefined
 *
 * @example
 * <pre>
@@ -20,7 +20,7 @@ var Global = require('../global');
 */
 module.exports = function(objCallbacks){
     if(Global.newtonInstance && objCallbacks) {
-        Global.newtonInstance.setUserStateChangeListener(objCallbacks);        
+        Global.newtonInstance.setUserStateChangeListener(objCallbacks);
         return true;
     } else {
         return false;
